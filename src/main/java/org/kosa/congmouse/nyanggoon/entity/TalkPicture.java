@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 
 // 담소 사진 entity
 @Entity
-@Table(name = "talk_picture")
+@Table(name = "talk_pictures")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class TalkPictures {
+public class TalkPicture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -46,6 +46,6 @@ public class TalkPictures {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "talk_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_picture_talk"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Talks talks;
+    private Talk talk;
 
 }
