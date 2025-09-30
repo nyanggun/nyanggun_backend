@@ -5,22 +5,21 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
 /**
- * 탐방기 댓글을 신고하는 테이블 입니다.
+ * 탐방기를 신고하는 테이블 입니다.
  */
 @Entity
-@Table(name="exploration_comment_reports")
+//유니크 제약 조건을 걸어줍니다.
+@Table(name="exploration_reports")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @ToString
-
-public class ExplorationCommentReport {
+public class ExplorationReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,23 +31,21 @@ public class ExplorationCommentReport {
     private LocalDateTime createdAt;
 
     @Lob
-    @Column(name="reason", nullable = false)
+    @Column(name="reason", nullable = false, columnDefinition = "TEXT")
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "state", nullable = false, length = 10)
-    @Builder.Default
-    private ReportState state = ReportState.처리전;
+    @Column(name="state", nullable = false, length = 10)
+    private ReportState reportState = ReportState.처리전;
 
-    //댓글 하나는 신고 여러개를 받을 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="comment_id", nullable=false, foreignKey = @ForeignKey(name="fk_comment_id"))
+    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
-    private ExplorationComment explorationComment;
+    private Exploration exploration;
 
-    //회원 하나는 신고 여러개를 보낼 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_member_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
+
 }

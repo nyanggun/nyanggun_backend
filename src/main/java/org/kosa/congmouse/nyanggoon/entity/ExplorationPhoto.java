@@ -3,6 +3,8 @@ package org.kosa.congmouse.nyanggoon.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +27,7 @@ public class ExplorationPhoto {
     //탐방기는 1개, 사진은 여러개 가능
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_id"))
+    @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Exploration exploration;
 
     @Column(name="original_name", nullable = false)
