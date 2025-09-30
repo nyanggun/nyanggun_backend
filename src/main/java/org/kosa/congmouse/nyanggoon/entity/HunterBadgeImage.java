@@ -1,9 +1,7 @@
 package org.kosa.congmouse.nyanggoon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -11,9 +9,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name="hunter_badge_images")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@ToString
 @Slf4j
 public class HunterBadgeImage {
     // id, 값 자동증가, primary key

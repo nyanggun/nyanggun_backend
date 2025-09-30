@@ -1,10 +1,7 @@
 package org.kosa.congmouse.nyanggoon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
@@ -14,10 +11,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name="hunter_events")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
+@ToString
 @Slf4j
 public class HunterEvent {
 

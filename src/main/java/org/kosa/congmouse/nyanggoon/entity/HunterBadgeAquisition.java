@@ -1,10 +1,9 @@
 package org.kosa.congmouse.nyanggoon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,9 +11,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name="badge_aquisitions")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@ToString
 @Slf4j
 public class HunterBadgeAquisition {
     // id, primary key, 값 자동 증가
@@ -25,6 +26,7 @@ public class HunterBadgeAquisition {
 
     // 획득날짜, acquisition_date, NOT NULL
     @Column(name="acquisition_date", nullable = false)
+    @CreationTimestamp
     private LocalDateTime acquisitionDate;
 
     // 뱃지 획득한 member, 외래키, 1대1관계, NOT NULL

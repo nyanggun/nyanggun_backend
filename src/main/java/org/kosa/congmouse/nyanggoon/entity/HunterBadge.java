@@ -1,9 +1,7 @@
 package org.kosa.congmouse.nyanggoon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -11,10 +9,12 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name="hunter_badge")
-@RequiredArgsConstructor
+@Table(name="hunter_badges")
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@ToString
 @Slf4j
 public class HunterBadge {
     // id, primary key, 값 자동 증가
