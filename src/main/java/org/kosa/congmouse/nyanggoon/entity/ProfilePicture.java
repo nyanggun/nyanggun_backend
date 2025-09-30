@@ -27,7 +27,7 @@ public class ProfilePicture {
     private String originalName;
     @Column(name = "saved_name", nullable = false, length = 255)
     private String savedName;
-    @Column(name = "path", nullable = false, length = 255)
+    @Column(name = "path", nullable = false, length = 500)
     private String path;
     @Column(name = "size", nullable = false)
     private Long size;

@@ -39,6 +39,8 @@ public class Member {
     private MemberRole role = MemberRole.ROLE_USER;
     // state 컬럼은 enum 타입으로 처리 : ACTIVE, DISABLE
     @Column(name = "state", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
     private MemberState memberstate = MemberState.ACTIVE;
     // 프로필 사진 entity와 1:1 관계, null 가능
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
