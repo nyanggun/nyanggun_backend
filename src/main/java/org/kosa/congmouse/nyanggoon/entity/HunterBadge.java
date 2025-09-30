@@ -28,11 +28,11 @@ public class HunterBadge {
     private String name;
 
     // 위도, not null
-    @Column(name="latitude", nullable = false)
+    @Column(name="latitude", precision = 9, scale = 6, nullable = false)
     private BigDecimal latitude;
 
     // 경도, not null
-    @Column(name="longitude", nullable = false)
+    @Column(name="longitude", precision = 9, scale = 6, nullable = false)
     private BigDecimal longitude;
 
     // 헌터뱃지이미지, 일대일관계, 외래키, not null, on delete cascade
