@@ -23,7 +23,7 @@ public class TalkCommentReport {
     private Long id;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", updatable = false)
     // columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP" 을 작성하면 MySQL에서 기본값을 현재시간으로 설정하기에 따로 작성해야한다.
     private LocalDateTime createdAt;
 
@@ -34,6 +34,7 @@ public class TalkCommentReport {
     @Enumerated(EnumType.STRING) // DB에는 문자열로 저장하도록 지정
     @Column(name = "state", nullable = false, length = 10)
     // DDL의 DEFAULT '처리 전'을 반영
+    @Builder.Default
     private ReportState state = ReportState.처리전;
 
     @ManyToOne(fetch = FetchType.LAZY)
