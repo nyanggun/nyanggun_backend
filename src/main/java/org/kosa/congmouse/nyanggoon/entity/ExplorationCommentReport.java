@@ -38,7 +38,7 @@ public class ExplorationCommentReport {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, length = 10)
     @Builder.Default
-    private ReportState state = ReportState.처리전;
+    private ReportState reportState = ReportState.처리전;
 
     //댓글 하나는 신고 여러개를 받을 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)

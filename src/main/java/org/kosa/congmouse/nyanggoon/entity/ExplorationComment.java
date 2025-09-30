@@ -42,7 +42,7 @@ public class ExplorationComment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exploration_id", nullable = false, foreignKey = @ForeignKey(name = "fk_explorations_id"))
     @OnDelete(action = OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
-    private Exploration explorations;
+    private Exploration exploration;
 
     //자기자신을 참조하므로
     @ManyToOne(fetch = FetchType.LAZY)
