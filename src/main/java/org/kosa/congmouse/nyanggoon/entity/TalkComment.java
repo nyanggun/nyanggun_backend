@@ -8,22 +8,23 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-// 담소 북마크 entity
+// 담소 댓글 entity
 @Entity
-@Table(name = "talk_bookmark", uniqueConstraints = {
-        @UniqueConstraint(name = "uq_member_talk", columnNames = {"member_id", "talk_id"})
-})
-// unique 복합 유니크 제약 조건이 있어서 추가를 위에 해야한다.
+@Table(name = "talk_comments")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class TalkBookmarks {
+public class TalkComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Lob
+    @Column(name = "content", nullable = false,columnDefinition = "TEXT")
+    private String content;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
@@ -31,12 +32,16 @@ public class TalkBookmarks {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_bookmark_member"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_member_id"))
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "talk_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_bookmark_talk"))
+    @JoinColumn(name = "talk_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_talk_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Talks talks;
+    private Talk talk;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_parent_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private TalkComment parentComment;
 }

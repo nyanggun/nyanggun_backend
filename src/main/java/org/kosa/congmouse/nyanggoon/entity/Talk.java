@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 
 // 담소 entity
 @Entity
-@Table(name = "talk")
+@Table(name = "talks")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
 
-public class Talks {
+public class Talk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
