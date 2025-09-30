@@ -3,6 +3,8 @@ package org.kosa.congmouse.nyanggoon.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +36,7 @@ public class EncyclopediaBookmark {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_bookmark_member")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
     // 도감 entity를 foreignKey 처리
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -42,5 +45,6 @@ public class EncyclopediaBookmark {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_bookmark_encyclopedia")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private HeritageEncyclopedia heritageEncyclopedia;
 }
