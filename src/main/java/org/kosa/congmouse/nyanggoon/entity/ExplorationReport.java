@@ -40,12 +40,12 @@ public class ExplorationReport {
     private ReportState reportState = ReportState.처리전;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_id"))
+    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_reports_exploration_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Exploration exploration;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_member_id"))
+    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_reports_member_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
 

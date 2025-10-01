@@ -45,7 +45,7 @@ public class Exploration {
     //회원은 1명, 탐방기는 여러 개 작성 가능
     //따라서 Fetch join으로 회원 정보를 가져옵니다.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_member_id"))
+    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_explorations_member_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
 
