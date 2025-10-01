@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 @ToString
 public class EncyclopediaBookmark {
     @Id
+    @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @CreationTimestamp

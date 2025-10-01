@@ -35,12 +35,12 @@ public class ExplorationBookmark {
 
     //탐방기 하나는 여러 북마크를 받을 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_id"))
+    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_bookmarks_exploration_id"))
     private Exploration exploration;
 
     //회원 하나는 북마크를 여러개 선택 할 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_member_id"))
+    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_bookmarks_member_id"))
     private Member member;
 
 }

@@ -34,19 +34,19 @@ public class ExplorationComment {
 
     //회원1명은 여러 댓글을 달 수 있음
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_member_id"))
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_exploration_comments_member_id"))
     @OnDelete(action = OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
 
     //탐방기 게시글 1개에는 여러 댓글을 달 수 있음
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exploration_id", nullable = false, foreignKey = @ForeignKey(name = "fk_explorations_id"))
+    @JoinColumn(name = "exploration_id", nullable = false, foreignKey = @ForeignKey(name = "fk_exploration_comments_exploration_id"))
     @OnDelete(action = OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Exploration exploration;
 
     //자기자신을 참조하므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
+    @JoinColumn(name = "parent_comment_id", foreignKey = @ForeignKey(name = "fk_exploration_comments_parent_comment"))
     @OnDelete(action = OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private ExplorationComment parentComment;
 
