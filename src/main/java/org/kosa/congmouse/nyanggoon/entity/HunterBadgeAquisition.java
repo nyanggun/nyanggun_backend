@@ -30,7 +30,7 @@ public class HunterBadgeAquisition {
     private LocalDateTime acquisitionDate;
 
     // 뱃지 획득한 member, 외래키, 1대1관계, NOT NULL
-    @JoinColumn(name="member_id", foreignKey = @ForeignKey(name="fk_member_id"), nullable = false)
+    @JoinColumn(name="member_id", foreignKey = @ForeignKey(name="fk_badge_aquisitions_member_id"), nullable = false)
     @OneToOne(fetch=FetchType.LAZY)
     private Member member;
 
