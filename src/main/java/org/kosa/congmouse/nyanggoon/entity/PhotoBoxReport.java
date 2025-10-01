@@ -36,7 +36,9 @@ public class PhotoBoxReport {
     private String reason;
 
     @Column(name="state", length=10, nullable = false)
-    private String state;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private ReportState reportState = ReportState.처리전;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
