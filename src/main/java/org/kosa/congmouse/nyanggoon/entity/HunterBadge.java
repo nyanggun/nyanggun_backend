@@ -40,4 +40,16 @@ public class HunterBadge {
     @JoinColumn(name="badge_image_id", foreignKey = @ForeignKey(name = "fk_badge_image_id"),nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private HunterBadgeImage badge_image_id;
+
+    // 이벤트, 다대일관계, 외래키, not null, on delete cascade
+    @ManyToOne
+    @JoinColumn(name="hunter_event_id", foreignKey = @ForeignKey(name="fk_hunter_events_id"), nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private HunterEvent hunterEvent;
+
+    // 문화재 도감, 다대일관계, 외래키, not null, on delete cascade
+    @JoinColumn(name="encyclopedia_id", foreignKey = @ForeignKey(name="fk_hunter_encyclopedia_id"), nullable = false)
+    @ManyToOne
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    private HeritageEncyclopedia heritageEncyclopedia;
 }
