@@ -14,13 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-@Table(name = "photo_box_bookmark",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {"member_id", "photo_box_id"}
-                )
-        }
-)
+@Table(name = "photo_box_reports")
 public class PhotoBoxReport {
     @Column(name="id")
     @Id
@@ -28,12 +22,21 @@ public class PhotoBoxReport {
     private Long id;
 
     @JoinColumn(name="photo_box_id", foreignKey = @ForeignKey(name = "fk_photo_bookmark_member"),nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Long photoBoxId;
+    private PhotoBox photoBox;
 
     @JoinColumn(name="member_id", foreignKey=@ForeignKey(name = "fk_photo_bookmark_member"), nullable = false)
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Long memberId;
+    private Member memberId;
+
+    @Column(name="reason", nullable = false)
+    @Lob
+    private String reason;
+
+    @Column(name="state", length=10, nullable = false)
+    private String state;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
