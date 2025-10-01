@@ -21,8 +21,8 @@ public class PhotoBoxPicture {
     @Column(name="id")
     private Long id;
 
-    //탐방기는 1개, 사진은 여러개 가능
-    @ManyToOne(fetch = FetchType.LAZY)
+    //게시글 1개당 사진 1개만 가능하다
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="photo_box_id", nullable=false, foreignKey = @ForeignKey(name="fk_photo_box_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private PhotoBox photoBox;
