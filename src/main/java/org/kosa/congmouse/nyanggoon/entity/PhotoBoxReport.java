@@ -21,12 +21,12 @@ public class PhotoBoxReport {
     @GeneratedValue
     private Long id;
 
-    @JoinColumn(name="photo_box_id", foreignKey = @ForeignKey(name = "fk_photo_bookmark_member"),nullable = false)
+    @JoinColumn(name="photo_box_id", foreignKey = @ForeignKey(name = "fk_photo_report_box"),nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PhotoBox photoBox;
 
-    @JoinColumn(name="member_id", foreignKey=@ForeignKey(name = "fk_photo_bookmark_member"), nullable = false)
+    @JoinColumn(name="member_id", foreignKey=@ForeignKey(name = "fk_photo_report_reporter"), nullable = false)
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member memberId;
