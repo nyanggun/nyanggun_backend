@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="badge_aquisitions")
+@Table(name="hunter_badge_acquisitions")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
