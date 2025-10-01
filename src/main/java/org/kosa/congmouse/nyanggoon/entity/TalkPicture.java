@@ -33,7 +33,7 @@ public class TalkPicture {
 
     // @Column(columnDefinition = "BIGINT UNSIGNED") unsigned는 SQL 전용이라 다른 DB와 오류가
     // 발생하여 에러가 생길수 있으니 DDL 생성할 때 작성
-    @Column(name = "size", nullable = false)
+    @Column(name = "size", nullable = false, columnDefinition = "BIGINT UNSIGNED")
     private Long size;
 
     @Column(name = "file_extension", nullable = false, length = 10)

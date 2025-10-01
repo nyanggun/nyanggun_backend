@@ -27,7 +27,7 @@ public class Talk {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_member_id"))
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_member_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 

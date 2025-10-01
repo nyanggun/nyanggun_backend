@@ -33,6 +33,7 @@ public class TalkComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_member_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,7 +42,7 @@ public class TalkComment {
     private Talk talk;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_parent_id"))
+    @JoinColumn(name = "parent_comment_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_parent"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private TalkComment parentComment;
 }

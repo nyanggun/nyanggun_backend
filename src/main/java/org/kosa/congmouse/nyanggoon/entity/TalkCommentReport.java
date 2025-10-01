@@ -38,12 +38,12 @@ public class TalkCommentReport {
     private ReportState reportState = ReportState.처리전;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_member_id"))
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_reports_member_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id", nullable = false, foreignKey = @ForeignKey(name = "fk_comment_id"))
+    @JoinColumn(name = "comment_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_reports_comment_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private TalkComment talkComment;
 }
