@@ -31,7 +31,7 @@ public class PhotoBoxBookmark {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_photo_box_bookmark_member"))
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_photo_bookmark_member"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
