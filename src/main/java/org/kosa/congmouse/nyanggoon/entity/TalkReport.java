@@ -34,7 +34,7 @@ public class TalkReport {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, length = 10)
     @Builder.Default
-    private ReportState state = ReportState.처리전; // DEFAULT 값 설정
+    private ReportState reportState = ReportState.처리전; // DEFAULT 값 설정
 
 
     @ManyToOne(fetch = FetchType.LAZY)

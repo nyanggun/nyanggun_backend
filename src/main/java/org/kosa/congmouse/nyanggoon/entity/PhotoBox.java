@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 // 사진함 entity
 @Entity
-@Table(name = "photo_box")
+@Table(name = "photo_boxes")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

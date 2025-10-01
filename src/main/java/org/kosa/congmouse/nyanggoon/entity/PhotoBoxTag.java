@@ -7,7 +7,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 // 사진함 태그 교차 테이블 entity
 @Entity
-@Table(name = "photo_box_tag", uniqueConstraints = {
+@Table(name = "photo_box_tags", uniqueConstraints = {
         @UniqueConstraint(name = "uq_photo_box_tag", columnNames = {"photo_box_id", "tag_id"})
 })
 @Getter

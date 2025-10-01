@@ -35,7 +35,7 @@ public class TalkCommentReport {
     @Column(name = "state", nullable = false, length = 10)
     // DDL의 DEFAULT '처리 전'을 반영
     @Builder.Default
-    private ReportState state = ReportState.처리전;
+    private ReportState reportState = ReportState.처리전;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_member_id"))
