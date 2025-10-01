@@ -38,7 +38,7 @@ public class HunterEvent {
     @Column(name="created_at", nullable = false)
     private LocalDateTime createdAt;
     // 내용
-    @Column(name="content")
+    @Column(name="content", columnDefinition = "TEXT")
     private String content;
     // 작성자, 외래키, not null, on delete cascade
     @ManyToOne(fetch = FetchType.LAZY)
