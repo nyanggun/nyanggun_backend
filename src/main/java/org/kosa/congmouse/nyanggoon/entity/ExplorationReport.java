@@ -36,6 +36,7 @@ public class ExplorationReport {
 
     @Enumerated(EnumType.STRING)
     @Column(name="state", nullable = false, length = 10)
+    @Builder.Default
     private ReportState reportState = ReportState.처리전;
 
     @ManyToOne(fetch = FetchType.LAZY)

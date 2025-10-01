@@ -8,17 +8,14 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-/**
- * 문화재 탐방기 사진 테이블 입니다.
- */
 @Entity
-@Table(name="exploration_photos")
+@Table(name="photo_box_pictures")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @ToString
-public class ExplorationPhoto {
+public class PhotoBoxPicture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
@@ -26,9 +23,9 @@ public class ExplorationPhoto {
 
     //탐방기는 1개, 사진은 여러개 가능
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="exploration_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_id"))
+    @JoinColumn(name="photo_box_id", nullable=false, foreignKey = @ForeignKey(name="fk_photo_box_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
-    private Exploration exploration;
+    private PhotoBox photoBox;
 
     @Column(name="original_name", nullable = false)
     private String originalName;
@@ -48,7 +45,5 @@ public class ExplorationPhoto {
     @CreationTimestamp
     @Column(name="created_at", updatable = false)
     private LocalDateTime createdAt;
-
-
 
 }
