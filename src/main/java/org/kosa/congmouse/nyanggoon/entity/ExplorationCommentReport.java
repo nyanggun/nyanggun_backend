@@ -42,13 +42,13 @@ public class ExplorationCommentReport {
 
     //댓글 하나는 신고 여러개를 받을 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="comment_id", nullable=false, foreignKey = @ForeignKey(name="fk_comment_id"))
+    @JoinColumn(name="comment_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_comment_reports_member_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private ExplorationComment explorationComment;
 
     //회원 하나는 신고 여러개를 보낼 수 있으므로
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_member_id"))
+    @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_exploration_comment_reports_comment_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
 }
