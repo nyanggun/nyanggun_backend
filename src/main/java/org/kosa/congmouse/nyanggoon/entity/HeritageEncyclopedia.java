@@ -31,8 +31,8 @@ public class HeritageEncyclopedia {
     @Column(name = "chinese_name", nullable = false, length = 50)
     private String chineseName;
     // 시도코드 : ccbaCtcd(11:서울, 21:부산... -> 숫자만)
-    @Column(name = "city_name", nullable = false)
-    private int cityName;
+    @Column(name = "city_code", nullable = false)
+    private int cityCode;
     // 경도 : longitude(126.975312652739)
     @Column(name = "longitude", precision = 9, scale = 6, nullable = false)
     private BigDecimal longitude;

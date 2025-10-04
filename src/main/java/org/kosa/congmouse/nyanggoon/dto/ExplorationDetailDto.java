@@ -21,7 +21,7 @@ public class ExplorationDetailDto {
     private LocalDateTime createdAt;
     private String content;
     private String relatedHeritage;
-    private Member member;
+    private Long memberId;
 
     public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
@@ -29,7 +29,7 @@ public class ExplorationDetailDto {
                 .createdAt(exploration.getCreatedAt())
                 .content(exploration.getContent())
                 .relatedHeritage(exploration.getRelatedHeritage())
-                .member(exploration.getMember())
+                .memberId(exploration.getMember().getId())
                 .build();
         return explorationDetailDto;
     }

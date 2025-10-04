@@ -8,7 +8,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-// 담소 entity
 @Entity
 @Table(name = "talks")
 @Getter
@@ -36,7 +35,7 @@ public class Talk {
     // columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP" 을 작성하면 MySQL에서 기본값을 현재시간으로 설정하기에 따로 작성해야한다.
     private LocalDateTime createdAt;
 
-    @Lob
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 }
+// 담소 entity

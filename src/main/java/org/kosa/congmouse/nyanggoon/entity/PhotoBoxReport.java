@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class PhotoBoxReport {
     @Column(name="id")
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JoinColumn(name="photo_box_id", foreignKey = @ForeignKey(name = "fk_photo_report_box"),nullable = false)
@@ -31,8 +31,7 @@ public class PhotoBoxReport {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member memberId;
 
-    @Column(name="reason", nullable = false)
-    @Lob
+    @Column(name="reason", columnDefinition = "TEXT", nullable = false)
     private String reason;
 
     @Column(name="state", length=10, nullable = false)

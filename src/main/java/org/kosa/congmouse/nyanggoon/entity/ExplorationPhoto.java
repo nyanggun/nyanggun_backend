@@ -33,8 +33,8 @@ public class ExplorationPhoto {
     @Column(name="original_name", nullable = false)
     private String originalName;
 
-    @Column(name="saved_name", nullable = false)
-    private String savedName;
+    @Column(name="save_name", nullable = false)
+    private String saveName;
 
     @Column(name="path", nullable = false, length = 500)
     private String path;
@@ -48,7 +48,5 @@ public class ExplorationPhoto {
     @CreationTimestamp
     @Column(name="created_at", updatable = false)
     private LocalDateTime createdAt;
-
-
 
 }
