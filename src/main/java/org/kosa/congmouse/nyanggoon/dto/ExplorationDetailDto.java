@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 public class ExplorationDetailDto {
     private Long id;
     private LocalDateTime createdAt;
+    private String title;
     private String content;
     private String relatedHeritage;
     private Long memberId;
@@ -27,6 +28,7 @@ public class ExplorationDetailDto {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
                 .id(exploration.getId())
                 .createdAt(exploration.getCreatedAt())
+                .title(exploration.getTitle())
                 .content(exploration.getContent())
                 .relatedHeritage(exploration.getRelatedHeritage())
                 .memberId(exploration.getMember().getId())
