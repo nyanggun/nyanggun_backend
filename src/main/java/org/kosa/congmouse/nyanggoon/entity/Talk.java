@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-
+//담소 엔티티 입니다.
 public class Talk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,5 +37,10 @@ public class Talk {
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
+    
+    //연관 관계 메소드(단방향)
+    public void assignAuthor(Member member){ this.member = member; }
+
+
 }
-// 담소 entity
+
