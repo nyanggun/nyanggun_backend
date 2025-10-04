@@ -48,6 +48,4 @@ public class Exploration {
     @JoinColumn(name="member_id", nullable=false, foreignKey = @ForeignKey(name="fk_explorations_member_id"))
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Member member;
-
-
 }
