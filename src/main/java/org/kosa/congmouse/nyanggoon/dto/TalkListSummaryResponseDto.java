@@ -17,7 +17,8 @@ public class TalkListSummaryResponseDto {
     private Long talkId;
     private String title;
     private String content;
-    private String authorName;
+    private Long memberId;
+    private String nickname;
     private LocalDateTime createdAt;
 
     public static TalkListSummaryResponseDto from(Talk talk){
@@ -25,7 +26,8 @@ public class TalkListSummaryResponseDto {
                 .talkId(talk.getId())
                 .title(talk.getTitle())
                 .content(talk.getContent())
-                .authorName(talk.getMember().getNickname())
+                .memberId(talk.getMember().getId())
+                .nickname(talk.getMember().getNickname())
                 .createdAt(talk.getCreatedAt())
                 .build();
     }
