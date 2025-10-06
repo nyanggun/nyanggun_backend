@@ -19,5 +19,5 @@ public class ExplorationCreateDto {
     private String title;
     private String content;
     private String relatedHeritage;
-    private Long MemberId;
+    private Long memberId;
 }

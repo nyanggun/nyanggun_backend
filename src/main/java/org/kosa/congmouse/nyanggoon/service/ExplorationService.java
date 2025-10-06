@@ -3,6 +3,7 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
+import org.kosa.congmouse.nyanggoon.dto.ExplorationUpdateDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationRepository;
@@ -19,7 +20,7 @@ public class ExplorationService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ExplorationDetailDto createExploration(ExplorationCreateDto explorationCreateDto){
+    public Exploration createExploration(ExplorationCreateDto explorationCreateDto){
         Exploration exploration = Exploration
                 .builder()
                 .title(explorationCreateDto.getTitle())
@@ -30,6 +31,26 @@ public class ExplorationService {
                         .orElseThrow(()->new RuntimeException("회원이 존재하지 않습니다!")))
                 .build();
         explorationRepository.save(exploration);
-        return ExplorationDetailDto.from(exploration);
+        return exploration;
+    }
+
+    public Exploration viewExploration(Long id) {
+        Exploration exploration = explorationRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException(("게시글이 존재하지 않습니다!")));
+        return exploration;
+    }
+
+    @Transactional
+    public void deleteExploration(Long id){
+        explorationRepository.deleteById(id);
+    }
+
+    @Transactional
+    public Exploration updateExploration(ExplorationUpdateDto explorationUpdateDto){
+        Exploration exploration = explorationRepository.findById(explorationUpdateDto.getId()).orElseThrow(() -> {
+            throw new RuntimeException("게시글이 존재하지 않습니다");
+        });
+        exploration.update(explorationUpdateDto);
+        return exploration;
     }
 }
