@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TalkCommentCreateRequestDto {
+    private Long commentId;
     private Long talkId;
     private Long memberId;
     private String content;

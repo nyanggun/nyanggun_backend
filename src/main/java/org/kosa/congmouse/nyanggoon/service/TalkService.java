@@ -93,7 +93,7 @@ public class TalkService {
 
     //댓글을 작성하는 메소드 입니다.
     @Transactional
-    public void createTalkComment(TalkCommentCreateRequestDto talkCommentCreateRequestDto) {
+    public TalkComment createTalkComment(TalkCommentCreateRequestDto talkCommentCreateRequestDto) {
         log.info("담소 댓글 작성 시작");
 
         //해당 회원이 있는 지 확인한다.
@@ -124,6 +124,8 @@ public class TalkService {
         //담소 게시글을 저장한다.
         TalkComment savedTalkComment = talkCommentRepository.save(talkComment);
         log.info("담소 게시글 작성 완료: id={}, title={}", savedTalkComment.getId(), savedTalkComment.getContent());
+
+        return savedTalkComment;
     }
 
 

@@ -3,6 +3,7 @@ package org.kosa.congmouse.nyanggoon.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
+import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 import org.kosa.congmouse.nyanggoon.service.TalkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,9 +93,20 @@ public class TalkController {
      */
         @PostMapping("/{talkId}/comments")
         public ResponseEntity<?> createTalkComment(@RequestBody TalkCommentCreateRequestDto talkCommentCreateRequestDto){
-            talkService.createTalkComment(talkCommentCreateRequestDto);
+           TalkComment savedComment =  talkService.createTalkComment(talkCommentCreateRequestDto);
+            // 응답 DTO 생성
+            TalkCommentResponseDto talkCommentResponseDto = TalkCommentResponseDto.builder()
+                    .talkCommentId(savedComment.getId())
+                    .content(savedComment.getContent())
+                    .createdAt(savedComment.getCreatedAt())
+                    .memberId(savedComment.getMember().getId())
+                    .nickname(savedComment.getMember().getNickname())
+                    .talkId(savedComment.getTalk().getId())
+                    .talkParentCommentId(savedComment.getParentComment() != null ? savedComment.getParentComment().getId() : null)
+                    .build();
+
             // ApiResponseDto 의 표준화된 형식으로 응답한다
-            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCommentCreateRequestDto, "댓글이 작성되었습니다."));
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCommentResponseDto, "댓글이 작성되었습니다."));
         }
 
     /**
