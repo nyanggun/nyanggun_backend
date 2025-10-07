@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ExplorationDetailDto {
     private Long id;
     private LocalDateTime createdAt;
@@ -23,6 +24,8 @@ public class ExplorationDetailDto {
     private String content;
     private String relatedHeritage;
     private Long memberId;
+    private Long bookmarkCount;
+    private Long commentCount;
 
     public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()

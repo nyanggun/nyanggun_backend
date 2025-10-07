@@ -11,11 +11,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/exploration")
 @RequiredArgsConstructor
 public class ExplorationController {
     private final ExplorationService explorationService;
+
+    @GetMapping("")
+    public ResponseEntity getExplorationList(){
+        List<ExplorationDetailDto> explorationList = explorationService.getExplorationList();
+        return ResponseEntity.status(HttpStatus.OK).body(explorationList);
+    }
 
     @PostMapping("")
     public ResponseEntity postExploration(@RequestBody ExplorationCreateDto explorationCreateDto){

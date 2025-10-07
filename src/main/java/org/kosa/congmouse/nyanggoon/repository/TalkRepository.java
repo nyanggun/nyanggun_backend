@@ -10,6 +10,7 @@
     import org.springframework.stereotype.Repository;
 
     import java.util.List;
+    import java.util.Optional;
 
     @Repository
     public interface TalkRepository extends JpaRepository<Talk, Long> {
@@ -21,12 +22,6 @@
         @Query("SELECT t FROM Talk t JOIN FETCH t.member WHERE t.id = :id")
         TalkDetailResponseDto findTalkDetail(@Param("id") Long id);
 
-        @Query("SELECT c FROM TalkComment c " +
-                "JOIN FETCH c.member m " +
-                "JOIN FETCH c.talk t " +
-                "LEFT JOIN FETCH c.parentComment p " +
-                "WHERE t.id = :talkId")
-        List<TalkComment> findTalkComment(@Param("talkId") Long talkId);
 
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원

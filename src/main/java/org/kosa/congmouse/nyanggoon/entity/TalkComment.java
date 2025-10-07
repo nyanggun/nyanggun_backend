@@ -42,7 +42,11 @@ public class TalkComment {
     private Talk talk;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id", nullable = false, foreignKey = @ForeignKey(name = "fk_talk_comment_parent"))
+    @JoinColumn(name = "parent_comment_id", nullable = true, foreignKey = @ForeignKey(name = "fk_talk_comment_parent"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private TalkComment parentComment;
+
+    public void update(String content) {
+        this.content = content;
+    }
 }
