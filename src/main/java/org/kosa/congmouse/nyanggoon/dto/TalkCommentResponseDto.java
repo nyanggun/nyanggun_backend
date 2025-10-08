@@ -21,7 +21,7 @@ public class TalkCommentResponseDto {
     private Long memberId;
     private String nickname;
     private Long talkId;
-    private Long talkparentCommentId;
+    private Long talkParentCommentId;
 
     public static TalkCommentResponseDto from(TalkComment talkComment){
         return TalkCommentResponseDto.builder()
@@ -32,7 +32,7 @@ public class TalkCommentResponseDto {
                 .nickname(talkComment.getMember().getNickname())
                 .talkId(talkComment.getTalk().getId())
                 //null 여부 체크
-                .talkparentCommentId(talkComment.getParentComment() != null ? talkComment.getParentComment().getId() : null)
+                .talkParentCommentId(talkComment.getParentComment() != null ? talkComment.getParentComment().getId() : null)
                 .build();
 
     }
