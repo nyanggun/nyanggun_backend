@@ -33,8 +33,8 @@ public class ExplorationController {
 
     @GetMapping("/{id}")
     public ResponseEntity getExploration(@PathVariable Long id){
-        Exploration exploration = explorationService.viewExploration(id);
-        return ResponseEntity.status(HttpStatus.OK).body(ExplorationDetailDto.from(exploration));
+        ExplorationDetailDto explorationDetailDto = explorationService.viewExploration(id);
+        return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
     @PatchMapping("/{id}")
@@ -48,4 +48,5 @@ public class ExplorationController {
         explorationService.deleteExploration(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+    
 }

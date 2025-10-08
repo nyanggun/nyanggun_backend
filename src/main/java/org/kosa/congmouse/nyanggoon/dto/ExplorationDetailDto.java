@@ -24,6 +24,7 @@ public class ExplorationDetailDto {
     private String content;
     private String relatedHeritage;
     private Long memberId;
+    private String memberNickname;
     private Long bookmarkCount;
     private Long commentCount;
 
@@ -35,7 +36,9 @@ public class ExplorationDetailDto {
                 .content(exploration.getContent())
                 .relatedHeritage(exploration.getRelatedHeritage())
                 .memberId(exploration.getMember().getId())
+                .memberNickname(exploration.getMember().getNickname())
                 .build();
         return explorationDetailDto;
     }
+
 }
