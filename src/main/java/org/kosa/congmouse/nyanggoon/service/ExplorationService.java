@@ -43,13 +43,13 @@ public class ExplorationService {
         return exploration;
     }
 
-    public Exploration viewExploration(Long id) {
+    public ExplorationDetailDto viewExploration(Long id) {
         Exploration exploration = explorationRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException(("게시글이 존재하지 않습니다!")));
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.from(exploration);
         explorationDetailDto.setBookmarkCount(explorationBookmarkRepository.countByExplorationId(id));
         explorationDetailDto.setCommentCount(explorationCommentRepository.countByExplorationId(id));
-        return exploration;
+        return explorationDetailDto;
     }
 
     @Transactional
