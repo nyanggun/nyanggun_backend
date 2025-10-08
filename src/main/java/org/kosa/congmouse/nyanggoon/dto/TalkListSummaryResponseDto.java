@@ -20,16 +20,18 @@ public class TalkListSummaryResponseDto {
     private Long memberId;
     private String nickname;
     private LocalDateTime createdAt;
+    private Long commentCount; // 댓글 개수 추가
+    private Long bookmarkCount; //북마크 개수 추가
 
-    public static TalkListSummaryResponseDto from(Talk talk){
-        return TalkListSummaryResponseDto.builder()
-                .talkId(talk.getId())
-                .title(talk.getTitle())
-                .content(talk.getContent())
-                .memberId(talk.getMember().getId())
-                .nickname(talk.getMember().getNickname())
-                .createdAt(talk.getCreatedAt())
-                .build();
-    }
+//    public static TalkListSummaryResponseDto from(Talk talk){
+//        return TalkListSummaryResponseDto.builder()
+//                .talkId(talk.getId())
+//                .title(talk.getTitle())
+//                .content(talk.getContent())
+//                .memberId(talk.getMember().getId())
+//                .nickname(talk.getMember().getNickname())
+//                .createdAt(talk.getCreatedAt())
+//                .build();
+//    }
 
 }

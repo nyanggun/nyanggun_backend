@@ -22,6 +22,25 @@
         @Query("SELECT t FROM Talk t JOIN FETCH t.member WHERE t.id = :id")
         TalkDetailResponseDto findTalkDetail(@Param("id") Long id);
 
+        // 게시글별 댓글 수 조회
+        @Query("SELECT t.id, COUNT(c) " +
+                "FROM Talk t LEFT JOIN TalkComment c ON c.talk.id = t.id " +
+                "GROUP BY t.id")
+        List<Object[]> countCommentsPerTalk();
+
+        // 게시글별 북마크 수 조회
+        @Query("SELECT t.id, COUNT(b) " +
+                "FROM Talk t LEFT JOIN TalkBookmark b ON b.talk.id = t.id " +
+                "GROUP BY t.id")
+        List<Object[]> countBookmarksPerTalk();
+
+        // 댓글 개수
+        @Query("SELECT COUNT(c) FROM TalkComment c WHERE c.talk.id = :talkId")
+        long countCommentsByTalkId(@Param("talkId") Long talkId);
+
+        // 북마크 개수
+        @Query("SELECT COUNT(b) FROM TalkBookmark b WHERE b.talk.id = :talkId")
+        long countBookmarksByTalkId(@Param("talkId") Long talkId);
 
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원

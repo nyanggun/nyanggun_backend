@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,8 +29,37 @@ public class TalkService {
     //모든 담소 게시글을 불러오는 메소드 입니다.
     public List<TalkListSummaryResponseDto> findAllTalkList() {
         log.info("담소 게시물을 전부 출력합니다.");
-        List<Talk> talkList = talkRepository.findAllWithMember();
-        return talkList.stream().map(TalkListSummaryResponseDto::from).collect(Collectors.toUnmodifiableList());
+        List<Talk> talks = talkRepository.findAll(); // 게시글 목록
+        List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(); //댓글 개수
+        List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(); //북마크 개수
+
+        Map<Long, Long> commentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(
+                        arr -> (Long) arr[0],  // talkId
+                        arr -> (Long) arr[1]   // count
+                ));
+
+        Map<Long, Long> bookmarkCountMap = bookmarkCounts.stream()
+                .collect(Collectors.toMap(
+                        arrBook -> (Long) arrBook[0],  // talkId
+                        arrBook -> (Long) arrBook[1]   // count
+                ));
+
+
+        List<TalkListSummaryResponseDto> dtos = talks.stream()
+                .map(t -> TalkListSummaryResponseDto.builder()
+                        .talkId(t.getId())
+                        .title(t.getTitle())
+                        .content(t.getContent())
+                        .memberId(t.getMember().getId())
+                        .nickname(t.getMember().getNickname())
+                        .createdAt(t.getCreatedAt())
+                        .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
+                        .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L)) // 북마크도 동일하게 처리
+                        .build())
+                .collect(Collectors.toList());
+
+        return dtos; // ✅ 여기서 dtos를 반환
     }
 
     //담소 게시글의 상세를 조회하는 메소드 입니다.
@@ -39,6 +69,10 @@ public class TalkService {
         // 게시글 엔티티 가져오기
         Talk talk = talkRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+        //댓글, 북마크 개수 가져오기
+        long commentCount = talkRepository.countCommentsByTalkId(id);
+        long bookmarkCount = talkRepository.countBookmarksByTalkId(id);
+
         //해당 게시글의 댓글들을 가져옵니다.
         List<TalkComment> talkComment = talkCommentRepository.findTalkComment(id);
         // DTO로 변환합니다.
@@ -46,12 +80,12 @@ public class TalkService {
                 .map(TalkCommentResponseDto::from)
                 .toList();
 
-        return TalkDetailResponseDto.from(talk, talkCommentDtos);
+        return TalkDetailResponseDto.from(talk, talkCommentDtos, commentCount, bookmarkCount);
     }
 
     //담소 게시글을 작성하는 메소드 입니다.
     @Transactional
-    public void createTalk(TalkCreateRequestDto talkCreateRequestDto) {
+    public Long createTalk(TalkCreateRequestDto talkCreateRequestDto) {
         log.info("담소 게시글 작성 시작");
 
         //해당 회원이 있는 지 확인한다.
@@ -70,6 +104,8 @@ public class TalkService {
         //담소 게시글을 저장한다.
         Talk savedTalk = talkRepository.save(talk);
         log.info("담소 게시글 작성 완료: id={}, title={}", savedTalk.getId(), savedTalk.getTitle());
+
+        return savedTalk.getId();
 
     }
 
