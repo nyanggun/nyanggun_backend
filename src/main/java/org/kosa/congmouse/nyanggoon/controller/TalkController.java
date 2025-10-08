@@ -52,9 +52,9 @@ public class TalkController {
      */
     @PostMapping("")
     public ResponseEntity<?> createTalk(@RequestBody TalkCreateRequestDto talkCreateRequestDto){
-            talkService.createTalk(talkCreateRequestDto);
+            Long talkId= talkService.createTalk(talkCreateRequestDto);
         // ApiResponseDto 의 표준화된 형식으로 응답한다
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCreateRequestDto, "게시글이 작성되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 작성되었습니다."));
     }
 
     /**
@@ -141,7 +141,25 @@ public class TalkController {
             }
     }
 
+    //담소를 북마크하는 컨트롤러 입니다.
+    @PostMapping("/bookmark")
+    public ResponseEntity<?> createTalkBookmark(@RequestBody TalkCommentCreateRequestDto talkCommentCreateRequestDto){
+        TalkComment savedComment =  talkService.createTalkComment(talkCommentCreateRequestDto);
+        // 응답 DTO 생성
+        TalkCommentResponseDto talkCommentResponseDto = TalkCommentResponseDto.builder()
+                .talkCommentId(savedComment.getId())
+                .content(savedComment.getContent())
+                .createdAt(savedComment.getCreatedAt())
+                .memberId(savedComment.getMember().getId())
+                .nickname(savedComment.getMember().getNickname())
+                .talkId(savedComment.getTalk().getId())
+                .talkParentCommentId(savedComment.getParentComment() != null ? savedComment.getParentComment().getId() : null)
+                .build();
+
+        // ApiResponseDto 의 표준화된 형식으로 응답한다
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCommentResponseDto, "댓글이 작성되었습니다."));
+    }
     //담소를 신고하는 컨트롤러 입니다,
     //담소 댓글을 신고하는 컨트롤러 입니다.
-    //담소를 북마크하는 컨트롤러 입니다.
+
 }
