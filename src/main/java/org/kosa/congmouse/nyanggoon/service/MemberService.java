@@ -37,4 +37,23 @@ public class MemberService {
 
         return MemberResponseDto.from(member);
     }
+
+    public MemberResponseDto findByUsername(String email) {
+        log.debug("회원 조회: email={}", email);
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("회원 조회 실패: username={}", email);
+                    return new IllegalArgumentException("존재하지 않는 회원입니다.");
+                });
+
+        return MemberResponseDto.from(member);
+    }
+
+
+    public MemberResponseDto getMyInfo(String email) {
+        log.debug("내 정보 조회: email={}", email);
+
+        return findByUsername(email);
+    }
 }
