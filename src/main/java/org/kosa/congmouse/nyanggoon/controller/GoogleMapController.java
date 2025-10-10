@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/googlemap")
+@RequestMapping("/googlemap")
 @Slf4j
 public class GoogleMapController {
 
