@@ -39,7 +39,7 @@ public class HunterBadge {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="badge_image_id", foreignKey = @ForeignKey(name = "fk_badge_image_id"),nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private HunterBadgeImage badge_image_id;
+    private HunterBadgeImage badgeImageId;
 
     // 이벤트, 다대일관계, 외래키, not null, on delete cascade
     @ManyToOne
