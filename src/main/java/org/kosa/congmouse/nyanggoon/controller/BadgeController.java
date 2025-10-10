@@ -2,27 +2,32 @@ package org.kosa.congmouse.nyanggoon.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.HunterBadgeAcquireResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageListResponseDto;
+import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
+import org.kosa.congmouse.nyanggoon.service.BadgeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Type;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/heritages")
+@RequestMapping("/badges")
+@RequiredArgsConstructor
 @Slf4j
-public class HeritageController {
+public class BadgeController {
+
+    public final BadgeService badgeService;
+
     @GetMapping("/markers")
-    public ResponseEntity<?> getHeritageList(){
+    public ResponseEntity<?> getHeritageListTemp(){
         String url = "https://www.khs.go.kr/cha/SearchKindOpenapiList.do?pageUnit=1000&ccbaCncl=N&ccbaKdcd=11&ccbaCtcd=11";
         RestTemplate restTemplate = new RestTemplate();
         try{
@@ -42,7 +47,6 @@ public class HeritageController {
                             "https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/" + dto.getName() + ".png";
 
                     dto.setBadgeUrl(badgeUrl);
-                    log.info(badgeUrl);
                 } catch (Exception e) {
                     // 혹시 이름이 null이거나 인코딩 에러일 경우 기본 이미지로 대체
                     dto.setBadgeUrl("https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/%EA%B8%B0%EB%B3%B8.png");
@@ -52,5 +56,11 @@ public class HeritageController {
         }catch(Exception e){
             return ResponseEntity.internalServerError().body(ApiResponseDto.error("500", "서버 오류 발생"));
         }
+    }
+
+    @PostMapping("/acquire/{id}")
+    public ResponseEntity<?> postBadgeAquireByBadgeId(@PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails user){
+        HunterBadgeAcquireResponseDto hunterBadgeAcquireResponseDto = badgeService.badgeAquire(id, user.getMemberId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(hunterBadgeAcquireResponseDto, "증표 획득 성공!"));
     }
 }

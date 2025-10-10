@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/talks")
 @RequiredArgsConstructor
 @Slf4j
-//임시 설정 입니다. (추후 삭제)
-@CrossOrigin(origins = "http://localhost:5173")
 //담소 컨트롤러 입니다.
 public class TalkController {
     private final TalkService talkService;

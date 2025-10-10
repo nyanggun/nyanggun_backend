@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 @Builder
 @JsonDeserialize(builder = HeritageListResponseDto.HeritageListResponseDtoBuilder.class)
 public class HeritageListResponseDto {
-//    @JacksonXmlProperty(localName="no")
-//    private Long id;
+    @JacksonXmlProperty(localName="sn")
+    private Long id;
     @JacksonXmlProperty(localName="ccbaKdcd")
     private int subjectCode;
     @JacksonXmlProperty(localName="ccbaMnm1")
@@ -33,7 +33,6 @@ public class HeritageListResponseDto {
     private String badgeUrl;
 
     public static HeritageListResponseDto from(HeritageEncyclopedia heritageEncyclopedia){
-        String badgeUrl = "https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/경복궁_근정전.png";
         return HeritageListResponseDto.builder()
 //                .id(heritageEncyclopedia.getId())
                 .subjectCode(heritageEncyclopedia.getSubjectCode())
@@ -41,7 +40,7 @@ public class HeritageListResponseDto {
 //                .address(heritageEncyclopedia.getAddress())
                 .latitude(heritageEncyclopedia.getLatitude())
                 .longitude(heritageEncyclopedia.getLongitude())
-                .badgeUrl(badgeUrl).build();
+                .build();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
