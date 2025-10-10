@@ -53,15 +53,23 @@ public class ExplorationService {
     }
 
     @Transactional
-    public void deleteExploration(Long id){
+    public void deleteExploration(Long id, Long memberId){
+        Exploration exploration = explorationRepository.findById(id).orElseThrow(() -> {
+            throw new RuntimeException("게시글이 존재하지 않습니다");
+        });
+        if(exploration.getMember().getId() != memberId)
+            throw new IllegalArgumentException("본인이 작성한 글만 삭제할 수 있습니다.");
         explorationRepository.deleteById(id);
     }
 
     @Transactional
-    public Exploration updateExploration(ExplorationUpdateDto explorationUpdateDto){
+    public Exploration editExploration(ExplorationUpdateDto explorationUpdateDto, Long memberId){
         Exploration exploration = explorationRepository.findById(explorationUpdateDto.getId()).orElseThrow(() -> {
             throw new RuntimeException("게시글이 존재하지 않습니다");
         });
+        if(exploration.getMember().getId() != memberId){
+            throw new IllegalArgumentException("본인이 작성한 글만 수정할 수 있습니다.");
+        }
         exploration.update(explorationUpdateDto);
         return exploration;
     }
