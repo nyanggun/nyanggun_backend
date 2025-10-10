@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.entity.MemberSimpleResponseDto;
 
 import java.time.LocalDateTime;
 
@@ -23,8 +24,7 @@ public class ExplorationDetailDto {
     private String title;
     private String content;
     private String relatedHeritage;
-    private Long memberId;
-    private String memberNickname;
+    private MemberSimpleResponseDto member;
     private Long bookmarkCount;
     private Long commentCount;
 
@@ -35,8 +35,10 @@ public class ExplorationDetailDto {
                 .title(exploration.getTitle())
                 .content(exploration.getContent())
                 .relatedHeritage(exploration.getRelatedHeritage())
-                .memberId(exploration.getMember().getId())
-                .memberNickname(exploration.getMember().getNickname())
+                .member(MemberSimpleResponseDto.builder()
+                        .id(exploration.getMember().getId())
+                        .nickname(exploration.getMember().getNickname())
+                        .build())
                 .build();
         return explorationDetailDto;
     }

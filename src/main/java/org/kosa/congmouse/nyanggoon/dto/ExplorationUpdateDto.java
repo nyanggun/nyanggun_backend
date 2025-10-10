@@ -14,5 +14,5 @@ public class ExplorationUpdateDto {
     private String title;
     private String content;
     private String relatedHeritage;
-    Long memberId;
+    private Long memberId;
 }
