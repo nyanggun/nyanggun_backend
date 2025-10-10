@@ -62,23 +62,24 @@ public class SecurityConfig {
         // 인증 인가 설정
         http.authorizeHttpRequests(auth -> auth
                 // 로그인 허용
-                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/auth/login").permitAll()
                 // POST 방식의 회원 가입은 인증 없이 허용
                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
                 // 관리자 모드는 인증과 ROLE_ADMIN 권한이 필요
                 //ROLE_은 자동삽입
                 .requestMatchers("/admin").hasRole("ADMIN")
                 // GET 방식, 전체 게시글 조회는 인증 없이 접근을 모두 허용
-                .requestMatchers(HttpMethod.GET, "api/posts").permitAll()
+                .requestMatchers(HttpMethod.GET, "/explorations").permitAll()
+                .requestMatchers(HttpMethod.GET, "/explorations/{id}").permitAll()
 
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
                 .requestMatchers("/swagger-ui").permitAll()
                 .requestMatchers("/api-docs").permitAll()
 
                 // 나머지 모든 요청은 인증 필요
-//                .anyRequest().authenticated());
+                .anyRequest().authenticated());
                 //임시로 모든 요청 인증 풀음
-                .anyRequest().permitAll());
+//                .anyRequest().permitAll());
 
         // 예외 처리 핸들러 등록
         http.exceptionHandling(exception -> exception
