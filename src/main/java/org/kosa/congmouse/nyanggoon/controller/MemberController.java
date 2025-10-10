@@ -33,10 +33,10 @@ public class MemberController {
         log.info("=== 내 정보 조회 요청 ===");
         // SecurityContext에서 현재 인증된 사용자 정보 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        log.info("인증된 사용자 정보 조회: username={}", username);
+        String email = authentication.getName();
+        log.info("인증된 사용자 정보 조회: email={}", email);
         // 예외는 GlobalExceptionHandler가 처리
-        MemberResponseDto memberInfo = memberService.getMyInfo(username);
+        MemberResponseDto memberInfo = memberService.getMyInfo(email);
         return ResponseEntity.ok(ApiResponseDto.success(memberInfo, "회원 정보 조회 OK"));
     }
 }

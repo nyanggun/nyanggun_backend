@@ -45,7 +45,7 @@ public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         // 로그인 엔드포인트 설정
-        setFilterProcessesUrl("/api/auth/login");
+        setFilterProcessesUrl("/auth/login");
     }
 
     /**
