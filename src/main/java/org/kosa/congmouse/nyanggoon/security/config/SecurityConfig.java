@@ -77,9 +77,9 @@ public class SecurityConfig {
                 .requestMatchers("/api-docs").permitAll()
 
                 // 나머지 모든 요청은 인증 필요
-                .anyRequest().authenticated());
+//                .anyRequest().authenticated());
                 //임시로 모든 요청 인증 풀음
-//                .anyRequest().permitAll());
+                .anyRequest().permitAll());
 
         // 예외 처리 핸들러 등록
         http.exceptionHandling(exception -> exception

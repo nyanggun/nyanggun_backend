@@ -43,7 +43,7 @@ public class HeritageEncyclopedia {
     @Column(name = "heritage_code", nullable = false)
     private String heritageCode;
     // 소재지 상세 : ccbaLcad(서울 중구 세종대로 40 (남대문로4가))
-    @Column(name = "address", nullable = false, length = 100)
+    @Column(name = "address", nullable = false, length = 500)
     private String address;
     // 시대 : ccceName(조선 태조 7년(1398))
     @Column(name = "period", nullable = false, length = 50)

@@ -56,8 +56,8 @@ public class ExplorationCommentService {
         return ExplorationCommentResponseDto.from(explorationComment);
     }
 
-    public List<ExplorationCommentResponseDto> getExplorationCommentList() {
-        List<ExplorationComment> explorationCommentList = explorationCommentRepository.findAll();
-        return explorationCommentList.stream().map().;
-    }
+//    public List<ExplorationCommentResponseDto> getExplorationCommentList() {
+//        List<ExplorationComment> explorationCommentList = explorationCommentRepository.findAll();
+//        return explorationCommentList.stream().map().;
+//    }
 }

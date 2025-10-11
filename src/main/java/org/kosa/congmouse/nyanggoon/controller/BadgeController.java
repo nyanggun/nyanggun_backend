@@ -49,7 +49,7 @@ public class BadgeController {
                     dto.setBadgeUrl(badgeUrl);
                 } catch (Exception e) {
                     // 혹시 이름이 null이거나 인코딩 에러일 경우 기본 이미지로 대체
-                    dto.setBadgeUrl("https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/%EA%B8%B0%EB%B3%B8.png");
+                    dto.setBadgeUrl("https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/기본.png");
                 }
             });
             return ResponseEntity.ok(ApiResponseDto.success(heritageListResponseDtos, "유적 조회 성공"));
