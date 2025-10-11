@@ -30,8 +30,8 @@ public class ExplorationCommentController {
         return ResponseEntity.ok(ApiResponseDto.success(explorationCommentResponseDto, "댓글 생성 완료"));
     }
 
-    @GetMapping()
-    public ResponseEntity<?> getExplorationCommentList(){
-        List<ExplorationCommentResponseDto> explorationCommentResponseDtoList = explorationCommentService.getExplorationCommentList();
-    }
+//    @GetMapping()
+//    public ResponseEntity<?> getExplorationCommentList(){
+//        List<ExplorationCommentResponseDto> explorationCommentResponseDtoList = explorationCommentService.getExplorationCommentList();
+//    }
 }
