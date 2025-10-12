@@ -25,10 +25,11 @@ public class TalkDetailResponseDto {
     private LocalDateTime createdAt;
     private long commentCount;   // 댓글 수
     private long bookmarkCount;  // 북마크 수
+    private boolean isBookmarked; // 북마크 여부
     // 댓글 리스트 추가
     private List<TalkCommentResponseDto> comments;
 
-    public static TalkDetailResponseDto from(Talk talk , List<TalkCommentResponseDto> comments, Long commentCount, Long bookmarkCount){
+    public static TalkDetailResponseDto from(Talk talk , List<TalkCommentResponseDto> comments, Long commentCount, Long bookmarkCount,  boolean isBookmarked){
         return TalkDetailResponseDto.builder()
                 .talkId(talk.getId())
                 .title(talk.getTitle())
@@ -39,6 +40,7 @@ public class TalkDetailResponseDto {
                 .comments(comments)
                 .commentCount(commentCount)
                 .bookmarkCount(bookmarkCount)
+                .isBookmarked(isBookmarked)
                 .build();
     }
 }

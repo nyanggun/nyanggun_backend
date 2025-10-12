@@ -31,4 +31,9 @@ public class PhotoBoxTag {
     @JoinColumn(name = "tag_id", nullable = false, foreignKey = @ForeignKey(name = "fk_photo_box_tag_tag"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Tag tag;
+
+    public PhotoBoxTag(PhotoBox photoBox, Tag tag) {
+        this.photoBox = photoBox;
+        this.tag=tag;
+    }
 }
