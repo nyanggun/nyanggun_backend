@@ -4,15 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.Talk;
+import org.kosa.congmouse.nyanggoon.entity.TalkBookmark;
 import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
+import org.kosa.congmouse.nyanggoon.repository.TalkBookmarkRepository;
 import org.kosa.congmouse.nyanggoon.repository.TalkCommentRepository;
 import org.kosa.congmouse.nyanggoon.repository.TalkRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,9 +29,15 @@ public class TalkService {
     private final TalkRepository talkRepository;
     private final MemberRepository memberRepository;
     private final TalkCommentRepository talkCommentRepository;
+    private final TalkBookmarkRepository talkBookmarkRepository;
 
     //모든 담소 게시글을 불러오는 메소드 입니다.
-    public List<TalkListSummaryResponseDto> findAllTalkList() {
+    public List<TalkListSummaryResponseDto> findAllTalkList(String username) {
+
+        //유저 조회
+        Member member = memberRepository.findByEmail(username)
+                .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
+
         log.info("담소 게시물을 전부 출력합니다.");
         List<Talk> talks = talkRepository.findAll(); // 게시글 목록
         List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(); //댓글 개수
@@ -45,8 +55,15 @@ public class TalkService {
                         arrBook -> (Long) arrBook[1]   // count
                 ));
 
+        //북마크 여부 가져오기
+        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
+        if (member != null) { // 로그인 사용자만 체크
+            List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMember(member);
+            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
+        }
 
-        List<TalkListSummaryResponseDto> dtos = talks.stream()
+
+        List<TalkListSummaryResponseDto> talkListSummaryResponseDto = talks.stream()
                 .map(t -> TalkListSummaryResponseDto.builder()
                         .talkId(t.getId())
                         .title(t.getTitle())
@@ -56,15 +73,16 @@ public class TalkService {
                         .createdAt(t.getCreatedAt())
                         .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
                         .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L)) // 북마크도 동일하게 처리
+                        .isBookmarked(bookmarkedTalkIdSet.contains(t.getId())) //유저의 북마크 여부
                         .build())
                 .collect(Collectors.toList());
 
-        return dtos; // ✅ 여기서 dtos를 반환
+        return talkListSummaryResponseDto;
     }
 
     //담소 게시글의 상세를 조회하는 메소드 입니다.
     //댓글도 함께 가져옵니다.
-    public TalkDetailResponseDto findTalkDetail(Long id) {
+    public TalkDetailResponseDto findTalkDetail(Long id, String username) {
         log.info("해당 담소 게시물의 내용을 확인합니다. {}", id);
         // 게시글 엔티티 가져오기
         Talk talk = talkRepository.findById(id)
@@ -73,6 +91,18 @@ public class TalkService {
         long commentCount = talkRepository.countCommentsByTalkId(id);
         long bookmarkCount = talkRepository.countBookmarksByTalkId(id);
 
+        //유저 조회
+        Member member = memberRepository.findByEmail(username)
+                .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
+        //북마크여부 가져오기
+        boolean isBookmarked = false;
+        if (member != null) {
+            // 해당 게시글만 확인
+            isBookmarked = talkBookmarkRepository.getBookmarkByMemberAndTalk(member.getId(), talk.getId()) != null;
+
+        }
+
+
         //해당 게시글의 댓글들을 가져옵니다.
         List<TalkComment> talkComment = talkCommentRepository.findTalkComment(id);
         // DTO로 변환합니다.
@@ -80,7 +110,7 @@ public class TalkService {
                 .map(TalkCommentResponseDto::from)
                 .toList();
 
-        return TalkDetailResponseDto.from(talk, talkCommentDtos, commentCount, bookmarkCount);
+        return TalkDetailResponseDto.from(talk, talkCommentDtos, commentCount, bookmarkCount, isBookmarked);
     }
 
     //담소 게시글을 작성하는 메소드 입니다.
@@ -184,5 +214,38 @@ public class TalkService {
         log.info("댓글 삭제 완료.");
     }
 
+    //게시글을 북마크하는 메소드 입니다.
+    @Transactional
+    public void createTalkBookmark(Long talkId, String username) {
+        // 사용자 조회
+        Member member = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        // 게시글 조회
+        Talk talk = talkRepository.findById(talkId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
+        //북마크 객체 생성
+        TalkBookmark talkBookmark = TalkBookmark.builder()
+                .member(member)   // 현재 로그인한 사용자 엔티티
+                .talk(talk)       // 북마크할 게시글 엔티티
+                .build();
+        //북마크 저장
+        talkBookmarkRepository.save(talkBookmark);
+
+    }
+
+    //게시글 북마크를 취소하는 메소드 입니다.
+    @Transactional
+    public void deleteTalkBookmark(Long talkId, String username) {
+        Member member = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+
+        Talk talk = talkRepository.findById(talkId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+      Long bookmarkId = talkBookmarkRepository.getBookmarkWithTalkId(talkId);
+
+       talkBookmarkRepository.deleteById(bookmarkId);
+
+    }
 }

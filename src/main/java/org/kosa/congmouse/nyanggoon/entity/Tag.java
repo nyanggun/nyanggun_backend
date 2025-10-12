@@ -19,4 +19,8 @@ public class Tag {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    public Tag(String name) {
+        this.name=name;
+    }
 }

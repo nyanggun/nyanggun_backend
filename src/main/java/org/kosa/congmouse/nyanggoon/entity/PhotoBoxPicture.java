@@ -46,4 +46,11 @@ public class PhotoBoxPicture {
     @Column(name="created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    public void update(String originalFilename, String savedName, String path, long size, String extension) {
+        this.originalName = originalFilename;
+        this.savedName = savedName;
+        this.path = path;
+        this.size = size;
+        this.fileExtension = extension;
+    }
 }
