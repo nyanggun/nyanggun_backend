@@ -1,14 +1,17 @@
 package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentUpdateDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.ExplorationComment;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationCommentRepository;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationRepository;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
+import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ExplorationCommentService {
 
     private final ExplorationCommentRepository explorationCommentRepository;
@@ -58,6 +62,43 @@ public class ExplorationCommentService {
 
     public List<ExplorationCommentResponseDto> getExplorationCommentList() {
         List<ExplorationComment> explorationCommentList = explorationCommentRepository.findAll();
-        return explorationCommentList.stream().map().;
+        return explorationCommentList.stream().map(ExplorationCommentResponseDto::from).toList().reversed();
+    }
+
+
+    public ExplorationCommentResponseDto getExplorationComment(Long id) {
+        ExplorationCommentResponseDto explorationCommentResponseDto = ExplorationCommentResponseDto.from(explorationCommentRepository.findById(id).orElseThrow(() -> {
+            throw new RuntimeException("해당하는 문화재 탐방기 댓글이 없습니다");
+        }));
+        return explorationCommentResponseDto;
+    }
+
+    @Transactional
+    public ExplorationCommentResponseDto updateExplorationComment(ExplorationCommentUpdateDto explorationCommentUpdateDto, CustomMemberDetails customMemberDetails) {
+        ExplorationComment updateExplorationComment = explorationCommentRepository.findById(explorationCommentUpdateDto.getId()).orElseThrow(() ->{
+            throw new RuntimeException("해당하는 댓글이 존재하지 않습니다");
+        });
+        if(updateExplorationComment.getMember().getId() != customMemberDetails.getMemberId()){
+            throw new RuntimeException("해당하는 댓글의 작성 멤버와 수정하는 멤버가 일치하지 않습니다.");
+        }
+        updateExplorationComment.update(explorationCommentUpdateDto.getContent());
+        return ExplorationCommentResponseDto.from(updateExplorationComment);
+    }
+
+    @Transactional
+    public void deleteExplorationComment(Long id, Long memberId) {
+        ExplorationComment deleteExplorationComment = explorationCommentRepository.findById(id).orElseThrow(() -> {
+            throw new RuntimeException("해당하는 댓글이 존재하지 않습니다.");
+        });
+        if(deleteExplorationComment.getMember().getId() != memberId){
+            throw new RuntimeException("해당하는 댓글의 작성 멤버와 삭제하는 멤버가 일치하지 않습니다.");
+        }
+        explorationCommentRepository.deleteById(id);
+    }
+
+    public List<ExplorationCommentResponseDto> getExplorationCommentListOfExploration(Long explorationId) {
+        List<ExplorationComment> explorationCommentList = explorationCommentRepository.findByExplorationId(explorationId);
+        List<ExplorationCommentResponseDto> explorationCommentResponseDtoList = explorationCommentList.stream().map(ExplorationCommentResponseDto::from).toList().reversed();
+        return explorationCommentResponseDtoList;
     }
 }

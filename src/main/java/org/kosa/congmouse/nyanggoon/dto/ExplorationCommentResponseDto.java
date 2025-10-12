@@ -19,7 +19,7 @@ public class ExplorationCommentResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private Long memberId;
-    private String memberNickname;
+    private String nickname;
     private Long explorationId;
     private Long parentCommentId;
 
@@ -32,6 +32,7 @@ public class ExplorationCommentResponseDto {
                 .content(explorationComment.getContent())
                 .createdAt(explorationComment.getCreatedAt())
                 .memberId(explorationComment.getMember().getId())
+                .nickname(explorationComment.getMember().getNickname())
                 .explorationId(explorationComment.getExploration().getId())
                 .parentCommentId(parentExplorationCommentId)
                 .build();
