@@ -12,4 +12,10 @@ public interface ExplorationBookmarkRepository extends JpaRepository<Exploration
      * @return 해당 탐방기에 대한 북마크 개수
      */
     long countByExplorationId(Long explorationId);
+
+    ExplorationBookmark findByMemberIdAndExplorationId(Long memberId, Long explorationId);
+
+    Boolean existsByMemberIdAndExplorationId(Long memberId, Long explorationId);
+
+    void deleteByMemberIdAndExplorationId(Long memberId, Long explorationId);
 }
