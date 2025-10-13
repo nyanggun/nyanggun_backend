@@ -7,6 +7,8 @@ import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 import org.kosa.congmouse.nyanggoon.service.TalkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,11 @@ public class TalkController {
     @GetMapping
     public ResponseEntity<?> getAllTalkList(){
         log.info("게시글들 조회 컨트롤러 작동 ok");
-        List<TalkListSummaryResponseDto> talks = talkService.findAllTalkList();
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        List<TalkListSummaryResponseDto> talks = talkService.findAllTalkList(username);
         return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 목록 조회 성공"));
     }
 
@@ -39,7 +45,11 @@ public class TalkController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTalkDetailById(@PathVariable Long id){
         log.info("게시글 상세 조회 컨트롤러 작동 ok");
-        TalkDetailResponseDto talkDetailResponseDto = talkService.findTalkDetail(id);
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        TalkDetailResponseDto talkDetailResponseDto = talkService.findTalkDetail(id, username);
         return ResponseEntity.ok(ApiResponseDto.success(talkDetailResponseDto, "담소 게시글 조회 성공"));
     }
 
@@ -140,23 +150,40 @@ public class TalkController {
     }
 
     //담소를 북마크하는 컨트롤러 입니다.
-    @PostMapping("/bookmark")
-    public ResponseEntity<?> createTalkBookmark(@RequestBody TalkCommentCreateRequestDto talkCommentCreateRequestDto){
-        TalkComment savedComment =  talkService.createTalkComment(talkCommentCreateRequestDto);
+    @PostMapping("/bookmark/{talkId}")
+    public ResponseEntity<?> createTalkBookmark(@PathVariable Long talkId){
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        talkService.createTalkBookmark(talkId, username);
         // 응답 DTO 생성
-        TalkCommentResponseDto talkCommentResponseDto = TalkCommentResponseDto.builder()
-                .talkCommentId(savedComment.getId())
-                .content(savedComment.getContent())
-                .createdAt(savedComment.getCreatedAt())
-                .memberId(savedComment.getMember().getId())
-                .nickname(savedComment.getMember().getNickname())
-                .talkId(savedComment.getTalk().getId())
-                .talkParentCommentId(savedComment.getParentComment() != null ? savedComment.getParentComment().getId() : null)
-                .build();
 
         // ApiResponseDto 의 표준화된 형식으로 응답한다
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCommentResponseDto, "댓글이 작성되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(null, "북마크 등록 완료"));
     }
+
+    //담소 게시글을 북마크 취소하는 컨트롤러 입니다.
+    //인증 필요
+    @DeleteMapping("/bookmark/{talkId}")
+    public ResponseEntity<Void> deletePhotoBoxBookmark(@PathVariable Long talkId){
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+
+        log.info("북마크 삭제 컨트롤러 작동 ok");
+        try{
+            talkService.deleteTalkBookmark(talkId, username);
+            return ResponseEntity.noContent().build();
+        }
+        catch(Exception e){
+            return  ResponseEntity.notFound().build();
+        }
+    }
+
+
+
     //담소를 신고하는 컨트롤러 입니다,
     //담소 댓글을 신고하는 컨트롤러 입니다.
 
