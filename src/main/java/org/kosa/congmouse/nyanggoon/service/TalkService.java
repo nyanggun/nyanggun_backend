@@ -171,11 +171,23 @@ public class TalkService {
 
         //대댓글이라면 부모 댓글을 조회한다.
         TalkComment parentComment = null;
+        // 부모 댓글이 존재할 경우
         if (talkCommentCreateRequestDto.getParentCommentId() != null) {
-            parentComment = talkCommentRepository.findById(talkCommentCreateRequestDto.getParentCommentId())
+            //현재클릭한 댓글
+            TalkComment tempParent = talkCommentRepository.findById(talkCommentCreateRequestDto.getParentCommentId())
                     .orElseThrow(() -> new IllegalArgumentException("부모 댓글이 존재하지 않습니다."));
-        }
 
+            // 만약 지금 작성하려는 댓글의 부모가 '대댓글'이라면, (즉 대대댓글을 작성하려면)
+            // 그 대댓글의 부모(즉, 최상위 댓글)를 부모로 설정
+            // 즉 대대댓글이 아니라 해당 최상위 댓글의 대댓글로 들어가게됨
+            if (tempParent.getParentComment() != null) {
+                //지금 내가 생성하려는 댓글의 부모를 같은 부모로 둬라
+                parentComment = tempParent.getParentComment();
+            } else {
+                //아니면 그 댓글이 부모가 된다. (일반적인 대댓글)
+                parentComment = tempParent;
+            }
+        }
         log.info("회원 및 게시글 확인 완료. 댓글 객체를 생성합니다.");
 
         //담소 게시글 객체를 생성한다.
