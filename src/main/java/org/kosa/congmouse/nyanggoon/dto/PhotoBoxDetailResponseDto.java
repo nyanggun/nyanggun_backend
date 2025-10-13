@@ -18,6 +18,7 @@ public class PhotoBoxDetailResponseDto {
     private Long id;
     private String title;
     private String relatedHeritage;
+    private Long memberId;
     private String nickname;
     private LocalDateTime createdAt;
     private String photoBoxPicturePath;
@@ -31,7 +32,8 @@ public class PhotoBoxDetailResponseDto {
                 .id(photoBox.getId())
                 .title(photoBox.getTitle())
                 .relatedHeritage(photoBox.getRelatedHeritage())
-                .nickname(photoBox.getMember().getNickname()) // 여기 추가
+                .memberId(photoBox.getMember().getId())
+                .nickname(photoBox.getMember().getNickname())
                 .photoBoxPicturePath(photoBoxPicture.getPath()) //사진 게시물 사진위치 넣기
                 .tags(tags)
                 .createdAt(photoBox.getCreatedAt())
