@@ -47,8 +47,6 @@ public class PhotoBoxService {
         List<String> photoBoxTag = photoBoxTagRepository.findTags(id);
         //북마크 개수 카운트하기
         Long bookmarkCounts = photoBoxRepository.countBookmarksByPhotoId(id); //북마크 개수
-
-
         //유저 조회
         Member member = memberRepository.findByEmail(username)
                 .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
@@ -330,4 +328,11 @@ public class PhotoBoxService {
         photoBoxBookmarkRepository.deleteById(bookmarkId);
 
     }
+
+//    //사진함에서 태그로 검색하는 메소드 입니다.
+//    @Transactional
+//    public List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(String keyword) {
+//        List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxPicturesWithTag(keyword);
+//        return findPhotoBoxWithTag;
+//    }
 }

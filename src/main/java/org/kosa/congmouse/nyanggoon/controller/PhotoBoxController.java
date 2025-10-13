@@ -134,11 +134,17 @@ public class PhotoBoxController {
         }
     }
 
-
+    //사진함 게시글을 검색하는 컨트롤러 입니다.
+//    @GetMapping("/search")
+//    public ResponseEntity<?> findPhotoBoxWithTag(@RequestParam String keyword){
+//
+//        log.info("사진함 게시글 검색 컨트롤러 작동 ok");
+//        List<PhotoBoxSummaryResponseDto> photoBoxList = photoBoxService.findPhotoBoxWithTag(keyword);
+//
+//        return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "게시물 검색 결과 조회 성공"));
+//    }
 
     //사진함 게시글을 신고하는 컨트롤러 입니다.
     //인증 필요
-
-    //사진함 게시글을 검색하는 컨트롤러 입니다.
 }
 
