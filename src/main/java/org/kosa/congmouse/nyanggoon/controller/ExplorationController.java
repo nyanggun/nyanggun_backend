@@ -2,10 +2,7 @@ package org.kosa.congmouse.nyanggoon.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCreateDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationDeleteDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationUpdateDto;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.ExplorationService;
@@ -57,5 +54,28 @@ public class ExplorationController {
         explorationService.deleteExploration(id, memberDetails.getMemberId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    
+
+    // 북마크 생성 요청
+    @PostMapping("/bookmarks")
+    public ResponseEntity<?> postExplorationBookmark(@RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto){
+        log.debug("{} {}", explorationBookmarkRequestDto.getExplorationId(), explorationBookmarkRequestDto.getMemberId());
+        explorationService.createExplorationBookmark(explorationBookmarkRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(201, "북마크 생성 완료"));
+    }
+
+    @DeleteMapping("/bookmarks")
+    public ResponseEntity<?> deleteExplorationBookmark(@RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
+        log.debug("{} {}", explorationBookmarkRequestDto.getExplorationId(), explorationBookmarkRequestDto.getMemberId());
+        explorationService.deleteExplorationBookmark(explorationBookmarkRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(204, "북마크 삭제 완료"));
+    }
+
+    // 북마크 체크 여부 조회
+    @GetMapping("/bookmarks")
+    public ResponseEntity<?> getExplorationBookmarkChecked(@RequestParam Long memberId, Long explorationId) {
+        log.debug("{} {}", memberId, explorationId);
+        Boolean result = explorationService.checkExplorationBookmarked(memberId, explorationId);
+        return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
+    }
+
 }

@@ -50,5 +50,11 @@ public class ExplorationComment {
     @OnDelete(action = OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private ExplorationComment parentComment;
 
-
+    /**
+     * 문화재 탐방기 댓글 내용 업데이트
+     * @param content
+     */
+    public void update(String content) {
+        this.content = content;
+    }
 }
