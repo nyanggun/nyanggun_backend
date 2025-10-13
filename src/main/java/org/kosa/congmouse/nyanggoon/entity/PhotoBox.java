@@ -7,6 +7,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 // 사진함 entity
 @Entity
@@ -37,4 +39,23 @@ public class PhotoBox {
     @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_photo_box_member"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
+
+    public void update(String title, String relatedHeritage) {
+        // 제목 검증 및 수정
+        if (title != null && !title.trim().isEmpty()) {
+            this.title = title.trim();
+        }
+        // 내용 검증 및 수정
+        if (relatedHeritage != null && !relatedHeritage.trim().isEmpty()) {
+            this.relatedHeritage = relatedHeritage.trim();
+        }
+    }
+
+    @OneToOne(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PhotoBoxPicture picture;
+
+    @OneToMany(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoBoxTag> tags = new ArrayList<>();
+
+
 }
