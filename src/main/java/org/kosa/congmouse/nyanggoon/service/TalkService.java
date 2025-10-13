@@ -260,4 +260,52 @@ public class TalkService {
        talkBookmarkRepository.deleteById(bookmarkId);
 
     }
+
+    //게시글을 검색하는 메소드 입니다.
+    public List<TalkListSummaryResponseDto> findTalkListWithKeyword(String username, String keyword) {
+        //유저 조회
+        Member member = memberRepository.findByEmail(username)
+                .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
+
+        log.info("담소 게시물 검색 결과를 출력합니다.");
+        List<Talk> talks = talkRepository.findTalkListWithKeyword(keyword); // 게시글 목록
+        List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(); //댓글 개수
+        List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(); //북마크 개수
+
+        Map<Long, Long> commentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(
+                        arr -> (Long) arr[0],  // talkId
+                        arr -> (Long) arr[1]   // count
+                ));
+
+        Map<Long, Long> bookmarkCountMap = bookmarkCounts.stream()
+                .collect(Collectors.toMap(
+                        arrBook -> (Long) arrBook[0],  // talkId
+                        arrBook -> (Long) arrBook[1]   // count
+                ));
+
+        //북마크 여부 가져오기
+        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
+        if (member != null) { // 로그인 사용자만 체크
+            List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMember(member);
+            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
+        }
+
+
+        List<TalkListSummaryResponseDto> talkListSummaryResponseDto = talks.stream()
+                .map(t -> TalkListSummaryResponseDto.builder()
+                        .talkId(t.getId())
+                        .title(t.getTitle())
+                        .content(t.getContent())
+                        .memberId(t.getMember().getId())
+                        .nickname(t.getMember().getNickname())
+                        .createdAt(t.getCreatedAt())
+                        .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
+                        .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L)) // 북마크도 동일하게 처리
+                        .isBookmarked(bookmarkedTalkIdSet.contains(t.getId())) //유저의 북마크 여부
+                        .build())
+                .collect(Collectors.toList());
+
+        return talkListSummaryResponseDto;
+    }
 }
