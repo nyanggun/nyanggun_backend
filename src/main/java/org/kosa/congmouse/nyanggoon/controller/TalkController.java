@@ -7,6 +7,8 @@ import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 import org.kosa.congmouse.nyanggoon.service.TalkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,11 @@ public class TalkController {
     @GetMapping
     public ResponseEntity<?> getAllTalkList(){
         log.info("게시글들 조회 컨트롤러 작동 ok");
-        List<TalkListSummaryResponseDto> talks = talkService.findAllTalkList();
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        List<TalkListSummaryResponseDto> talks = talkService.findAllTalkList(username);
         return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 목록 조회 성공"));
     }
 
@@ -39,7 +45,11 @@ public class TalkController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTalkDetailById(@PathVariable Long id){
         log.info("게시글 상세 조회 컨트롤러 작동 ok");
-        TalkDetailResponseDto talkDetailResponseDto = talkService.findTalkDetail(id);
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        TalkDetailResponseDto talkDetailResponseDto = talkService.findTalkDetail(id, username);
         return ResponseEntity.ok(ApiResponseDto.success(talkDetailResponseDto, "담소 게시글 조회 성공"));
     }
 
