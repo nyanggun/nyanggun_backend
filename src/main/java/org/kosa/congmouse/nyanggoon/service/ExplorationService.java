@@ -2,10 +2,12 @@ package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kosa.congmouse.nyanggoon.dto.ExplorationBookmarkRequestDto;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationUpdateDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
+import org.kosa.congmouse.nyanggoon.entity.ExplorationBookmark;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationBookmarkRepository;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationCommentRepository;
@@ -84,5 +86,21 @@ public class ExplorationService {
         log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         log.debug("{}", explorationDetailDtoList.get(0));
         return explorationDetailDtoList;
+    }
+
+    @Transactional
+    public void createExplorationBookmark(ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
+        explorationBookmarkRepository.save(explorationBookmarkRequestDto.toExplorationBookmark());
+    }
+
+    @Transactional
+    public void deleteExplorationBookmark(ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
+        explorationBookmarkRepository.deleteByMemberIdAndExplorationId(explorationBookmarkRequestDto.getMemberId(), explorationBookmarkRequestDto.getExplorationId());
+    }
+
+    public Boolean checkExplorationBookmarked(Long memberId, Long explorationId) {
+        Boolean checker = explorationBookmarkRepository.existsByMemberIdAndExplorationId(memberId,explorationId);
+        log.debug("{}", checker);
+        return checker;
     }
 }
