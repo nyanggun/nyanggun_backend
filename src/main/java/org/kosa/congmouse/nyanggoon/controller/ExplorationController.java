@@ -13,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class ExplorationController {
     }
 
     @PostMapping("")
-    public ResponseEntity postExploration(@RequestBody ExplorationCreateDto explorationCreateDto){
-        Exploration exploration = explorationService.createExploration(explorationCreateDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ExplorationDetailDto.from(exploration));
+    public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart("images") List<MultipartFile> imageFileList) throws IOException {
+        ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDto, "문화재 탐방기 작성 완료"));
     }
 
     @GetMapping("/{id}")
