@@ -1,6 +1,6 @@
 package org.kosa.congmouse.nyanggoon.repository;
 
-import org.kosa.congmouse.nyanggoon.dto.HeritageCreateDto;
+import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HeritageRepository extends JpaRepository<HeritageEncyclopedia, Long> {
+public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEncyclopedia, Long> {
 
     // 특정 시도(cityCode)로 조회
     List<HeritageEncyclopedia> findByCityCode(int cityCode);
@@ -24,4 +24,6 @@ public interface HeritageRepository extends JpaRepository<HeritageEncyclopedia, 
     // 특정 종목(subjectCode) + 시도(cityCode) 조건 조회
     List<HeritageEncyclopedia> findBySubjectCodeAndCityCode(int subjectCode, int cityCode);
 
+
+//    Page<HeritageEncyclopedia> findAllByKoreanName(Pageable pageable);
 }
