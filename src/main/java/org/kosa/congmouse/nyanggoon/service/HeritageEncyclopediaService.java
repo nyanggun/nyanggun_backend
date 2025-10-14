@@ -3,10 +3,15 @@ package org.kosa.congmouse.nyanggoon.service;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkRequestDto;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
+import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.repository.EncyclopediaBookmarkRepository;
 import org.kosa.congmouse.nyanggoon.repository.HeritageEncyclopediaRepository;
+import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +22,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class HeritageEncyclopediaService {
 
     private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
+    private final EncyclopediaBookmarkRepository encyclopediaBookmarkRepository;
 
     // 문화재 도감 저장 from 국가유산성 api
     @Transactional
@@ -77,19 +82,29 @@ public class HeritageEncyclopediaService {
     }
 
     // 문화재 도감 리스트
-    public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByKoreanName(int page, int size){
+    public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByKoreanName(int page, int size, Long memberId){
         log.info("===문화재 도감 가나다순 조회 시작===");
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         Page<HeritageEncyclopedia> heritageEncyclopediaPage = heritageEncyclopediaRepository.findAll(pageable);
-        log.info("===조회된 문화재 도감 가나다순 문화재 수: {}", heritageEncyclopediaPage.getContent().getFirst());
-        return heritageEncyclopediaPage.map(HeritageEncyclopediaResponseDto::from);
+        log.info("===조회된 문화재 도감 가나다순 목록 첫번째 문화재 이름: {} ===", heritageEncyclopediaPage.getContent().getFirst().getName());
+
+        return heritageEncyclopediaPage.map((heritage) -> {
+            Long heritageEncyclopediaId = heritage.getId();
+            boolean isBookmarked = false;
+            if(memberId != null){
+                isBookmarked = encyclopediaBookmarkRepository.existsByMemberIdAndHeritageEncyclopediaId(memberId, heritageEncyclopediaId);
+            }
+            long bookmarkCount = encyclopediaBookmarkRepository.countByHeritageEncyclopediaId(heritageEncyclopediaId);
+
+            return HeritageEncyclopediaResponseDto.from(heritage, bookmarkCount, isBookmarked);
+        });
     }
 
     public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByPopular(int page, int size) {
         return null;
     }
 
-    public HeritageEncyclopediaResponseDto getHeritageEncyclopediaById(Long encyclopediaId) {
+    public HeritageEncyclopediaResponseDto getHeritageEncyclopediaById(Long encyclopediaId, Long memberId) {
         log.info("=== 문화재 상세 조회: id={} ===", encyclopediaId);
         HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(encyclopediaId).orElseThrow(() ->{
             log.info("=== 문화재 조회 실패: id={} ===", encyclopediaId);
@@ -97,5 +112,15 @@ public class HeritageEncyclopediaService {
         });
         log.info("=== 문화재 조회 성공: id={} ===", heritageEncyclopedia.getName());
         return HeritageEncyclopediaResponseDto.from(heritageEncyclopedia);
+    }
+
+    @Transactional
+    public EncyclopediaBookmarkRequestDto saveBookmark(Long heritageEncyclopediaId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
+        HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(heritageEncyclopediaId).orElseThrow(() -> new IllegalArgumentException("해당하는 문화재가 없습니다."));
+        return encyclopediaBookmarkRepository.saveByHeritageEncyclopediaIdAndMemberId(heritageEncyclopediaId, memberId);
+    }
+
+    public EncyclopediaBookmarkResponseDto deleteBookmark(Long heritageEncyclopediaId, Long memberId) {
     }
 }

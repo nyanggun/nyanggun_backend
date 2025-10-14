@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 
 import java.math.BigDecimal;
@@ -31,21 +32,26 @@ public class HeritageEncyclopediaResponseDto {
     private String imageUrl;
     private String content;
 
-    public static HeritageEncyclopediaResponseDto from(HeritageEncyclopedia HeritageEncyclopedia){
+    private long bookmarkCount;
+    private boolean isBookmarked;
+
+    public static HeritageEncyclopediaResponseDto from(HeritageEncyclopedia heritageEncyclopedia, long bookmarkCount, boolean isBookmarked){
         return HeritageEncyclopediaResponseDto.builder()
-                .id(HeritageEncyclopedia.getId())
-                .subjectCode(HeritageEncyclopedia.getSubjectCode())
-                .manageNumber(HeritageEncyclopedia.getManageNumber())
-                .name(HeritageEncyclopedia.getName())
-                .chineseName(HeritageEncyclopedia.getChineseName())
-                .cityCode(HeritageEncyclopedia.getCityCode())
-                .longitude(HeritageEncyclopedia.getLongitude())
-                .latitude(HeritageEncyclopedia.getLatitude())
-                .heritageCode(HeritageEncyclopedia.getHeritageCode())
-                .address(HeritageEncyclopedia.getAddress())
-                .period(HeritageEncyclopedia.getPeriod())
-                .imageUrl(HeritageEncyclopedia.getImageUrl())
-                .content(HeritageEncyclopedia.getContent())
+                .id(heritageEncyclopedia.getId())
+                .subjectCode(heritageEncyclopedia.getSubjectCode())
+                .manageNumber(heritageEncyclopedia.getManageNumber())
+                .name(heritageEncyclopedia.getName())
+                .chineseName(heritageEncyclopedia.getChineseName())
+                .cityCode(heritageEncyclopedia.getCityCode())
+                .longitude(heritageEncyclopedia.getLongitude())
+                .latitude(heritageEncyclopedia.getLatitude())
+                .heritageCode(heritageEncyclopedia.getHeritageCode())
+                .address(heritageEncyclopedia.getAddress())
+                .period(heritageEncyclopedia.getPeriod())
+                .imageUrl(heritageEncyclopedia.getImageUrl())
+                .content(heritageEncyclopedia.getContent())
+                .bookmarkCount(bookmarkCount)
+                .isBookmarked(isBookmarked)
                 .build();
     }
 }
