@@ -3,10 +3,11 @@ package org.kosa.congmouse.nyanggoon.service;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
 import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkRequestDto;
-import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
+import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.repository.EncyclopediaBookmarkRepository;
@@ -31,6 +32,7 @@ public class HeritageEncyclopediaService {
 
     private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
     private final EncyclopediaBookmarkRepository encyclopediaBookmarkRepository;
+    private final MemberRepository memberRepository;
 
     // 문화재 도감 저장 from 국가유산성 api
     @Transactional
@@ -104,23 +106,45 @@ public class HeritageEncyclopediaService {
         return null;
     }
 
-    public HeritageEncyclopediaResponseDto getHeritageEncyclopediaById(Long encyclopediaId, Long memberId) {
-        log.info("=== 문화재 상세 조회: id={} ===", encyclopediaId);
-        HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(encyclopediaId).orElseThrow(() ->{
-            log.info("=== 문화재 조회 실패: id={} ===", encyclopediaId);
-            return new IllegalArgumentException("존재하지 않는 문화재입니다.");
-        });
+    // 상세 페이지
+    public HeritageEncyclopediaResponseDto getHeritageEncyclopediaById(Long heritageEncyclopediaId, Long memberId) {
+        log.info("=== 문화재 상세 조회: id={} ===", heritageEncyclopediaId);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
+        HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(heritageEncyclopediaId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문화재 입니다."));
+        boolean isBookmarked = false;
+        if(memberId != null){
+            isBookmarked = encyclopediaBookmarkRepository.existsByMemberIdAndHeritageEncyclopediaId(memberId, heritageEncyclopediaId);
+        }
+        long bookmarkCount = encyclopediaBookmarkRepository.countByHeritageEncyclopediaId(heritageEncyclopediaId);
         log.info("=== 문화재 조회 성공: id={} ===", heritageEncyclopedia.getName());
-        return HeritageEncyclopediaResponseDto.from(heritageEncyclopedia);
+        return HeritageEncyclopediaResponseDto.from(heritageEncyclopedia, bookmarkCount, isBookmarked);
     }
 
     @Transactional
-    public EncyclopediaBookmarkRequestDto saveBookmark(Long heritageEncyclopediaId, Long memberId) {
+    public EncyclopediaBookmarkDto saveBookmark(Long heritageEncyclopediaId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
         HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(heritageEncyclopediaId).orElseThrow(() -> new IllegalArgumentException("해당하는 문화재가 없습니다."));
-        return encyclopediaBookmarkRepository.saveByHeritageEncyclopediaIdAndMemberId(heritageEncyclopediaId, memberId);
+
+        EncyclopediaBookmark bookmark = EncyclopediaBookmark.builder()
+                .member(member)
+                .heritageEncyclopedia(heritageEncyclopedia)
+                .build();
+
+        EncyclopediaBookmark savedBookmark = encyclopediaBookmarkRepository.save(bookmark);
+
+        return EncyclopediaBookmarkDto.from(savedBookmark);
     }
 
-    public EncyclopediaBookmarkResponseDto deleteBookmark(Long heritageEncyclopediaId, Long memberId) {
+    public EncyclopediaBookmarkDto deleteBookmark(Long heritageEncyclopediaId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
+        HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(heritageEncyclopediaId).orElseThrow(() -> new IllegalArgumentException("해당하는 문화재가 없습니다."));
+
+        EncyclopediaBookmark bookmark = EncyclopediaBookmark.builder()
+                .member(member)
+                .heritageEncyclopedia(heritageEncyclopedia)
+                .build();
+
+        encyclopediaBookmarkRepository.delete(bookmark);
+        return EncyclopediaBookmarkDto.from(bookmark);
     }
 }

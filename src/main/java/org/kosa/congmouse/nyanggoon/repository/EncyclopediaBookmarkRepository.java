@@ -1,6 +1,6 @@
 package org.kosa.congmouse.nyanggoon.repository;
 
-import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkRequestDto;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
 import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,5 +13,5 @@ public interface EncyclopediaBookmarkRepository extends JpaRepository<Encycloped
 
     long countByHeritageEncyclopediaId(Long heritageEncyclopediaId);
 
-//    EncyclopediaBookmarkRequestDto saveByHeritageEncyclopediaIdAndMemberId(Long heritageEncyclopediaId, Long memberId);
+    EncyclopediaBookmarkDto saveByHeritageEncyclopediaIdAndMemberId(Long heritageEncyclopediaId, Long memberId);
 }

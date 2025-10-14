@@ -3,8 +3,8 @@ package org.kosa.congmouse.nyanggoon.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkRequestDto;
-import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
+import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.HeritageEncyclopediaService;
@@ -55,15 +55,15 @@ public class HeritageEncyclopediaController {
     @PostMapping("/bookmark/{HeritageEncyclopediaId}")
     public ResponseEntity<?> postBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
         Long memberId = (member != null) ? member.getMemberId() : null;
-        EncyclopediaBookmarkRequestDto bookmarkDto = heritageEncyclopediaService.saveBookmark(HeritageEncyclopediaId, memberId);
+        EncyclopediaBookmarkDto bookmarkDto = heritageEncyclopediaService.saveBookmark(HeritageEncyclopediaId, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(bookmarkDto, "북마크 등록 성공"));
     }
 
     // 북마크 삭제
     @DeleteMapping("/bookmark/{HeritageEncyclopediaId}")
-    public ResponseEntity<?> postBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<?> deleteBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
         Long memberId = (member != null) ? member.getMemberId() : null;
-        EncyclopediaBookmarkResponseDto bookmarkDto = heritageEncyclopediaService.deleteBookmark(HeritageEncyclopediaId, memberId);
-        return ResponseEntity.ok(ApiResponseDto.success(bookmarkDto, "북마크 삭제 성공"));
+        EncyclopediaBookmarkDto dto = heritageEncyclopediaService.deleteBookmark(HeritageEncyclopediaId, memberId);
+        return ResponseEntity.ok(ApiResponseDto.success(dto, "북마크 삭제 성공"));
     }
 }

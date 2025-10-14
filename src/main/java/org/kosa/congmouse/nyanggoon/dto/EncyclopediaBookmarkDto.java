@@ -15,12 +15,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EncyclopediaBookmarkRequestDto {
+public class EncyclopediaBookmarkDto {
+
     private Member member;
     private HeritageEncyclopedia heritageEncyclopedia;
 
-    public static EncyclopediaBookmarkRequestDto from(EncyclopediaBookmark bookmark){
-        return EncyclopediaBookmarkRequestDto.builder()
+    public static EncyclopediaBookmarkDto from(EncyclopediaBookmark bookmark){
+        return EncyclopediaBookmarkDto.builder()
                 .member(bookmark.getMember())
                 .heritageEncyclopedia(bookmark.getHeritageEncyclopedia())
                 .build();
