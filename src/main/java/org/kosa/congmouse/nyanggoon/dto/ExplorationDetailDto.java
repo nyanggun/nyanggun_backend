@@ -29,7 +29,7 @@ public class ExplorationDetailDto {
     private MemberSimpleResponseDto member;
     private Long bookmarkCount;
     private Long commentCount;
-    private List<String> imagePath;
+    private List<String> imagePathList;
 
     public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
@@ -42,7 +42,7 @@ public class ExplorationDetailDto {
                         .id(exploration.getMember().getId())
                         .nickname(exploration.getMember().getNickname())
                         .build())
-                .imagePath(exploration.getExplorationPhotos().stream().map(ExplorationPhoto::getPath).toList())
+                .imagePathList(exploration.getExplorationPhotos().stream().map(ExplorationPhoto::getPath).toList())
                 .build();
         return explorationDetailDto;
     }

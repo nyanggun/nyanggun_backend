@@ -57,25 +57,25 @@ public class ExplorationService {
         Exploration resultExploration = explorationRepository.save(exploration);
 
         // 1. 문화재 탐방기 이미지 파일 저장
-        for(MultipartFile imageFile : imageFileList) {
-            String originalFileName = imageFile.getOriginalFilename();
-            String storedFileName = createStoredFileName(originalFileName);
-            String filePath = uploadDirPath + storedFileName;
-            // 실제 파일 저장
-            imageFile.transferTo(new File(filePath));
-
-        // 2. 문화재 탐방기 이미지 DB 저장
-            ExplorationPhoto explorationPhoto = ExplorationPhoto.builder()
-                    .originalName(originalFileName)
-                    .savedName(storedFileName)
-                    .fileExtension(getFileExt(originalFileName))
-                    .path(filePath)
-                    .size(imageFile.getSize())
-                    .build();
-            exploration.addPhoto(explorationPhoto);
-            explorationPhotoRepository.save(explorationPhoto);
+        if(imageFileList != null && !imageFileList.isEmpty()){
+            for(MultipartFile imageFile : imageFileList) {
+                String originalFileName = imageFile.getOriginalFilename();
+                String storedFileName = createStoredFileName(originalFileName);
+                String filePath = uploadDirPath + storedFileName;
+                // 실제 파일 저장
+                imageFile.transferTo(new File(filePath));
+                // 2. 문화재 탐방기 이미지 DB 저장
+                ExplorationPhoto explorationPhoto = ExplorationPhoto.builder()
+                        .originalName(originalFileName)
+                        .savedName(storedFileName)
+                        .fileExtension(getFileExt(originalFileName))
+                        .path(filePath)
+                        .size(imageFile.getSize())
+                        .build();
+                exploration.addPhoto(explorationPhoto);
+                explorationPhotoRepository.save(explorationPhoto);
+            }
         }
-
         List<ExplorationPhoto> resultExplorationPhotoList = explorationPhotoRepository.findByExplorationId(resultExploration.getId());
         List<String> resultExplorationPhotoPathList = resultExplorationPhotoList.stream().map(ExplorationPhoto::getPath).toList();
         return ExplorationDetailDto.from(resultExploration);
@@ -113,6 +113,7 @@ public class ExplorationService {
     }
 
     @Transactional
+
     public Exploration editExploration(ExplorationUpdateDto explorationUpdateDto, Long memberId){
         Exploration exploration = explorationRepository.findById(explorationUpdateDto.getId()).orElseThrow(() -> {
             throw new RuntimeException("게시글이 존재하지 않습니다");

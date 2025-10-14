@@ -33,7 +33,7 @@ public class ExplorationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart("images") List<MultipartFile> imageFileList) throws IOException {
+    public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
         ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDto, "문화재 탐방기 작성 완료"));
     }
@@ -45,7 +45,7 @@ public class ExplorationController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity patchExploration(@PathVariable Long id, @RequestBody ExplorationUpdateDto explorationUpdateDto, @AuthenticationPrincipal CustomMemberDetails memberDetails){
+    public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart("images") List<MultipartFile> impageFileList, @AuthenticationPrincipal CustomMemberDetails memberDetails){
         log.debug("글쓴이id={} 수정하는사람id={}", explorationUpdateDto.getMemberId(), memberDetails.getMember());
         Exploration exploration = explorationService.editExploration(explorationUpdateDto, memberDetails.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(ExplorationDetailDto.from(exploration));
