@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = HeritageCreateDto.HeritageCreateDtoBuilder.class)
-public class HeritageCreateDto {
+@JsonDeserialize(builder = HeritageEncyclopediaCreateDto.HeritageEncyclopediaCreateDtoBuilder.class)
+public class HeritageEncyclopediaCreateDto {
 
     @JacksonXmlProperty(localName = "ccbaAsno")
     private String manageNumber;
@@ -74,7 +74,7 @@ public class HeritageCreateDto {
                 .latitude(this.latitude)
                 .name(this.item.getName())
                 .heritageCode(this.item.getHeritageCode())
-                .address(this.item.getAddress())
+                .address(trim(this.item.getAddress()))
                 .chineseName(this.item.getChineseName())
                 .cityCode(this.cityCode)
                 .content(this.item.getContent())
@@ -85,7 +85,12 @@ public class HeritageCreateDto {
                 .build();
     }
 
+    public static String trim(String str){
+        if(str == null) return null;
+        return str.replaceAll("\\s+", " ").trim();
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonPOJOBuilder(withPrefix = "")
-    public static class HeritageCreateDtoBuilder {}
+    public static class HeritageEncyclopediaCreateDtoBuilder {}
 }

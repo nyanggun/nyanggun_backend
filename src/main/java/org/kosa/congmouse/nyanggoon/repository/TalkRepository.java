@@ -42,6 +42,10 @@
         @Query("SELECT COUNT(b) FROM TalkBookmark b WHERE b.talk.id = :talkId")
         long countBookmarksByTalkId(@Param("talkId") Long talkId);
 
+        //검색 결과
+        @Query("SELECT t FROM Talk t WHERE  t.title LIKE CONCAT('%', :keyword, '%') OR t.content  LIKE CONCAT('%', :keyword, '%')")
+        List<Talk> findTalkListWithKeyword(String keyword);
+
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원
     }

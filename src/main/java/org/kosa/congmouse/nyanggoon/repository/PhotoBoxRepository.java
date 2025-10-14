@@ -2,6 +2,7 @@ package org.kosa.congmouse.nyanggoon.repository;
 
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +21,38 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             "p.photoBox.id, p.id, p.path, p.createdAt) " +
             "FROM PhotoBoxPicture p")
     List<PhotoBoxSummaryResponseDto> findAllPictures();
+
+    // 첫 페이지 또는 cursor null
+    @Query("""
+        SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+            p.photoBox.id, p.id, p.path, p.createdAt
+        )
+        FROM PhotoBoxPicture p
+        ORDER BY p.id DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBox(Pageable pageable);
+
+    // cursor 이후 데이터
+    @Query("""
+        SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+            p.photoBox.id, p.id, p.path, p.createdAt
+        )
+        FROM PhotoBoxPicture p
+        WHERE p.id < :cursorId
+        ORDER BY p.id DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxNext(@Param("cursorId") Long cursorId, Pageable pageable);
+    //태그를 사용하여 검색합니다.
+    @Query("""
+    SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.photoBox.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxPicture p
+    JOIN p.photoBox.tags pt
+    JOIN pt.tag t
+    WHERE t.name LIKE CONCAT('%', :keyword, '%')
+    ORDER BY p.createdAt DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxPicturesWithTag(@Param("keyword") String keyword);
 
 }
