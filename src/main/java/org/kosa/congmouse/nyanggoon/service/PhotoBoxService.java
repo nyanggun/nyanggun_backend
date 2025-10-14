@@ -329,10 +329,10 @@ public class PhotoBoxService {
 
     }
 
-//    //사진함에서 태그로 검색하는 메소드 입니다.
-//    @Transactional
-//    public List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(String keyword) {
-//        List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxPicturesWithTag(keyword);
-//        return findPhotoBoxWithTag;
-//    }
+    //사진함에서 태그로 검색하는 메소드 입니다.
+    @Transactional
+    public List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(String keyword) {
+        List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxPicturesWithTag(keyword);
+        return findPhotoBoxWithTag;
+    }
 }

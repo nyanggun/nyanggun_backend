@@ -182,9 +182,15 @@ public class TalkController {
         }
     }
 
-
-
-    //담소를 신고하는 컨트롤러 입니다,
-    //담소 댓글을 신고하는 컨트롤러 입니다.
+    @GetMapping("/search")
+    public ResponseEntity<?> findTalkListWithKeyword(@RequestParam String keyword){
+        log.info("게시글들 검색 컨트롤러 작동 ok");
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        List<TalkListSummaryResponseDto> talks = talkService.findTalkListWithKeyword(username, keyword);
+        return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 검색 조회 성공"));
+    }
 
 }

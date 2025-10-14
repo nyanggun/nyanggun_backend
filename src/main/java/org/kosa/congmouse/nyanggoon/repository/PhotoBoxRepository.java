@@ -21,12 +21,17 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             "FROM PhotoBoxPicture p")
     List<PhotoBoxSummaryResponseDto> findAllPictures();
 
-//    //태그를 사용하여 검색합니다.
-//    @Query("SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(" +
-//            "p.id, p.photoBox.id, p.path, p.createdAt) " +
-//            "FROM PhotoBoxPicture p " +
-//            "JOIN p.photoBox.tags t " +
-//            "WHERE t.name LIKE %:keyword% " +
-//            "ORDER BY p.createdAt DESC")
-//    List<PhotoBoxSummaryResponseDto> findPhotoBoxPicturesWithTag(String keyword);
+    //태그를 사용하여 검색합니다.
+    @Query("""
+    SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.photoBox.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxPicture p
+    JOIN p.photoBox.tags pt
+    JOIN pt.tag t
+    WHERE t.name LIKE CONCAT('%', :keyword, '%')
+    ORDER BY p.createdAt DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxPicturesWithTag(@Param("keyword") String keyword);
+
 }
