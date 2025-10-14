@@ -3,11 +3,13 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.kosa.congmouse.nyanggoon.dto.CursorResponse;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCreateRequestDto;
 import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +35,22 @@ public class PhotoBoxService {
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
 
     //사진함 게시글들을 모두 조회하는 메소드 입니다.
-    public List<PhotoBoxSummaryResponseDto> findAllPhotoBoxList() {
+    public CursorResponse<List<PhotoBoxSummaryResponseDto>> findAllPhotoBoxList(Long cursorId) {
+        int pageSize = 10;
+        List<PhotoBoxSummaryResponseDto> photoBoxContents;
 
-        List<PhotoBoxSummaryResponseDto> PhotoBoxAll = photoBoxRepository.findAllPictures();
-        return PhotoBoxAll;
+        if (cursorId == null) {
+            photoBoxContents = photoBoxRepository.findPhotoBox(PageRequest.of(0, pageSize));
+        } else {
+            photoBoxContents = photoBoxRepository.findPhotoBoxNext(cursorId,  PageRequest.of(0, pageSize));
+        }
+
+        Long nextCursor = photoBoxContents.isEmpty() ? null : photoBoxContents.get(photoBoxContents.size() - 1).getPhotoBoxId() - 1;
+        boolean hasNext = nextCursor != null && photoBoxRepository.existsById(nextCursor);
+
+        return new CursorResponse<>(photoBoxContents, nextCursor, hasNext);
     }
+
 
     //사진함의 사진 상세를 조회하는 메소드 입니다.
     public PhotoBoxDetailResponseDto findPhotoBox(Long id, String username) {
