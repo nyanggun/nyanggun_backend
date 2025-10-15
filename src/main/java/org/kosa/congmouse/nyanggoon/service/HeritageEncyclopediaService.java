@@ -150,7 +150,6 @@ public class HeritageEncyclopediaService {
     }
 
     public HeritageEncyclopediaResponseDto searchHeritageEncyclopedia(String keyword) {
-        heritageEncyclopediaRepository.
         return null;
     }
 }
