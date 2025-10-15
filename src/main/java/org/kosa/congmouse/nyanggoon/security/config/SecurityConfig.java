@@ -80,6 +80,7 @@ public class SecurityConfig {
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
                 .requestMatchers("/swagger-ui").permitAll()
                 .requestMatchers("/api-docs").permitAll()
+                .requestMatchers("/heritages/*").permitAll()
 
                 // 나머지 모든 요청은 인증 필요
 //                .anyRequest().authenticated());

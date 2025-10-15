@@ -18,7 +18,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// 국가유산청 api에 없는 column 속성 처리
 @JsonIgnoreProperties(ignoreUnknown = true)
+// xml인 자료를 데이터베이스에 저장할 때 사용하는 builder
 @JsonDeserialize(builder = HeritageEncyclopediaCreateDto.HeritageEncyclopediaCreateDtoBuilder.class)
 public class HeritageEncyclopediaCreateDto {
 
@@ -85,11 +87,13 @@ public class HeritageEncyclopediaCreateDto {
                 .build();
     }
 
+    // address에 /n, /t가 가 포함되어 있어 제거
     public static String trim(String str){
         if(str == null) return null;
         return str.replaceAll("\\s+", " ").trim();
     }
 
+    // xml인 자료를 데이터베이스에 저장할 때 사용하는 builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonPOJOBuilder(withPrefix = "")
     public static class HeritageEncyclopediaCreateDtoBuilder {}
