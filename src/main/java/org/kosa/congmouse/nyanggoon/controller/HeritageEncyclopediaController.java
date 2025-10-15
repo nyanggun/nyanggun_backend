@@ -54,6 +54,7 @@ public class HeritageEncyclopediaController {
     // 북마크 저장
     @PostMapping("/bookmark/{HeritageEncyclopediaId}")
     public ResponseEntity<?> postBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+        log.info("북마크 생성");
         Long memberId = (member != null) ? member.getMemberId() : null;
         EncyclopediaBookmarkDto bookmarkDto = heritageEncyclopediaService.saveBookmark(HeritageEncyclopediaId, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(bookmarkDto, "북마크 등록 성공"));
@@ -62,8 +63,17 @@ public class HeritageEncyclopediaController {
     // 북마크 삭제
     @DeleteMapping("/bookmark/{HeritageEncyclopediaId}")
     public ResponseEntity<?> deleteBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+        log.info("북마크 삭제");
         Long memberId = (member != null) ? member.getMemberId() : null;
-        EncyclopediaBookmarkDto dto = heritageEncyclopediaService.deleteBookmark(HeritageEncyclopediaId, memberId);
-        return ResponseEntity.ok(ApiResponseDto.success(dto, "북마크 삭제 성공"));
+        EncyclopediaBookmarkDto bookmarkDto = heritageEncyclopediaService.deleteBookmark(HeritageEncyclopediaId, memberId);
+        return ResponseEntity.ok(ApiResponseDto.success(bookmarkDto, "북마크 삭제 성공"));
+    }
+
+    // 검색 기능
+    @GetMapping("/search")
+    public ResponseEntity<?> getHeritageEncyclopediaSearch(@RequestParam String keyword){
+        log.info("검색 시작");
+        HeritageEncyclopediaResponseDto heritageEncyclopediaResponseDto = heritageEncyclopediaService.searchHeritageEncyclopedia(keyword);
+        return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDto, "문화재 검색 성공"));
     }
 }

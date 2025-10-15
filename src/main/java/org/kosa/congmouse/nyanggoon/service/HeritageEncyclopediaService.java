@@ -4,7 +4,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
-import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkRequestDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
@@ -135,16 +134,23 @@ public class HeritageEncyclopediaService {
         return EncyclopediaBookmarkDto.from(savedBookmark);
     }
 
+    @Transactional
     public EncyclopediaBookmarkDto deleteBookmark(Long heritageEncyclopediaId, Long memberId) {
+        log.info("북마크 삭제");
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
         HeritageEncyclopedia heritageEncyclopedia = heritageEncyclopediaRepository.findById(heritageEncyclopediaId).orElseThrow(() -> new IllegalArgumentException("해당하는 문화재가 없습니다."));
 
-        EncyclopediaBookmark bookmark = EncyclopediaBookmark.builder()
-                .member(member)
-                .heritageEncyclopedia(heritageEncyclopedia)
-                .build();
+        EncyclopediaBookmark bookmark = encyclopediaBookmarkRepository
+                .findByMemberAndHeritageEncyclopedia(member, heritageEncyclopedia)
+                        .orElseThrow(() -> new IllegalArgumentException("해당하는 북마크가 없습니다."));
 
         encyclopediaBookmarkRepository.delete(bookmark);
+        log.info("삭제된 북마크 memberId{} heritageId{}", memberId, heritageEncyclopediaId);
         return EncyclopediaBookmarkDto.from(bookmark);
+    }
+
+    public HeritageEncyclopediaResponseDto searchHeritageEncyclopedia(String keyword) {
+        heritageEncyclopediaRepository.
+        return null;
     }
 }
