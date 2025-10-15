@@ -3,7 +3,7 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.kosa.congmouse.nyanggoon.dto.CursorResponse;
+import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCursorResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCreateRequestDto;
@@ -35,7 +35,7 @@ public class PhotoBoxService {
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
 
     //사진함 게시글들을 모두 조회하는 메소드 입니다.
-    public CursorResponse<List<PhotoBoxSummaryResponseDto>> findAllPhotoBoxList(Long cursorId) {
+    public PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> findAllPhotoBoxList(Long cursorId) {
         int pageSize = 10;
         List<PhotoBoxSummaryResponseDto> photoBoxContents;
 
@@ -46,9 +46,9 @@ public class PhotoBoxService {
         }
 
         Long nextCursor = photoBoxContents.isEmpty() ? null : photoBoxContents.get(photoBoxContents.size() - 1).getPhotoBoxId() - 1;
-        boolean hasNext = nextCursor != null && photoBoxRepository.existsById(nextCursor);
+        boolean hasNext = photoBoxContents.size() == pageSize;
 
-        return new CursorResponse<>(photoBoxContents, nextCursor, hasNext);
+        return new PhotoBoxCursorResponseDto<>(photoBoxContents, nextCursor, hasNext);
     }
 
 
@@ -344,8 +344,20 @@ public class PhotoBoxService {
 
     //사진함에서 태그로 검색하는 메소드 입니다.
     @Transactional
-    public List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(String keyword) {
-        List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxPicturesWithTag(keyword);
-        return findPhotoBoxWithTag;
+    public PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> findPhotoBoxWithTag(String keyword, Long cursorId) {
+        int pageSize = 5;
+        List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag;
+        if (cursorId == null) {
+            findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxWithTag(keyword,PageRequest.of(0, pageSize));
+        } else {
+            findPhotoBoxWithTag = photoBoxRepository.findPhotoBoxNextWithTag(keyword,cursorId,  PageRequest.of(0, pageSize));
+        }
+
+        Long nextCursor = findPhotoBoxWithTag.isEmpty() ? null : findPhotoBoxWithTag.get(findPhotoBoxWithTag.size() - 1).getPhotoBoxId()-1 ;
+        boolean hasNext = findPhotoBoxWithTag.size() == pageSize;
+
+        return new PhotoBoxCursorResponseDto<>(findPhotoBoxWithTag, nextCursor, hasNext);
     }
+
+
 }

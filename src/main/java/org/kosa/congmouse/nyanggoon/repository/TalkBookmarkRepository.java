@@ -22,4 +22,7 @@ public interface TalkBookmarkRepository extends JpaRepository<TalkBookmark, Long
     @Query("SELECT tb.id FROM TalkBookmark tb WHERE tb.talk.id = :talkId AND tb.member.id = :memberId")
     Long getBookmarkByMemberAndTalk(@Param("memberId") Long memberId, @Param("talkId") Long talkId);
 
+    @Query("SELECT tb.talk.id FROM TalkBookmark tb WHERE tb.member = :member AND tb.talk.id IN :talkIds")
+    List<Long> findTalkIdsByMemberWithCursor(@Param("member") Member member, @Param("talkIds") List<Long> talkIds);
+
 }

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
-
 @Data
 @AllArgsConstructor
-public class CursorResponse<T> {
-    private List<PhotoBoxSummaryResponseDto> contents;
+public class TalkCursorResponseDto<T>{
+    private List<TalkListSummaryResponseDto> contents;
     private Long nextCursor;
     private boolean hasNext;
 }

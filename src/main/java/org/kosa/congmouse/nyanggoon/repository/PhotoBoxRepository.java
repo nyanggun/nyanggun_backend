@@ -22,6 +22,8 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             "FROM PhotoBoxPicture p")
     List<PhotoBoxSummaryResponseDto> findAllPictures();
 
+    //사진함 조회 쿼리문 입니다.
+    //무한스크롤로 구현했습니다.
     // 첫 페이지 또는 cursor null
     @Query("""
         SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
@@ -42,7 +44,23 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
         ORDER BY p.id DESC
     """)
     List<PhotoBoxSummaryResponseDto> findPhotoBoxNext(@Param("cursorId") Long cursorId, Pageable pageable);
+
+
+//    @Query("""
+//    SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+//        p.photoBox.id, p.id, p.path, p.createdAt
+//    )
+//    FROM PhotoBoxPicture p
+//    JOIN p.photoBox.tags pt
+//    JOIN pt.tag t
+//    WHERE t.name LIKE CONCAT('%', :keyword, '%')
+//    ORDER BY p.createdAt DESC
+//    """)
+//    List<PhotoBoxSummaryResponseDto> findPhotoBoxPicturesWithTag(@Param("keyword") String keyword);
+
     //태그를 사용하여 검색합니다.
+    //무한 스크롤로 구현합니다.
+    //첫 페이지 (cursor = null)
     @Query("""
     SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
         p.photoBox.id, p.id, p.path, p.createdAt
@@ -50,9 +68,31 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
     FROM PhotoBoxPicture p
     JOIN p.photoBox.tags pt
     JOIN pt.tag t
-    WHERE t.name LIKE CONCAT('%', :keyword, '%')
-    ORDER BY p.createdAt DESC
-    """)
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxPicturesWithTag(@Param("keyword") String keyword);
+    WHERE (t.name LIKE CONCAT('%', :keyword, '%')
+    OR p.photoBox.title LIKE CONCAT('%', :keyword, '%'))
+    ORDER BY p.id DESC
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+    // 다음 페이지 (cursor != null)
+    @Query("""
+    SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.photoBox.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxPicture p
+    JOIN p.photoBox.tags pt
+    JOIN pt.tag t
+    WHERE (t.name LIKE CONCAT('%', :keyword, '%')
+        OR p.photoBox.title LIKE CONCAT('%', :keyword, '%'))
+      AND (:cursorId IS NULL OR p.id < :cursorId)
+    ORDER BY p.id DESC
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxNextWithTag(
+            @Param("keyword") String keyword,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 
 }
