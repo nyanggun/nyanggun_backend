@@ -71,6 +71,7 @@ public class SecurityConfig {
                 // GET 방식, 전체 게시글 조회는 인증 없이 접근을 모두 허용
                 .requestMatchers(HttpMethod.GET, "/explorations").permitAll()
                 .requestMatchers(HttpMethod.GET, "/explorations/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/explorations/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/talks").permitAll()
                 .requestMatchers(HttpMethod.GET, "/talks/detail/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox").permitAll()
