@@ -2,7 +2,7 @@ package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
-import org.kosa.congmouse.nyanggoon.repository.HeritageRepository;
+import org.kosa.congmouse.nyanggoon.repository.HeritageEncyclopediaRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ public class ChatbotService {
     @Qualifier("groqWebClient")
     private final WebClient groqWebClient;
 
-    private final HeritageRepository heritageRepository;
+    private final HeritageEncyclopediaRepository heritageRepository;
 
     @Value("${groq.api.model:openai/gpt-oss-20b}")
     private String model;
