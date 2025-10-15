@@ -7,10 +7,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
+import org.kosa.congmouse.nyanggoon.entity.ExplorationPhoto;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.MemberSimpleResponseDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,6 +29,7 @@ public class ExplorationDetailDto {
     private MemberSimpleResponseDto member;
     private Long bookmarkCount;
     private Long commentCount;
+    private List<String> imagePathList;
 
     public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
@@ -39,8 +42,8 @@ public class ExplorationDetailDto {
                         .id(exploration.getMember().getId())
                         .nickname(exploration.getMember().getNickname())
                         .build())
+                .imagePathList(exploration.getExplorationPhotos().stream().map(ExplorationPhoto::getPath).toList())
                 .build();
         return explorationDetailDto;
     }
-
 }

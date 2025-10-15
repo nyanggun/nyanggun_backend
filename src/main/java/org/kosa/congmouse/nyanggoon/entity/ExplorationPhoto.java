@@ -49,4 +49,8 @@ public class ExplorationPhoto {
     @Column(name="created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // 다대일관계의 exploration 지정
+    protected void setExploration(Exploration exploration){
+        this.exploration = exploration;
+    }
 }
