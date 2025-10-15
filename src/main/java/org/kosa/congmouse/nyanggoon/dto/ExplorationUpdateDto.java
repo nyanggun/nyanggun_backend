@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -15,4 +17,5 @@ public class ExplorationUpdateDto {
     private String content;
     private String relatedHeritage;
     private Long memberId;
+    private List<String> imagesToDelete;
 }

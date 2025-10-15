@@ -45,10 +45,12 @@ public class ExplorationController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart("images") List<MultipartFile> impageFileList, @AuthenticationPrincipal CustomMemberDetails memberDetails){
+    public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFilelist, @AuthenticationPrincipal CustomMemberDetails memberDetails) throws IOException {
+        log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         log.debug("글쓴이id={} 수정하는사람id={}", explorationUpdateDto.getMemberId(), memberDetails.getMember());
-        Exploration exploration = explorationService.editExploration(explorationUpdateDto, memberDetails.getMemberId());
-        return ResponseEntity.status(HttpStatus.OK).body(ExplorationDetailDto.from(exploration));
+        log.debug("사진들{}", imageFilelist);
+        ExplorationDetailDto explorationDetailDto = explorationService.editExploration(explorationUpdateDto,imageFilelist, memberDetails.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
     @DeleteMapping("/{id}")
@@ -80,4 +82,10 @@ public class ExplorationController {
         return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
     }
 
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
+        List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 "));
+    }
 }
