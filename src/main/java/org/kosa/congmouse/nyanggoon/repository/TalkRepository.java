@@ -2,8 +2,10 @@
 
     import org.kosa.congmouse.nyanggoon.dto.TalkCommentResponseDto;
     import org.kosa.congmouse.nyanggoon.dto.TalkDetailResponseDto;
+    import org.kosa.congmouse.nyanggoon.dto.TalkListSummaryResponseDto;
     import org.kosa.congmouse.nyanggoon.entity.Talk;
     import org.kosa.congmouse.nyanggoon.entity.TalkComment;
+    import org.springframework.data.domain.Pageable;
     import org.springframework.data.jpa.repository.JpaRepository;
     import org.springframework.data.jpa.repository.Query;
     import org.springframework.data.repository.query.Param;
@@ -15,6 +17,12 @@
     @Repository
     public interface TalkRepository extends JpaRepository<Talk, Long> {
 
+        @Query("SELECT t FROM Talk t ORDER BY t.id DESC")
+        List<Talk> getTalkList(Pageable pageable);
+
+        @Query("SELECT t FROM Talk t WHERE t.id < :cursorId ORDER BY t.id DESC")
+        List<Talk> getTalkListNext(@Param("cursorId") Long cursorId, Pageable pageable);
+
         //쿼리문은 엔티티 클래스명으로 작성해야 한다.
         @Query("SELECT t FROM Talk t JOIN FETCH t.member")
         List<Talk> findAllWithMember();
@@ -23,16 +31,19 @@
         TalkDetailResponseDto findTalkDetail(@Param("id") Long id);
 
         // 게시글별 댓글 수 조회
-        @Query("SELECT t.id, COUNT(c) " +
-                "FROM Talk t LEFT JOIN TalkComment c ON c.talk.id = t.id " +
+        @Query("SELECT t.id, COUNT(c) FROM Talk t " +
+                "LEFT JOIN TalkComment c ON c.talk.id = t.id " +
+                "WHERE t.id IN :talkIds " +
                 "GROUP BY t.id")
-        List<Object[]> countCommentsPerTalk();
+        List<Object[]> countCommentsPerTalk(@Param("talkIds") List<Long> talkIds);
 
-        // 게시글별 북마크 수 조회
-        @Query("SELECT t.id, COUNT(b) " +
-                "FROM Talk t LEFT JOIN TalkBookmark b ON b.talk.id = t.id " +
+        //게시글별 북마크 수 조회
+        @Query("SELECT t.id, COUNT(b) FROM Talk t " +
+                "LEFT JOIN TalkBookmark b ON b.talk.id = t.id " +
+                "WHERE t.id IN :talkIds " +
                 "GROUP BY t.id")
-        List<Object[]> countBookmarksPerTalk();
+        List<Object[]> countBookmarksPerTalk(@Param("talkIds") List<Long> talkIds);
+
 
         // 댓글 개수
         @Query("SELECT COUNT(c) FROM TalkComment c WHERE c.talk.id = :talkId")
@@ -43,8 +54,11 @@
         long countBookmarksByTalkId(@Param("talkId") Long talkId);
 
         //검색 결과
-        @Query("SELECT t FROM Talk t WHERE  t.title LIKE CONCAT('%', :keyword, '%') OR t.content  LIKE CONCAT('%', :keyword, '%')")
-        List<Talk> findTalkListWithKeyword(String keyword);
+        @Query("SELECT t FROM Talk t WHERE  t.title LIKE CONCAT('%', :keyword, '%') OR t.content  LIKE CONCAT('%', :keyword, '%') ORDER BY t.id DESC")
+        List<Talk> findTalkListWithKeyword(String keyword, Pageable pageable);
+
+        @Query("SELECT t FROM Talk t WHERE t.id < :cursorId AND (t.title LIKE CONCAT('%', :keyword, '%') OR t.content LIKE CONCAT('%', :keyword, '%')) ORDER BY t.id DESC")
+        List<Talk> findTalkListWithKeywordNext(@Param("cursorId") Long cursorId, String keyword, Pageable pageable);
 
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원

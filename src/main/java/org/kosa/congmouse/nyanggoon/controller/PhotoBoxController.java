@@ -27,7 +27,7 @@ public class PhotoBoxController {
     @GetMapping("")
     public ResponseEntity<?> getAllPhotoBoxList(@RequestParam(required = false) Long cursor){
         log.info("사진함 게시글들 조회 컨트롤러 작동 ok");
-        CursorResponse<List<PhotoBoxSummaryResponseDto>> photoBoxList = photoBoxService.findAllPhotoBoxList(cursor);
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = photoBoxService.findAllPhotoBoxList(cursor);
         return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "게시물 목록 조회 성공"));
     }
 
@@ -136,13 +136,16 @@ public class PhotoBoxController {
 
     //사진함 게시글을 검색하는 컨트롤러 입니다.
     @GetMapping("/search")
-    public ResponseEntity<?> findPhotoBoxWithTag(@RequestParam String keyword){
+    public ResponseEntity<?> findPhotoBoxWithTag(@RequestParam String keyword, @RequestParam(required = false) Long cursor){
 
         log.info("사진함 게시글 검색 컨트롤러 작동 ok");
-        List<PhotoBoxSummaryResponseDto> photoBoxList = photoBoxService.findPhotoBoxWithTag(keyword);
+        log.info("받은 요청 : keyword= {} cursor={} ", keyword, cursor);
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = photoBoxService.findPhotoBoxWithTag(keyword, cursor);
 
         return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "게시물 검색 결과 조회 성공"));
     }
+
+
 
     //사진함 게시글을 신고하는 컨트롤러 입니다.
     //인증 필요

@@ -10,6 +10,7 @@ import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
 import org.kosa.congmouse.nyanggoon.repository.TalkBookmarkRepository;
 import org.kosa.congmouse.nyanggoon.repository.TalkCommentRepository;
 import org.kosa.congmouse.nyanggoon.repository.TalkRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +33,37 @@ public class TalkService {
     private final TalkBookmarkRepository talkBookmarkRepository;
 
     //모든 담소 게시글을 불러오는 메소드 입니다.
-    public List<TalkListSummaryResponseDto> findAllTalkList(String username) {
-
+    public TalkCursorResponseDto<List<TalkListSummaryResponseDto>> findAllTalkList(String username, Long cursor) {
+        int pageSize = 10;
         //유저 조회
         Member member = memberRepository.findByEmail(username)
                 .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
 
         log.info("담소 게시물을 전부 출력합니다.");
-        List<Talk> talks = talkRepository.findAll(); // 게시글 목록
-        List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(); //댓글 개수
-        List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(); //북마크 개수
+
+        List<Talk> talks ;
+        List<Object[]> commentCounts;
+        List<Object[]> bookmarkCounts;
+        List<Long> bookmarkedTalkIds;
+        List<TalkListSummaryResponseDto> talkListSummaryResponseDto;
+        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
+
+        //Talk 목록만 가져온 후, 해당 게시글의 북마크 여부와 댓글 개수는 따로 가져온다.
+        if (cursor == null) {
+             talks = talkRepository.getTalkList(PageRequest.of(0, pageSize)); // 게시글 목록
+       } else {
+            talks =  talkRepository.getTalkListNext(cursor, PageRequest.of(0, pageSize)); // 게시글 목록
+        }
+
+        List<Long> talkIds = talks.stream().map(Talk::getId).collect(Collectors.toList());
+        commentCounts = talkRepository.countCommentsPerTalk(talkIds);
+        bookmarkCounts = talkRepository.countBookmarksPerTalk(talkIds);
+
+        // 로그인 유저 북마크 여부
+        if (member != null) {
+            bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMemberWithCursor(member, talkIds);
+            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
+        }
 
         Map<Long, Long> commentCountMap = commentCounts.stream()
                 .collect(Collectors.toMap(
@@ -55,15 +77,7 @@ public class TalkService {
                         arrBook -> (Long) arrBook[1]   // count
                 ));
 
-        //북마크 여부 가져오기
-        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
-        if (member != null) { // 로그인 사용자만 체크
-            List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMember(member);
-            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
-        }
-
-
-        List<TalkListSummaryResponseDto> talkListSummaryResponseDto = talks.stream()
+        talkListSummaryResponseDto = talks.stream()
                 .map(t -> TalkListSummaryResponseDto.builder()
                         .talkId(t.getId())
                         .title(t.getTitle())
@@ -77,7 +91,12 @@ public class TalkService {
                         .build())
                 .collect(Collectors.toList());
 
-        return talkListSummaryResponseDto;
+        //커서 보내기
+        Long nextCursor = talkListSummaryResponseDto.isEmpty() ? null : talkListSummaryResponseDto.get(talkListSummaryResponseDto.size() - 1).getTalkId() - 1;
+        boolean hasNext = talkListSummaryResponseDto.size() == pageSize;
+
+        return new TalkCursorResponseDto<>(talkListSummaryResponseDto, nextCursor, hasNext);
+
     }
 
     //담소 게시글의 상세를 조회하는 메소드 입니다.
@@ -101,7 +120,6 @@ public class TalkService {
             isBookmarked = talkBookmarkRepository.getBookmarkByMemberAndTalk(member.getId(), talk.getId()) != null;
 
         }
-
 
         //해당 게시글의 댓글들을 가져옵니다.
         List<TalkComment> talkComment = talkCommentRepository.findTalkComment(id);
@@ -262,15 +280,39 @@ public class TalkService {
     }
 
     //게시글을 검색하는 메소드 입니다.
-    public List<TalkListSummaryResponseDto> findTalkListWithKeyword(String username, String keyword) {
+    public TalkCursorResponseDto<List<TalkListSummaryResponseDto>> findTalkListWithKeyword(String username, String keyword, Long cursor) {
+
+        int pageSize = 10;
+
         //유저 조회
         Member member = memberRepository.findByEmail(username)
                 .orElse(null); // 로그인 안 했을 수도 있으니 null 허용
 
         log.info("담소 게시물 검색 결과를 출력합니다.");
-        List<Talk> talks = talkRepository.findTalkListWithKeyword(keyword); // 게시글 목록
-        List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(); //댓글 개수
-        List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(); //북마크 개수
+
+        List<Talk> talks ;
+        List<Object[]> commentCounts;
+        List<Object[]> bookmarkCounts;
+        List<Long> bookmarkedTalkIds;
+        List<TalkListSummaryResponseDto> talkListSummaryResponseDto;
+        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
+
+        //Talk 목록만 가져온 후, 해당 게시글의 북마크 여부와 댓글 개수는 따로 가져온다.
+        if (cursor == null) {
+            talks = talkRepository.findTalkListWithKeyword(keyword, PageRequest.of(0, pageSize)); // 게시글 검색 목록
+        } else {
+            talks =  talkRepository.findTalkListWithKeywordNext(cursor, keyword, PageRequest.of(0, pageSize)); // 게시글 검색 목록
+        }
+
+        List<Long> talkIds = talks.stream().map(Talk::getId).collect(Collectors.toList());
+        commentCounts = talkRepository.countCommentsPerTalk(talkIds);
+        bookmarkCounts = talkRepository.countBookmarksPerTalk(talkIds);
+
+        // 로그인 유저 북마크 여부
+        if (member != null) {
+            bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMemberWithCursor(member, talkIds);
+            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
+        }
 
         Map<Long, Long> commentCountMap = commentCounts.stream()
                 .collect(Collectors.toMap(
@@ -284,15 +326,7 @@ public class TalkService {
                         arrBook -> (Long) arrBook[1]   // count
                 ));
 
-        //북마크 여부 가져오기
-        Set<Long> bookmarkedTalkIdSet = new HashSet<>();
-        if (member != null) { // 로그인 사용자만 체크
-            List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMember(member);
-            bookmarkedTalkIdSet.addAll(bookmarkedTalkIds);
-        }
-
-
-        List<TalkListSummaryResponseDto> talkListSummaryResponseDto = talks.stream()
+        talkListSummaryResponseDto = talks.stream()
                 .map(t -> TalkListSummaryResponseDto.builder()
                         .talkId(t.getId())
                         .title(t.getTitle())
@@ -306,6 +340,20 @@ public class TalkService {
                         .build())
                 .collect(Collectors.toList());
 
-        return talkListSummaryResponseDto;
+        //커서 보내기
+        Long nextCursor = talkListSummaryResponseDto.isEmpty() ? null : talkListSummaryResponseDto.get(talkListSummaryResponseDto.size() - 1).getTalkId() - 1;
+        boolean hasNext = talkListSummaryResponseDto.size() == pageSize;
+
+        return new TalkCursorResponseDto<>(talkListSummaryResponseDto, nextCursor, hasNext);
+
     }
+
+
+
+
+
 }
+
+
+
+
