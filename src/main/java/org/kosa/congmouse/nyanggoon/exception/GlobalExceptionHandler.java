@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -16,7 +17,7 @@ public class GlobalExceptionHandler {
     // 404 not found
     // 사용자가 요청한 리소스를 서버에서 찾을 수 없음
     @ExceptionHandler
-    public ResponseEntity<GlobalErrorResponse> handleRuntimeException(RuntimeException e){
+    public ResponseEntity<GlobalErrorResponse> handleRuntimeException(RuntimeException e) {
         log.error("사용자가 요청한 리소스를 서버에서 찾을 수 없음{}", e.getMessage(), e);
         GlobalErrorResponse error = GlobalErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -28,11 +29,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 입출력 오류
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<GlobalErrorResponse> handleIOException(IOException e) {
+        log.error("IO Exception 발생{}", e.getMessage(), e);
+        GlobalErrorResponse error = GlobalErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(500)
+                .message("서버 내부에서 파일 입출력 도중 오류가 발생했습니다")
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    /**
      * 그외 예상하지 못한 시스템 오류
      * -500 Internal Server Error 응답
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<GlobalErrorResponse> handleException(Exception e){
+    public ResponseEntity<GlobalErrorResponse> handleException(Exception e) {
         log.error("예상하지 못한 오류 발생{}", e.getMessage(), e);
         GlobalErrorResponse error = GlobalErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

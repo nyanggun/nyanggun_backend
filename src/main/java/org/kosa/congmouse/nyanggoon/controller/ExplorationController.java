@@ -13,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class ExplorationController {
     }
 
     @PostMapping("")
-    public ResponseEntity postExploration(@RequestBody ExplorationCreateDto explorationCreateDto){
-        Exploration exploration = explorationService.createExploration(explorationCreateDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ExplorationDetailDto.from(exploration));
+    public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
+        ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDto, "문화재 탐방기 작성 완료"));
     }
 
     @GetMapping("/{id}")
@@ -43,10 +45,12 @@ public class ExplorationController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity patchExploration(@PathVariable Long id, @RequestBody ExplorationUpdateDto explorationUpdateDto, @AuthenticationPrincipal CustomMemberDetails memberDetails){
+    public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFilelist, @AuthenticationPrincipal CustomMemberDetails memberDetails) throws IOException {
+        log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         log.debug("글쓴이id={} 수정하는사람id={}", explorationUpdateDto.getMemberId(), memberDetails.getMember());
-        Exploration exploration = explorationService.editExploration(explorationUpdateDto, memberDetails.getMemberId());
-        return ResponseEntity.status(HttpStatus.OK).body(ExplorationDetailDto.from(exploration));
+        log.debug("사진들{}", imageFilelist);
+        ExplorationDetailDto explorationDetailDto = explorationService.editExploration(explorationUpdateDto,imageFilelist, memberDetails.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
     @DeleteMapping("/{id}")
@@ -78,4 +82,10 @@ public class ExplorationController {
         return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
     }
 
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
+        List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 "));
+    }
 }
