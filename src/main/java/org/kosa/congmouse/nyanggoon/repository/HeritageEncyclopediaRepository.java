@@ -38,5 +38,15 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
      */
     @Query(value = "SELECT * FROM heritage_encyclopedias h WHERE :aiResponse LIKE CONCAT('%', h.name, '%') LIMIT 1", nativeQuery = true)
     HeritageEncyclopedia findSingleHeritageByNameInString(@Param("aiResponse") String aiResponse);
-//    Page<HeritageEncyclopedia> findAllByKoreanName(Pageable pageable);
+
+    // 검색기능 + 페이지
+    @Query("""
+            SELECT h FROM HeritageEncyclopedia h
+            WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(h.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(h.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(h.period) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            ORDER BY h.name ASC
+            """)
+    Page<HeritageEncyclopedia> searchHeritageEncyclopedia(@Param("keyword") String keyword, Pageable pageable);
 }

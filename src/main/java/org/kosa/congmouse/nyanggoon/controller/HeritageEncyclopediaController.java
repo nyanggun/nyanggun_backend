@@ -39,8 +39,8 @@ public class HeritageEncyclopediaController {
     // 문화재 도감 리스트-인기순
     @GetMapping("/list/popular")
     public ResponseEntity<?> getHeritageEncyclopediaPopularList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size){
-        Page<HeritageEncyclopediaResponseDto> result = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByPopular(page, size);
-        return ResponseEntity.ok(ApiResponseDto.success(result, "문화재 도감 목록 조회 성공"));
+        Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByPopular(page, size);
+        return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtosPage, "문화재 도감 목록 조회 성공"));
     }
 
     // 문화재 도감 상세페이지
@@ -71,9 +71,10 @@ public class HeritageEncyclopediaController {
 
     // 검색 기능
     @GetMapping("/search")
-    public ResponseEntity<?> getHeritageEncyclopediaSearch(@RequestParam String keyword){
-        log.info("검색 시작");
-        HeritageEncyclopediaResponseDto heritageEncyclopediaResponseDto = heritageEncyclopediaService.searchHeritageEncyclopedia(keyword);
-        return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDto, "문화재 검색 성공"));
+    public ResponseEntity<?> getHeritageEncyclopediaSearch(@RequestParam String keyword, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "4")int size, @AuthenticationPrincipal CustomMemberDetails member){
+        log.info("검색 시작 키워드 {} ", keyword);
+        Long memberId = (member != null) ? member.getMemberId() : null;
+        Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.searchHeritageEncyclopedia(keyword, page, size, memberId);
+        return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtosPage, "문화재 검색 성공"));
     }
 }
