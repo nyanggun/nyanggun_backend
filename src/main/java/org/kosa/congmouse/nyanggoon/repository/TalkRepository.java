@@ -24,7 +24,9 @@
         @Query("SELECT DISTINCT t FROM Talk t LEFT JOIN FETCH t.talkPictures WHERE t.id < :cursorId ORDER BY t.id DESC")
         List<Talk> getTalkListNext(@Param("cursorId") Long cursorId, Pageable pageable);
 
-
+        //게시글 상세 조회 (fetch join 사용)
+        @Query("SELECT t FROM Talk t LEFT JOIN FETCH t.talkPictures WHERE t.id = :id")
+        Optional<Talk> findTalkDetailWithPictures(@Param("id") Long id);
 
         //쿼리문은 엔티티 클래스명으로 작성해야 한다.
         @Query("SELECT t FROM Talk t JOIN FETCH t.member")
@@ -57,11 +59,11 @@
         long countBookmarksByTalkId(@Param("talkId") Long talkId);
 
         //검색 결과
-        @Query("SELECT t FROM Talk t WHERE  t.title LIKE CONCAT('%', :keyword, '%') OR t.content  LIKE CONCAT('%', :keyword, '%') ORDER BY t.id DESC")
-        List<Talk> findTalkListWithKeyword(String keyword, Pageable pageable);
+        @Query("SELECT DISTINCT t FROM Talk t LEFT JOIN FETCH t.talkPictures WHERE t.title LIKE CONCAT('%', :keyword, '%') OR t.content LIKE CONCAT('%', :keyword, '%') ORDER BY t.id DESC")
+        List<Talk> findTalkListWithKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-        @Query("SELECT t FROM Talk t WHERE t.id < :cursorId AND (t.title LIKE CONCAT('%', :keyword, '%') OR t.content LIKE CONCAT('%', :keyword, '%')) ORDER BY t.id DESC")
-        List<Talk> findTalkListWithKeywordNext(@Param("cursorId") Long cursorId, String keyword, Pageable pageable);
+        @Query("SELECT DISTINCT t FROM Talk t LEFT JOIN FETCH t.talkPictures WHERE t.id < :cursorId AND (t.title LIKE CONCAT('%', :keyword, '%') OR t.content LIKE CONCAT('%', :keyword, '%')) ORDER BY t.id DESC")
+        List<Talk> findTalkListWithKeywordNext(@Param("cursorId") Long cursorId, @Param("keyword") String keyword, Pageable pageable);
 
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원

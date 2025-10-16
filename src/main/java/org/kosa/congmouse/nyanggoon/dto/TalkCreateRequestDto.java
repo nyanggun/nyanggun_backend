@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TalkCreateRequestDto {
-
     private String title;
     private String content;
 }

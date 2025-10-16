@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.TalkPicture;
 
 import java.time.LocalDateTime;
 
@@ -16,4 +17,13 @@ public class TalkPictureResponseDto {
     private Long talkPictureId;
     private String path;
     private LocalDateTime createdAt;
+
+    public static TalkPictureResponseDto from(TalkPicture talkPicture) {
+        return TalkPictureResponseDto.builder()
+                .talkId(talkPicture.getTalk().getId())
+                .talkPictureId(talkPicture.getId())
+                .path(talkPicture.getPath())
+                .createdAt(talkPicture.getCreatedAt())
+                .build();
+    }
 }
