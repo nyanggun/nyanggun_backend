@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatRequestDto {
-    private String message;  // 사용자가 보낸 질문
+    private String message;  // 사용자 입력 메시지
 }

@@ -83,10 +83,11 @@ public class SecurityConfig {
                 .requestMatchers("/api-docs").permitAll()
                 .requestMatchers("/heritages/*").permitAll()
 
+                // 챗봇 API는 인증 필요
+                .requestMatchers("/api/chat/**").authenticated()
+
                 // 나머지 모든 요청은 인증 필요
-//                .anyRequest().authenticated());
-                //임시로 모든 요청 인증 풀음
-                .anyRequest().permitAll());
+                .anyRequest().authenticated());
 
         // 예외 처리 핸들러 등록
         http.exceptionHandling(exception -> exception
