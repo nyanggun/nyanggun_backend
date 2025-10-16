@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-//담소 게시글을 생성하는 Dto 입니다.
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TalkCreateRequestDto {
-
-    private String title;
-    private String content;
+public class TalkPictureResponseDto {
+    private Long talkId;
+    private Long talkPictureId;
+    private String path;
+    private LocalDateTime createdAt;
 }

@@ -1,19 +1,17 @@
 package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.kosa.congmouse.nyanggoon.dto.*;
-import org.kosa.congmouse.nyanggoon.entity.Member;
-import org.kosa.congmouse.nyanggoon.entity.Talk;
-import org.kosa.congmouse.nyanggoon.entity.TalkBookmark;
-import org.kosa.congmouse.nyanggoon.entity.TalkComment;
-import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
-import org.kosa.congmouse.nyanggoon.repository.TalkBookmarkRepository;
-import org.kosa.congmouse.nyanggoon.repository.TalkCommentRepository;
-import org.kosa.congmouse.nyanggoon.repository.TalkRepository;
+import org.kosa.congmouse.nyanggoon.entity.*;
+import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +29,10 @@ public class TalkService {
     private final MemberRepository memberRepository;
     private final TalkCommentRepository talkCommentRepository;
     private final TalkBookmarkRepository talkBookmarkRepository;
+    private final TalkPictureRepository talkPictureRepository;
 
     //모든 담소 게시글을 불러오는 메소드 입니다.
-    public TalkCursorResponseDto<List<TalkListSummaryResponseDto>> findAllTalkList(String username, Long cursor) {
+    public TalkCursorResponseDto<List<TalkCreateResponseDto>> findAllTalkList(String username, Long cursor) {
         int pageSize = 10;
         //유저 조회
         Member member = memberRepository.findByEmail(username)
@@ -50,7 +49,7 @@ public class TalkService {
 
         //Talk 목록만 가져온 후, 해당 게시글의 북마크 여부와 댓글 개수는 따로 가져온다.
         if (cursor == null) {
-             talks = talkRepository.getTalkList(PageRequest.of(0, pageSize)); // 게시글 목록
+            talks = talkRepository.getTalkList(PageRequest.of(0, pageSize)); // 게시글 목록
        } else {
             talks =  talkRepository.getTalkListNext(cursor, PageRequest.of(0, pageSize)); // 게시글 목록
         }
@@ -76,20 +75,34 @@ public class TalkService {
                         arrBook -> (Long) arrBook[0],  // talkId
                         arrBook -> (Long) arrBook[1]   // count
                 ));
-
         talkListSummaryResponseDto = talks.stream()
-                .map(t -> TalkListSummaryResponseDto.builder()
-                        .talkId(t.getId())
-                        .title(t.getTitle())
-                        .content(t.getContent())
-                        .memberId(t.getMember().getId())
-                        .nickname(t.getMember().getNickname())
-                        .createdAt(t.getCreatedAt())
-                        .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
-                        .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L)) // 북마크도 동일하게 처리
-                        .isBookmarked(bookmarkedTalkIdSet.contains(t.getId())) //유저의 북마크 여부
-                        .build())
+                .map(t -> {
+                    // 엔티티 -> DTO 변환
+                    List<TalkPictureResponseDto> talkPictureResponseDto = t.getTalkPictures().stream()
+                            .map(p -> TalkPictureResponseDto.builder()
+                                    .talkId(p.getTalk().getId())
+                                    .talkPictureId(p.getId())
+                                    .path(p.getPath())
+                                    .createdAt(p.getCreatedAt())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    // DTO 빌드
+                    return TalkListSummaryResponseDto.builder()
+                            .talkId(t.getId())
+                            .title(t.getTitle())
+                            .content(t.getContent())
+                            .memberId(t.getMember().getId())
+                            .nickname(t.getMember().getNickname())
+                            .createdAt(t.getCreatedAt())
+                            .talkPictureList(talkPictureResponseDto) // 변환된 DTO 리스트 사용
+                            .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
+                            .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L))
+                            .isBookmarked(bookmarkedTalkIdSet.contains(t.getId()))
+                            .build();
+                })
                 .collect(Collectors.toList());
+
 
         //커서 보내기
         Long nextCursor = talkListSummaryResponseDto.isEmpty() ? null : talkListSummaryResponseDto.get(talkListSummaryResponseDto.size() - 1).getTalkId() - 1;
@@ -133,11 +146,11 @@ public class TalkService {
 
     //담소 게시글을 작성하는 메소드 입니다.
     @Transactional
-    public Long createTalk(TalkCreateRequestDto talkCreateRequestDto) {
+    public Long createTalk(TalkCreateRequestDto talkCreateRequestDto, List<MultipartFile> files, String username) {
         log.info("담소 게시글 작성 시작");
 
         //해당 회원이 있는 지 확인한다.
-        Member member = memberRepository.findById(talkCreateRequestDto.getMemberId())
+        Member member = memberRepository.findByEmail(username)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
 
         log.info("회원 확인 완료. 게시글 객체를 생성합니다.");
@@ -151,10 +164,65 @@ public class TalkService {
 
         //담소 게시글을 저장한다.
         Talk savedTalk = talkRepository.save(talk);
+
+        //사진 저장 (여러개)
+        for (MultipartFile file : files) {
+        String originalName = file.getOriginalFilename(); // 사용자가 업로드한 파일 이름
+        long size = file.getSize();                       // 파일 크기
+        String extension = FilenameUtils.getExtension(originalName); // 확장자 추출 (commons-io)
+
+        String filePath = null;
+        if (file != null && !file.isEmpty()) {
+            filePath = saveFile(file, savedTalk.getId(), extension);
+        }
+
+        //사진 저장하는 객체
+        TalkPicture talkPicture = TalkPicture.builder()
+                .talk(savedTalk)
+                .originalName(originalName)
+                .savedName(filePath)
+                .path("/uploads/talks/" + filePath)
+                .size(size)
+                .fileExtension(extension)
+                .build();
+
+        TalkPicture saveTalkPicture = talkPictureRepository.save(talkPicture);
+        }
+
         log.info("담소 게시글 작성 완료: id={}, title={}", savedTalk.getId(), savedTalk.getTitle());
 
         return savedTalk.getId();
 
+    }
+
+    //사진을 업로드하는 메소드 입니다.
+    //여러 사진을 업로드합니다. (최대 4장)
+    private String saveFile(MultipartFile file, Long photoBoxId, String extension) {
+        // Windows 바탕화면 경로 (현재 사용자 기준)
+//        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
+//        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
+        // 서버 루트 기준 uploads 폴더
+        String uploadDir = System.getProperty("user.dir") + "/uploads/talks/";
+
+        //저장 파일 명 :
+        String savedFileName = String.valueOf(photoBoxId) + "."+ extension;
+
+        //폴더 없으면 폴더 만들기
+        File uploadPath = new File(uploadDir);
+        if (!uploadPath.exists()) {
+            uploadPath.mkdirs();
+        }
+        //파일 객체 생성
+        File dest = new File(uploadDir, savedFileName);
+
+        //파일 저장
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 실패", e);
+        }
+
+        return savedFileName;
     }
 
 

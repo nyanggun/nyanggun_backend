@@ -1,6 +1,7 @@
     package org.kosa.congmouse.nyanggoon.repository;
 
     import org.kosa.congmouse.nyanggoon.dto.TalkCommentResponseDto;
+    import org.kosa.congmouse.nyanggoon.dto.TalkCreateResponseDto;
     import org.kosa.congmouse.nyanggoon.dto.TalkDetailResponseDto;
     import org.kosa.congmouse.nyanggoon.dto.TalkListSummaryResponseDto;
     import org.kosa.congmouse.nyanggoon.entity.Talk;
@@ -17,11 +18,13 @@
     @Repository
     public interface TalkRepository extends JpaRepository<Talk, Long> {
 
-        @Query("SELECT t FROM Talk t ORDER BY t.id DESC")
+        @Query("SELECT DISTINCT t FROM Talk t LEFT JOIN FETCH t.talkPictures ORDER BY t.id DESC")
         List<Talk> getTalkList(Pageable pageable);
 
-        @Query("SELECT t FROM Talk t WHERE t.id < :cursorId ORDER BY t.id DESC")
+        @Query("SELECT DISTINCT t FROM Talk t LEFT JOIN FETCH t.talkPictures WHERE t.id < :cursorId ORDER BY t.id DESC")
         List<Talk> getTalkListNext(@Param("cursorId") Long cursorId, Pageable pageable);
+
+
 
         //쿼리문은 엔티티 클래스명으로 작성해야 한다.
         @Query("SELECT t FROM Talk t JOIN FETCH t.member")
