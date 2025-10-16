@@ -28,7 +28,7 @@ public class ExplorationController {
 
     @GetMapping("")
     public ResponseEntity getExplorationList(){
-        List<ExplorationDetailDto> explorationList = explorationService.getExplorationList().reversed();
+        List<ExplorationDetailDto> explorationList = explorationService.getExplorationList();
         return ResponseEntity.status(HttpStatus.OK).body(explorationList);
     }
 

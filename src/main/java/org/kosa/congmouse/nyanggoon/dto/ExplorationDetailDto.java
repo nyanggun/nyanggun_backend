@@ -31,6 +31,21 @@ public class ExplorationDetailDto {
     private Long commentCount;
     private List<String> imageNameList;
 
+    public ExplorationDetailDto(Long id, LocalDateTime createdAt, String title, String content, String relatedHeritage,
+                                Long memberId, String memberNickname, Long bookmarkCount, Long commentCount) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.title = title;
+        this.content = content;
+        this.relatedHeritage = relatedHeritage;
+        // memberId와 memberNickname으로 MemberSimpleResponseDto 객체를 직접 만들어줍니다.
+        this.member = new MemberSimpleResponseDto(memberId, memberNickname);
+        this.bookmarkCount = bookmarkCount;
+        this.commentCount = commentCount;
+        // imageNameList는 이 쿼리로 가져오지 않으므로, null이나 빈 리스트로 초기화합니다.
+        this.imageNameList = new java.util.ArrayList<>();
+    }
+
     public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
                 .id(exploration.getId())
