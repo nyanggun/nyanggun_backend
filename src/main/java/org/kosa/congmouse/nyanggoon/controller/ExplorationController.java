@@ -32,6 +32,13 @@ public class ExplorationController {
         return ResponseEntity.status(HttpStatus.OK).body(explorationList);
     }
 
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
+        List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 "));
+    }
+
     @PostMapping("")
     public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
         ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
@@ -82,10 +89,4 @@ public class ExplorationController {
         return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
     }
 
-    // 검색
-    @GetMapping("/search")
-    public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
-        List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
-        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 "));
-    }
 }
