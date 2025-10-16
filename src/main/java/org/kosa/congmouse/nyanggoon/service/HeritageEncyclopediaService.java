@@ -33,7 +33,7 @@ public class HeritageEncyclopediaService {
     private final EncyclopediaBookmarkRepository encyclopediaBookmarkRepository;
     private final MemberRepository memberRepository;
 
-    // 문화재 도감 저장 from 국가유산성 api
+    // 문화재 도감 저장 from 국가유산청 api
     @Transactional
     public void saveHeritageList() {
         String listUrl = "https://www.khs.go.kr/cha/SearchKindOpenapiList.do?pageUnit=300&ccbaCncl=N&ccbaKdcd=11&ccbaCtcd=11";
@@ -102,6 +102,8 @@ public class HeritageEncyclopediaService {
     }
 
     public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByPopular(int page, int size) {
+        log.info("===문화재 도감 인기순 조회 시작===");
+
         return null;
     }
 
@@ -119,6 +121,7 @@ public class HeritageEncyclopediaService {
         return HeritageEncyclopediaResponseDto.from(heritageEncyclopedia, bookmarkCount, isBookmarked);
     }
 
+    // 북마크 생성
     @Transactional
     public EncyclopediaBookmarkDto saveBookmark(Long heritageEncyclopediaId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당하는 멤버가 없습니다"));
@@ -134,6 +137,7 @@ public class HeritageEncyclopediaService {
         return EncyclopediaBookmarkDto.from(savedBookmark);
     }
 
+    // 북마크 삭제
     @Transactional
     public EncyclopediaBookmarkDto deleteBookmark(Long heritageEncyclopediaId, Long memberId) {
         log.info("북마크 삭제");
@@ -149,7 +153,21 @@ public class HeritageEncyclopediaService {
         return EncyclopediaBookmarkDto.from(bookmark);
     }
 
-    public HeritageEncyclopediaResponseDto searchHeritageEncyclopedia(String keyword) {
-        return null;
+    // 검색
+    public Page<HeritageEncyclopediaResponseDto> searchHeritageEncyclopedia(String keyword, int page, int size, Long memberId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<HeritageEncyclopedia> heritageEncyclopediaPage = heritageEncyclopediaRepository.searchHeritageEncyclopedia(keyword, pageable);
+        log.info("===검색된 문화재 도감 가나다순 목록 첫번째 문화재 이름: {} ===", heritageEncyclopediaPage.getContent().get(0).getName());
+
+        return heritageEncyclopediaPage.map((heritage) -> {
+            Long heritageEncyclopediaId = heritage.getId();
+            boolean isBookmarked = false;
+            if(memberId != null){
+                isBookmarked = encyclopediaBookmarkRepository.existsByMemberIdAndHeritageEncyclopediaId(memberId, heritageEncyclopediaId);
+            }
+            long bookmarkCount = encyclopediaBookmarkRepository.countByHeritageEncyclopediaId(heritageEncyclopediaId);
+
+            return HeritageEncyclopediaResponseDto.from(heritage, bookmarkCount, isBookmarked);
+        });
     }
 }
