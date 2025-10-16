@@ -26,6 +26,19 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
     // 특정 종목(subjectCode) + 시도(cityCode) 조건 조회
     List<HeritageEncyclopedia> findBySubjectCodeAndCityCode(int subjectCode, int cityCode);
 
+    // 메시지 전체가 아닌, DB에 저장된 문화재 이름이 메시지 안에 포함되어 있는지를 확인하는 로직을 유지하면서,
+    // 그 결과가 1개 이상일 경우
+    @Query("SELECT h FROM HeritageEncyclopedia h WHERE :message LIKE CONCAT('%', h.name, '%')")
+    List<HeritageEncyclopedia> findHeritageByMessageContent(@Param("message") String message);
+
+    /**
+     * AI 응답 문자열에서 문화재 이름을 찾아 단일 엔티티를 반환합니다.
+     * AI의 긴 응답 문자열(`:aiResponse`) 내에 DB에 저장된 문화재 이름이 포함되어 있는지 확인합니다.
+     * 결과가 여러 개일 경우 첫 번째 결과만 반환합니다.
+     */
+    @Query(value = "SELECT * FROM heritage_encyclopedias h WHERE :aiResponse LIKE CONCAT('%', h.name, '%') LIMIT 1", nativeQuery = true)
+    HeritageEncyclopedia findSingleHeritageByNameInString(@Param("aiResponse") String aiResponse);
+
     // 검색기능 + 페이지
     @Query("""
             SELECT h FROM HeritageEncyclopedia h
@@ -36,5 +49,4 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
             ORDER BY h.name ASC
             """)
     Page<HeritageEncyclopedia> searchHeritageEncyclopedia(@Param("keyword") String keyword, Pageable pageable);
-
 }
