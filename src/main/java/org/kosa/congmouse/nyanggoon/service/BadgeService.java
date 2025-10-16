@@ -2,15 +2,22 @@ package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaBadgeResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.HunterBadgeAcquireResponseDto;
+import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.HunterBadge;
 import org.kosa.congmouse.nyanggoon.entity.HunterBadgeAquisition;
 import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.repository.HeritageEncyclopediaRepository;
 import org.kosa.congmouse.nyanggoon.repository.HunterBadgeAquisitionRepository;
 import org.kosa.congmouse.nyanggoon.repository.HunterBadgeRepository;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +27,18 @@ public class BadgeService {
 
     private final HunterBadgeRepository hunterBadgeRepository;
     private final HunterBadgeAquisitionRepository hunterBadgeAquisitionRepository;
+    private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
     private final MemberRepository memberRepository;
+
+    /**
+     * 지도에 증표 표시하는 메서드
+     * @return
+     */
+    public List<HeritageEncyclopediaBadgeResponseDto> getHeritageEncyclopediaList() {
+        return heritageEncyclopediaRepository.findAll().stream()
+                .map(HeritageEncyclopediaBadgeResponseDto::from)
+                .collect(Collectors.toUnmodifiableList());
+    }
 
     /**
      * 획득한 증표를 저장하는 메서드
