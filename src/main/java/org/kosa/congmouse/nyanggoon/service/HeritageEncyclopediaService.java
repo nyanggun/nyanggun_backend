@@ -82,11 +82,11 @@ public class HeritageEncyclopediaService {
         }
     }
 
-    // 문화재 도감 리스트
+    // 문화재 도감 리스트 - 가나다순
     public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByKoreanName(int page, int size, Long memberId){
         log.info("===문화재 도감 가나다순 조회 시작===");
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        Page<HeritageEncyclopedia> heritageEncyclopediaPage = heritageEncyclopediaRepository.findAll(pageable);
+        Page<HeritageEncyclopedia> heritageEncyclopediaPage = heritageEncyclopediaRepository.findAllOrderByName(pageable);
         log.info("===조회된 문화재 도감 가나다순 목록 첫번째 문화재 이름: {} ===", heritageEncyclopediaPage.getContent().getFirst().getName());
 
         return heritageEncyclopediaPage.map((heritage) -> {
@@ -101,10 +101,23 @@ public class HeritageEncyclopediaService {
         });
     }
 
-    public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByPopular(int page, int size) {
+    // 문화재 도감 리스트 - 인기순
+    public Page<HeritageEncyclopediaResponseDto> getAllHeritageEncyclopediasSortedByPopular(int page, int size, Long memberId) {
         log.info("===문화재 도감 인기순 조회 시작===");
+        Pageable pageable = PageRequest.of(page, size);
+        Page<HeritageEncyclopedia> heritageEncyclopediaPage = heritageEncyclopediaRepository.findAllOrderByPopular(pageable);
+        log.info("===검색된 문화재 도감 인기순 목록 첫번째 문화재 이름: {} ===", heritageEncyclopediaPage.getContent().get(0).getName());
 
-        return null;
+        return heritageEncyclopediaPage.map((heritage) -> {
+            Long heritageEncyclopediaId = heritage.getId();
+            boolean isBookmarked = false;
+            if(memberId != null){
+                isBookmarked = encyclopediaBookmarkRepository.existsByMemberIdAndHeritageEncyclopediaId(memberId, heritageEncyclopediaId);
+            }
+            long bookmarkCount = encyclopediaBookmarkRepository.countByHeritageEncyclopediaId(heritageEncyclopediaId);
+
+            return HeritageEncyclopediaResponseDto.from(heritage, bookmarkCount, isBookmarked);
+        });
     }
 
     // 상세 페이지
