@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -157,9 +158,30 @@ public class ExplorationService {
     }
 
     public List<ExplorationDetailDto> getExplorationList() {
-        List<Exploration> explorationList = explorationRepository.findAllWithExplorationPhotos();
-        List<ExplorationDetailDto> explorationDetailDtoList = explorationList.stream().map(ExplorationDetailDto::from).toList();
-        return explorationDetailDtoList;
+        // Exploration과 bookmarkCount, commentCount 정보를 닮은 dtoList 먼저 반환
+        List<ExplorationDetailDto> dtoList = explorationRepository.findAllWithBookmarkCountAndCommentCounts();
+        // 조회 결과가 없으면 바로 반환
+        if (dtoList.isEmpty()) {
+            return dtoList;
+        }
+        // 전체 문화재 탐방기 이미지 리스트 반환
+        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
+        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
+                .collect(Collectors.toMap(
+                        Exploration::getId, // Key: Exploration ID
+                        e -> e.getExplorationPhotos().stream() // Value: 이미지 파일명 리스트
+                                .map(ExplorationPhoto::getSavedName)
+                                .toList()
+                ));
+
+        // 최종 조합: 기본 DTO 리스트에 이미지 정보 주입(Hydration)
+        dtoList.forEach(dto -> {
+            List<String> photoNames = photoMap.get(dto.getId());
+            if (photoNames != null) {
+                dto.setImageNameList(photoNames);
+            }
+        });
+        return dtoList;
     }
 
     @Transactional
