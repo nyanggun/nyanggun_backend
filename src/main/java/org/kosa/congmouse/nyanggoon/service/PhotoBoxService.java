@@ -107,7 +107,7 @@ public class PhotoBoxService {
                 .photoBox(photoBox)
                 .originalName(originalName)
                 .savedName(filePath)
-                .path("/uploads/" + filePath)
+                .path("/uploads/photobox/" + filePath)
                 .size(size)
                 .fileExtension(extension)
                 .build();
@@ -141,7 +141,7 @@ public class PhotoBoxService {
 //        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
 //        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
         // 서버 루트 기준 uploads 폴더
-        String uploadDir = System.getProperty("user.dir") + "/uploads/";
+        String uploadDir = System.getProperty("user.dir") + "/uploads/photobox/";
 
         //저장 파일 명 :
         String savedFileName = String.valueOf(photoBoxId) + "."+ extension;
@@ -197,7 +197,7 @@ public class PhotoBoxService {
             // 새 파일 저장
             String extension = FilenameUtils.getExtension(file.getOriginalFilename());
             String savedName = saveFile(file, photoBox.getId(), extension);
-            String path = "/uploads/" + savedName;
+            String path = "/uploads/photobox/" + savedName;
 
             existingPicture.update(
                     file.getOriginalFilename(),
@@ -262,7 +262,7 @@ public class PhotoBoxService {
         }
 
         // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
-        Path filePath = Paths.get("uploads").resolve(fileName);
+        Path filePath = Paths.get("uploads/photobox").resolve(fileName);
 
         try {
             Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제

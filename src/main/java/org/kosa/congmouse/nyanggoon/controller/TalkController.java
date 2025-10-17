@@ -6,10 +6,12 @@ import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 import org.kosa.congmouse.nyanggoon.service.TalkService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class TalkController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
-        TalkCursorResponseDto<List<TalkListSummaryResponseDto>> talks = talkService.findAllTalkList(username, cursor);
+        TalkCursorResponseDto<List<TalkCreateResponseDto>> talks = talkService.findAllTalkList(username, cursor);
         return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 목록 조회 성공"));
     }
 
@@ -58,9 +60,13 @@ public class TalkController {
      * @param talkCreateRequestDto
      * @return
      */
-    @PostMapping("")
-    public ResponseEntity<?> createTalk(@RequestBody TalkCreateRequestDto talkCreateRequestDto){
-            Long talkId= talkService.createTalk(talkCreateRequestDto);
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createTalk( @RequestPart("talkData") TalkCreateRequestDto talkCreateRequestDto,  @RequestPart(value = "files", required = false) List<MultipartFile> files){
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+            Long talkId= talkService.createTalk(talkCreateRequestDto, files, username);
         // ApiResponseDto 의 표준화된 형식으로 응답한다
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 작성되었습니다."));
     }
@@ -71,10 +77,14 @@ public class TalkController {
      * @param talkUpdateRequestDto
      * @return
      */
-    @PutMapping("/{talkId}")
-    public ResponseEntity<?> updateTalkById(@PathVariable Long talkId, @RequestBody TalkUpdateRequestDto talkUpdateRequestDto){
-        talkService.updateTalk(talkId, talkUpdateRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkUpdateRequestDto, "게시글이 수정되었습니다."));
+    @PutMapping(value = "/{talkId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateTalkById(@PathVariable Long talkId,  @RequestPart("talkData") TalkUpdateRequestDto talkUpdateRequestDto ,  @RequestPart(value = "files", required = false) List<MultipartFile> files){
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        talkService.updateTalk(talkId, talkUpdateRequestDto, files, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 수정되었습니다."));
     }
 
     /**
@@ -182,6 +192,7 @@ public class TalkController {
         }
     }
 
+    //담소 게시글을 검색하는 컨트롤러 입니다.
     @GetMapping("/search")
     public ResponseEntity<?> findTalkListWithKeyword(@RequestParam String keyword, Long cursor){
         log.info("게시글들 검색 컨트롤러 작동 ok");
@@ -189,7 +200,7 @@ public class TalkController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
-        TalkCursorResponseDto<List<TalkListSummaryResponseDto>> talks = talkService.findTalkListWithKeyword(username, keyword, cursor);
+        TalkCursorResponseDto<List<TalkCreateResponseDto>> talks = talkService.findTalkListWithKeyword(username, keyword, cursor);
         return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 검색 조회 성공"));
     }
 

@@ -7,6 +7,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "talks")
@@ -37,7 +39,11 @@ public class Talk {
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
-    
+
+    @OneToMany(mappedBy = "talk", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TalkPicture> talkPictures = new ArrayList<>();
+
+
     //연관 관계 메소드(단방향)
     public void assignAuthor(Member member){ this.member = member; }
 
