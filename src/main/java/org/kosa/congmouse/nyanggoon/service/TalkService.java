@@ -231,45 +231,56 @@ public class TalkService {
 
     //담소 게시글을 수정하는 메소드 입니다.
     @Transactional
-    public void updateTalk(Long talkId, TalkUpdateRequestDto talkUpdateRequestDto, List<MultipartFile> files, String username) {
-        log.info("담소 게시글 수정 시작");
-        Talk talk = talkRepository.findById(talkId).orElseThrow(()->new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+    public Long updateTalk(Long talkId, TalkUpdateRequestDto talkUpdateRequestDto, List<MultipartFile> files, String username) {
+        Talk talk = talkRepository.findById(talkId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
         if (!talk.getMember().getEmail().equals(username)) {
             throw new AccessDeniedException("게시글 수정 권한이 없습니다.");
         }
 
-//        // 게시글 정보 수정
-//        photoBox.update(photoBoxCreateRequestDto.getTitle(), photoBoxCreateRequestDto.getRelatedHeritage());
-//        PhotoBoxPicture existingPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
-//
-//        log.info("게시글 정보 수정 완료");
-//
-//        // 사진 파일 수정 처리
-//        if (file != null && !file.isEmpty()) {
-//
-//            // 기존 파일 삭제
-//            deleteFile(existingPicture.getSavedName());
-//
-//            // 새 파일 저장
-//            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-//            String savedName = saveFile(file, photoBox.getId(), extension);
-//            String path = "/uploads/photobox/" + savedName;
-//
-//            existingPicture.update(
-//                    file.getOriginalFilename(),
-//                    savedName,
-//                    path,
-//                    file.getSize(),
-//                    extension
-//            );
-//        }
+        // 1. 제목/내용 수정
+        talk.update(talkUpdateRequestDto.getTitle(), talkUpdateRequestDto.getContent());
 
+        // 2. 기존 이미지 처리
+        List<Long> remainingImageIds = talkUpdateRequestDto.getRemainingImages();
+        if (talk.getTalkPictures() != null) {
+            talk.getTalkPictures().removeIf(picture -> {
+                // remainingImages에 포함되지 않으면 삭제
+                if (remainingImageIds == null || !remainingImageIds.contains(picture.getId())) {
+                    deleteFile(picture.getSavedName());
+                    return true;
+                }
+                return false;
+            });
+        }
 
-        log.info("담소 게시글 수정 완료: photoId = {}", talkId);
+        // 3. 새 파일 업로드
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (file != null && !file.isEmpty()) {
+                    String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+                    String savedName = saveFile(file, talk.getId(), extension);
+                    String path = "/uploads/talks/" + savedName;
 
-        talk.update(talkUpdateRequestDto.getTitle(),  talkUpdateRequestDto.getContent());
+                    TalkPicture newPicture = TalkPicture.builder()
+                            .originalName(file.getOriginalFilename())
+                            .savedName(savedName)
+                            .path(path)
+                            .size(file.getSize())
+                            .fileExtension(extension)
+                            .talk(talk)
+                            .build();
+
+                    talk.getTalkPictures().add(newPicture);
+                }
+            }
+        }
+
+        return talkId;
     }
+
+
 
 
 

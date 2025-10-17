@@ -84,7 +84,7 @@ public class TalkController {
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
         talkService.updateTalk(talkId, talkUpdateRequestDto, files, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkUpdateRequestDto, "게시글이 수정되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 수정되었습니다."));
     }
 
     /**
