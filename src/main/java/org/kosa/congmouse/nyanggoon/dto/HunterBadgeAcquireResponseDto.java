@@ -18,12 +18,12 @@ public class HunterBadgeAcquireResponseDto {
     private Member member;
     private HunterBadge hunterBadge;
 
-    public static HunterBadgeAcquireResponseDto from(HunterBadgeAquisition hunterBadgeAquisition){
+    public static HunterBadgeAcquireResponseDto from(HunterBadgeAcquisition hunterBadgeAcquisition){
         return HunterBadgeAcquireResponseDto.builder()
-                .badgeId(hunterBadgeAquisition.getId())
-                .acquisitionDate(hunterBadgeAquisition.getAcquisitionDate())
-                .member(hunterBadgeAquisition.getMember())
-                .hunterBadge(hunterBadgeAquisition.getHunterBadge())
+                .badgeId(hunterBadgeAcquisition.getId())
+                .acquisitionDate(hunterBadgeAcquisition.getAcquisitionDate())
+                .member(hunterBadgeAcquisition.getMember())
+                .hunterBadge(hunterBadgeAcquisition.getHunterBadge())
                 .build();
 
     }

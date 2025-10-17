@@ -49,4 +49,20 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
             ORDER BY h.name ASC
             """)
     Page<HeritageEncyclopedia> searchHeritageEncyclopedia(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("""
+            SELECT h
+            FROM HeritageEncyclopedia h
+            ORDER BY h.name ASC
+            """)
+    Page<HeritageEncyclopedia> findAllOrderByName(Pageable pageable);
+
+    @Query("""
+            SELECT h
+            FROM HeritageEncyclopedia h
+            LEFT JOIN EncyclopediaBookmark b ON b.heritageEncyclopedia = h
+            GROUP BY h
+            ORDER BY COUNT(b) DESC
+            """)
+    Page<HeritageEncyclopedia> findAllOrderByPopular(Pageable pageable);
 }

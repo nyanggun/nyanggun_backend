@@ -38,8 +38,9 @@ public class HeritageEncyclopediaController {
 
     // 문화재 도감 리스트-인기순
     @GetMapping("/list/popular")
-    public ResponseEntity<?> getHeritageEncyclopediaPopularList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size){
-        Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByPopular(page, size);
+    public ResponseEntity<?> getHeritageEncyclopediaPopularList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size, @AuthenticationPrincipal CustomMemberDetails member){
+        Long memberId = (member != null) ? member.getMemberId() : null;
+        Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByPopular(page, size, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtosPage, "문화재 도감 목록 조회 성공"));
     }
 
