@@ -31,6 +31,7 @@ public class TalkService {
     private final TalkCommentRepository talkCommentRepository;
     private final TalkBookmarkRepository talkBookmarkRepository;
     private final TalkPictureRepository talkPictureRepository;
+    private final TalkReportRepository talkReportRepository;
 
     //모든 담소 게시글을 불러오는 메소드 입니다.
     public TalkCursorResponseDto<List<TalkCreateResponseDto>> findAllTalkList(String username, Long cursor) {
@@ -505,10 +506,22 @@ public class TalkService {
 
     }
 
-
-
-
-
+    @Transactional
+    public ReportResponseDto createTalkReport(ReportCreateRequestDto reportCreateRequestDto) {
+        TalkReport createdTalkReport = TalkReport.builder()
+                .reason(reportCreateRequestDto.getReason())
+                .talk(talkRepository.findById(reportCreateRequestDto.getPostId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 문화재 담소가 존재하지 않습니다");
+                        }))
+                .member(memberRepository.findById(reportCreateRequestDto.getMemberId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 멤버가 존재하지 않습니다");
+                        }))
+                .build();
+        talkReportRepository.save(createdTalkReport);
+        return ReportResponseDto.fromTalkReport(createdTalkReport);
+    }
 }
 
 

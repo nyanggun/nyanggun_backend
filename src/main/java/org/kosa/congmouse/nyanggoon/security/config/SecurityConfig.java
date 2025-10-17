@@ -77,6 +77,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/photobox").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox/{id}").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                // 관리자 기능
+                .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
                 .requestMatchers("/swagger-ui").permitAll()
