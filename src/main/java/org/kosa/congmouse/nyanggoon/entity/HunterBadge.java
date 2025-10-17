@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 @Builder
 @Getter
 @ToString
-@Slf4j
 public class HunterBadge {
     // id, primary key, 값 자동 증가
     @Column(name="id")
@@ -35,21 +34,19 @@ public class HunterBadge {
     @Column(name="longitude", precision = 9, scale = 6, nullable = false)
     private BigDecimal longitude;
 
-    // 헌터뱃지이미지, 일대일관계, 외래키, not null, on delete cascade
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="badge_image_id", foreignKey = @ForeignKey(name = "fk_badge_image_id"),nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private HunterBadgeImage badgeImageId;
+    // 헌터뱃지이미지 S3 경로
+    @Column(name="img_url", length=255, nullable = false)
+    private String imgUrl;
 
     // 이벤트, 다대일관계, 외래키, not null, on delete cascade
-    @ManyToOne
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name="hunter_event_id", foreignKey = @ForeignKey(name="fk_hunter_events_id"), nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private HunterEvent hunterEvent;
 
     // 문화재 도감, 다대일관계, 외래키, not null, on delete cascade
-    @JoinColumn(name="encyclopedia_id", foreignKey = @ForeignKey(name="fk_hunter_encyclopedia_id"), nullable = false)
     @ManyToOne
+    @JoinColumn(name="encyclopedia_id", foreignKey = @ForeignKey(name="fk_hunter_encyclopedia_id"), nullable = false)
     @OnDelete(action=OnDeleteAction.CASCADE)
     private HeritageEncyclopedia heritageEncyclopedia;
 }

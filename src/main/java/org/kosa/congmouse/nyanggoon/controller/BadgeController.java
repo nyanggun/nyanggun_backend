@@ -1,22 +1,16 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.HunterBadgeAcquireResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.HeritageListResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.BadgeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/badges")
@@ -26,41 +20,26 @@ public class BadgeController {
 
     public final BadgeService badgeService;
 
+    // 지도에 표시할 모든 증표
     @GetMapping("/markers")
-    public ResponseEntity<?> getHeritageListTemp(){
-        String url = "https://www.khs.go.kr/cha/SearchKindOpenapiList.do?pageUnit=1000&ccbaCncl=N&ccbaKdcd=11&ccbaCtcd=11";
-        RestTemplate restTemplate = new RestTemplate();
-        try{
-            String xmlResponse = restTemplate.getForObject(url, String.class);
-            XmlMapper xmlMapper = new XmlMapper();
-            Map<String, Object> root = xmlMapper.readValue(xmlResponse, Map.class);
-            List<Map<String, Object>> itemList = (List<Map<String, Object>>) root.get("item");
-            String itemListToJson = xmlMapper.writeValueAsString(itemList);
-            List<HeritageListResponseDto> heritageListResponseDtos =
-                    xmlMapper.readValue(itemListToJson, new TypeReference<List<HeritageListResponseDto>>() {});
-//            heritageListResponseDtos.forEach(dto ->log.info(dto.getName()));
-            // 각 DTO에 badgeUrl 주입
-            heritageListResponseDtos.forEach(dto -> {
-                try {
-                    // CDN 주소 생성
-                    String badgeUrl =
-                            "https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/" + dto.getName() + ".png";
-
-                    dto.setBadgeUrl(badgeUrl);
-                } catch (Exception e) {
-                    // 혹시 이름이 null이거나 인코딩 에러일 경우 기본 이미지로 대체
-                    dto.setBadgeUrl("https://cdn.jsdelivr.net/gh/nyanggun/nyanggoon-badges@main/기본.png");
-                }
-            });
-            return ResponseEntity.ok(ApiResponseDto.success(heritageListResponseDtos, "유적 조회 성공"));
-        }catch(Exception e){
-            return ResponseEntity.internalServerError().body(ApiResponseDto.error("500", "서버 오류 발생"));
-        }
+    public ResponseEntity<?> getHeritageList(){
+        List<HunterBadgeMarkerResponseDto> dtoList = badgeService.getHunterBadgeList();
+        return ResponseEntity.ok(ApiResponseDto.success(dtoList, "지도에 문화재 표시 완료"));
     }
 
-    @PostMapping("/acquire/{id}")
-    public ResponseEntity<?> postBadgeAquireByBadgeId(@PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails user){
-        HunterBadgeAcquireResponseDto hunterBadgeAcquireResponseDto = badgeService.badgeAquire(id, user.getMemberId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(hunterBadgeAcquireResponseDto, "증표 획득 성공!"));
+    // 증표 획득
+    @PostMapping("/acquire/{badgeId}")
+    public ResponseEntity<?> postBadgeAquireByBadgeId(@PathVariable Long badgeId, @AuthenticationPrincipal CustomMemberDetails member){
+        Long memberId = (member != null) ? member.getMemberId() : null;
+        HunterBadgeAcquireResponseDto hunterBadgeAcquireResponseDto = badgeService.saveAquiredBadge(badgeId, memberId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(hunterBadgeAcquireResponseDto, "증표 획득 성공"));
+    }
+
+    // 지도에 표시할 이미 획득한 증표(유저에 따라)
+    @GetMapping("/acquired")
+    public ResponseEntity<?> getAcquiredBadgesByMemberId(@AuthenticationPrincipal CustomMemberDetails member){
+        Long memberId = (member != null) ? member.getMemberId() : null;
+        List<Long> acquiredBadgeIds  = badgeService.findAcquiredBadgesList(memberId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(acquiredBadgeIds, "획득한 증표 id 목록 조회 성공"));
     }
 }
