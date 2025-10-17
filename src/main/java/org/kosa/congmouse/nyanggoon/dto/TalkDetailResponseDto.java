@@ -23,6 +23,7 @@ public class TalkDetailResponseDto {
     private Long memberId;
     private String nickname;
     private LocalDateTime createdAt;
+    private List<TalkPictureResponseDto> talkPictureList; //게시글 사진들 추가
     private long commentCount;   // 댓글 수
     private long bookmarkCount;  // 북마크 수
     private boolean isBookmarked; // 북마크 여부
@@ -37,6 +38,13 @@ public class TalkDetailResponseDto {
                 .memberId(talk.getMember().getId())
                 .nickname(talk.getMember().getNickname())
                 .createdAt(talk.getCreatedAt())
+                .talkPictureList(
+                        talk.getTalkPictures() != null
+                                ? talk.getTalkPictures().stream()
+                                .map(TalkPictureResponseDto::from)
+                                .toList()
+                                : List.of()
+                )
                 .comments(comments)
                 .commentCount(commentCount)
                 .bookmarkCount(bookmarkCount)

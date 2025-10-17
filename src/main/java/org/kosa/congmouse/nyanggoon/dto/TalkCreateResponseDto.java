@@ -1,20 +1,25 @@
 package org.kosa.congmouse.nyanggoon.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.Member;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-//담소 게시글을 수정할 때 사용하는 Dto 입니다.
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TalkUpdateRequestDto {
+public class TalkCreateResponseDto {
+    private Long talkId;
     private String title;
     private String content;
-    private Long talkId;
-    private List<Long> remainingImages;
+    private Member member;
+    private LocalDateTime createdAt;
+    private List<TalkPictureResponseDto> talkPictureList;
+
 }
