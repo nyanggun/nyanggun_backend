@@ -25,6 +25,7 @@ import java.util.List;
 @Slf4j
 public class ExplorationController {
     private final ExplorationService explorationService;
+    private final ExplorationReportService explorationReportService;
 
     @GetMapping("")
     public ResponseEntity getExplorationList(){
@@ -89,4 +90,14 @@ public class ExplorationController {
         return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
     }
 
+    /**
+     * 문화재 탐방기 게시글 신고 요청
+     * @param reportCreateRequestDto
+     * @return 신고 요청에 대한 결과를 반환
+     */
+    @PostMapping("/reports")
+    public ResponseEntity<?> postExplorationReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+        ReportResponseDto explorationReportResponseDto = explorationReportService.createExplorationReport(reportCreateRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "신고 완료"));
+    }
 }
