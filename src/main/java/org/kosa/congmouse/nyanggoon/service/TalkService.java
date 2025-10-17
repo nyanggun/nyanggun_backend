@@ -271,6 +271,23 @@ public class TalkService {
         talk.update(talkUpdateRequestDto.getTitle(),  talkUpdateRequestDto.getContent());
     }
 
+
+
+    //담소 게시글을 삭제하는 메소드 입니다.
+    @Transactional
+    public void deleteTalk(Long talkId){
+        log.info("해당하는 담소 게시물을 삭제합니다. {}", talkId);
+       Talk talk= talkRepository.findById(talkId).orElseThrow(()-> new RuntimeException("게시글이 존재하지 않습니다."));
+        //게시글 삭제하기
+        if(talk.getTalkPictures() != null) {
+            for(TalkPicture picture : talk.getTalkPictures()) {
+                deleteFile(picture.getSavedName()); // 실제 파일 삭제
+            }
+        }
+        //자동 지원되는 메소드를 사용한다.
+        talkRepository.deleteById(talkId);
+    }
+
     //사진 파일을 삭제하는 메소드 입니다.
     private void deleteFile(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
@@ -278,7 +295,7 @@ public class TalkService {
         }
 
         // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
-        Path filePath = Paths.get("uploads/photobox").resolve(fileName);
+        Path filePath = Paths.get("uploads/talks/").resolve(fileName);
 
         try {
             Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제
@@ -288,14 +305,7 @@ public class TalkService {
         }
     }
 
-    //담소 게시글을 삭제하는 메소드 입니다.
-    @Transactional
-    public void deleteTalk(Long talkId){
-        log.info("해당하는 담소 게시물을 삭제합니다. {}", talkId);
-        talkRepository.findById(talkId);
-        //자동 지원되는 메소드를 사용한다.
-        talkRepository.deleteById(talkId);
-    }
+
 
     //댓글을 작성하는 메소드 입니다.
     @Transactional
