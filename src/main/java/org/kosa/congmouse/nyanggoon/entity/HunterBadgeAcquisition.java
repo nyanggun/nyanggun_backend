@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @ToString
-@Slf4j
-public class HunterBadgeAquisition {
+public class HunterBadgeAcquisition {
     // id, primary key, 값 자동 증가
     @Column(name="id")
     @Id
@@ -30,8 +29,8 @@ public class HunterBadgeAquisition {
     private LocalDateTime acquisitionDate;
 
     // 뱃지 획득한 member, 외래키, 1대1관계, NOT NULL
-    @JoinColumn(name="member_id", foreignKey = @ForeignKey(name="fk_badge_aquisitions_member_id"), nullable = false)
-    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="member_id", foreignKey = @ForeignKey(name="fk_badge_acquisitions_member_id"), nullable = false)
+    @ManyToOne(fetch=FetchType.LAZY)
     private Member member;
 
     // 획득한 뱃지, 외래키, 다대일관계, NOT NULL, on delete cascade
