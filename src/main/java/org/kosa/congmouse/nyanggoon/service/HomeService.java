@@ -3,6 +3,13 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
+import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
+import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
+import org.kosa.congmouse.nyanggoon.entity.PhotoBoxPicture;
+import org.kosa.congmouse.nyanggoon.repository.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class HomeService {
+    private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
+    private final PhotoBoxRepository photoBoxRepository;
+    private final PhotoBoxPictureRepository photoBoxPictureRepository;
+    private final PhotoBoxTagRepository photoBoxTagRepository;
+    private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
 
     //문화재 도감 정보를 가져오는 메소드 입니다.
     //총 4개, 전체 북마크 순으로 가져옵니다. (비회원일 시)
@@ -20,13 +32,46 @@ public class HomeService {
     public List<HeritageEncyclopediaResponseDto> getEncyclopediaByBookmark(String username) {
         log.info("도감 정보 4개를 가져옵니다.");
 
+        Pageable pageable = PageRequest.of(0, 4);
+        List<HeritageEncyclopedia> heritageEncyclopedias = heritageEncyclopediaRepository.findTop4ByBookmarkCount(pageable);
 
-        return null;
+        //북마크 수와 북마크 여부는 따로 세지 않습니다. (0, false로 나옴)
+        List<HeritageEncyclopediaResponseDto> heritageEncyclopediaResult = heritageEncyclopedias.stream()
+                .map(heritage -> HeritageEncyclopediaResponseDto.from(heritage, 0, false))
+                .toList();
+
+
+        return heritageEncyclopediaResult;
     }
 
 
     //사진함의 사진을 가져오는 메소드 입니다.
     //북마크 수가 가장 높은 것을 가져옵니다.
+    public PhotoBoxDetailResponseDto getPhotoBoxByBookmark() {
+
+        //해당 사진함 가져오기
+        PhotoBox photoBox = photoBoxRepository
+                .findMostPhotoBoxBookmark(PageRequest.of(0, 1))
+                .get(0);
+   
+        // 해당 사진함의 사진 가져오기
+        PhotoBoxPicture photoBoxPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
+
+        // 해당 사진함의 태그 리스트 가져오기
+        List<String> tags = photoBoxTagRepository.findTags(photoBox.getId());
+
+        // 4. 북마크 수 계산
+        long bookmarkCount = photoBoxBookmarkRepository.getBookmarkWithPhotoBoxId(photoBox.getId());
+
+        // 5. 로그인한 유저 기준 북마크 여부 (안가져와도 됨)
+        boolean isBookmarked = false;
+
+        //Dto 변환 후 반환
+        return   PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, tags, bookmarkCount, isBookmarked);
+
+
+    }
+
 
     //탐방기의 내용을 가져오는 메소드 입니다.
     //총 4개, 전체 북마크 순으로 가져옵니다.

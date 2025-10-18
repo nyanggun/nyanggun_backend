@@ -65,4 +65,9 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
             ORDER BY COUNT(b) DESC
             """)
     Page<HeritageEncyclopedia> findAllOrderByPopular(Pageable pageable);
+
+    //북마크 수에 따라 상위 4개를 가져오는 메소드 입니다.
+    @Query("SELECT h FROM HeritageEncyclopedia h JOIN EncyclopediaBookmark eb ON h.id = eb.heritageEncyclopedia.id GROUP BY h.id ORDER BY COUNT(eb.id) DESC ")
+    List<HeritageEncyclopedia> findTop4ByBookmarkCount(Pageable pageable);
+
 }

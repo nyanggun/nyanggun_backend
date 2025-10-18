@@ -1,5 +1,6 @@
 package org.kosa.congmouse.nyanggoon.repository;
 
+import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
 import org.springframework.data.domain.Pageable;
@@ -94,5 +95,9 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
+
+    @Query("SELECT p FROM PhotoBox p LEFT JOIN PhotoBoxBookmark b ON b.photoBox.id = p.id GROUP BY p.id ORDER BY COUNT(b.id) DESC")
+    List<PhotoBox> findMostPhotoBoxBookmark(Pageable pageable);
+
 
 }
