@@ -25,7 +25,6 @@ import java.util.List;
 @Slf4j
 public class ExplorationController {
     private final ExplorationService explorationService;
-    private final ExplorationReportService explorationReportService;
 
     @GetMapping("")
     public ResponseEntity getExplorationList(){
@@ -97,7 +96,7 @@ public class ExplorationController {
      */
     @PostMapping("/reports")
     public ResponseEntity<?> postExplorationReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
-        ReportResponseDto explorationReportResponseDto = explorationReportService.createExplorationReport(reportCreateRequestDto);
+        ReportResponseDto explorationReportResponseDto = explorationService.createExplorationReport(reportCreateRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "신고 완료"));
     }
 }
