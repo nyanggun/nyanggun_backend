@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.HunterBadgeAcquireResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.HunterBadgeMarkerResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.HunterBadgesAcquisitionResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.HunterBadge;
 import org.kosa.congmouse.nyanggoon.entity.HunterBadgeAcquisition;
 import org.kosa.congmouse.nyanggoon.entity.Member;
@@ -38,7 +39,6 @@ public class BadgeService {
 
     /**
      * 획득한 증표를 저장하는 메서드
-     *
      * @param badgeId
      * @param memberId
      * @return
@@ -58,12 +58,12 @@ public class BadgeService {
         HunterBadge hunterBadge = hunterBadgeRepository.findById(badgeId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 증표입니다."));
 
         // 3. 획득한 증표를 증표함에 save
-        HunterBadgeAcquisition newAquiredBadge = HunterBadgeAcquisition.builder()
+        HunterBadgeAcquisition newAcquiredBadge = HunterBadgeAcquisition.builder()
                                                 .member(member)
                                                 .hunterBadge(hunterBadge)
                                                 .build();
-        HunterBadgeAcquisition savedAquiredBadge = hunterBadgeAcquisitionRepository.save(newAquiredBadge);
-        return HunterBadgeAcquireResponseDto.from(savedAquiredBadge);
+        HunterBadgeAcquisition savedAcquiredBadge = hunterBadgeAcquisitionRepository.save(newAcquiredBadge);
+        return HunterBadgeAcquireResponseDto.from(savedAcquiredBadge);
     }
 
     /**
@@ -73,5 +73,14 @@ public class BadgeService {
      */
     public List<Long> findAcquiredBadgesList(Long memberId) {
         return hunterBadgeAcquisitionRepository.findBadgeIdsByMemberId(memberId);
+    }
+
+    /**
+     * 획득한 증표(증표함에 표시)
+     * @param memberId
+     * @return
+     */
+    public List<HunterBadgesAcquisitionResponseDto> findCollectedBadgesList(Long memberId) {
+        return hunterBadgeAcquisitionRepository.findBadgeListByMemberId(memberId).stream().map(HunterBadgesAcquisitionResponseDto::from).collect(Collectors.toUnmodifiableList());
     }
 }

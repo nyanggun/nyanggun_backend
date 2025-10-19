@@ -76,14 +76,16 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/talks/detail/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/heritages/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/badges/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 // 관리자 기능
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
-                .requestMatchers("/swagger-ui").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/api-docs").permitAll()
-                .requestMatchers("/heritages/*").permitAll()
+                .requestMatchers("/heritages/**").permitAll()
 
                 // 챗봇 API는 인증 필요
                 .requestMatchers("/api/chat/**").authenticated()

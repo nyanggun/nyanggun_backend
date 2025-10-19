@@ -42,4 +42,13 @@ public class BadgeController {
         List<Long> acquiredBadgeIds  = badgeService.findAcquiredBadgesList(memberId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(acquiredBadgeIds, "획득한 증표 id 목록 조회 성공"));
     }
+
+    // 지도에 표시할 이미 획득한 증표(유저에 따라)
+    @GetMapping("/badgebox")
+    public ResponseEntity<?> getCollectedBadgesByMemberId(@AuthenticationPrincipal CustomMemberDetails member){
+        log.info("대체 왜?");
+        Long memberId = (member != null) ? member.getMemberId() : null;
+        List<HunterBadgesAcquisitionResponseDto> HunterBadgesAcquisitionResponseDto  = badgeService.findCollectedBadgesList(memberId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(HunterBadgesAcquisitionResponseDto, "획득한 증표 id 목록 조회 성공"));
+    }
 }

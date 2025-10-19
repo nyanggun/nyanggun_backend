@@ -13,14 +13,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class HunterBadgeAcquireResponseDto {
-    private Long badgeId;
+    private Long hunterBadgeAcquisitionId;
     private LocalDateTime acquisitionDate;
     private Member member;
     private HunterBadge hunterBadge;
 
     public static HunterBadgeAcquireResponseDto from(HunterBadgeAcquisition hunterBadgeAcquisition){
         return HunterBadgeAcquireResponseDto.builder()
-                .badgeId(hunterBadgeAcquisition.getId())
+                .hunterBadgeAcquisitionId(hunterBadgeAcquisition.getId())
                 .acquisitionDate(hunterBadgeAcquisition.getAcquisitionDate())
                 .member(hunterBadgeAcquisition.getMember())
                 .hunterBadge(hunterBadgeAcquisition.getHunterBadge())
