@@ -68,11 +68,10 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
 
     //북마크 수에 따라 상위 4개를 가져오는 메소드 입니다.
     @Query("SELECT h FROM HeritageEncyclopedia h JOIN EncyclopediaBookmark eb ON h.id = eb.heritageEncyclopedia.id GROUP BY h.id ORDER BY COUNT(eb.id) DESC ")
-    List<HeritageEncyclopedia> findTop4ByBookmarkCount(Pageable pageable);
+    List<HeritageEncyclopedia> findHeritageTop4ByBookmarkCount(Pageable pageable);
 
-//    //랜덤한 문화재를 가져오는 메소드 입니다.
-//
-//    List<HeritageEncyclopedia> findRandomHeritage(Pageable pageable);
-
+    //랜덤한 문화재를 가져오는 메소드 입니다.
+    @Query(value = "SELECT * FROM heritage_encyclopedias ORDER BY RAND()", nativeQuery = true)
+    List<HeritageEncyclopedia> findRandomHeritage(Pageable pageable);
 
 }
