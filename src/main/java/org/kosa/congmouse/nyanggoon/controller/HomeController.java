@@ -3,6 +3,7 @@ package org.kosa.congmouse.nyanggoon.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.service.HomeService;
@@ -41,14 +42,15 @@ public class HomeController {
     @GetMapping("/photobox")
     public ResponseEntity<?> getPhotoBoxByBookmark(){
         PhotoBoxDetailResponseDto photoBoxDetailResponseDto = homeService.getPhotoBoxByBookmark();
-        return ResponseEntity.ok(ApiResponseDto.success(photoBoxDetailResponseDto, "사진함 조회 성공"));
+        return ResponseEntity.ok(ApiResponseDto.success(photoBoxDetailResponseDto, "메인 사진함 조회 성공"));
 
     }
 
     //메인에서 탐방기 게시글을 띄워줍니다.
     //북마크 수가 가장 높은 게시글 4개를 띄워줍니다.
     @GetMapping("/exploration")
-    public void getExplorationByBookmark(){
-
+    public ResponseEntity<?> getExplorationByBookmark(){
+        List<ExplorationDetailDto> explorationDetailDtoList = homeService.getExplorationByBookmark();
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "메인 탐방기 정보 조회 성공"));
     }
 }
