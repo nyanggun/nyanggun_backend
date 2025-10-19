@@ -1,5 +1,6 @@
 package org.kosa.congmouse.nyanggoon.repository;
 
+import org.kosa.congmouse.nyanggoon.dto.HunterBadgesAcquisitionResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.HunterBadgeAcquisition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,7 @@ public interface HunterBadgeAcquisitionRepository extends JpaRepository<HunterBa
 
     @Query("SELECT hba.hunterBadge.id FROM HunterBadgeAcquisition hba WHERE hba.member.id = :memberId")
     List<Long> findBadgeIdsByMemberId(@Param("memberId") Long memberId);
+
+    @Query("SELECT hba FROM HunterBadgeAcquisition hba WHERE hba.member.id = :memberId")
+    List<HunterBadgeAcquisition> findBadgeListByMemberId(Long memberId);
 }
