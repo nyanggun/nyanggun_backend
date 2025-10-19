@@ -34,7 +34,6 @@ public class HomeController {
         List<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtoList = homeService.getEncyclopediaByBookmark(username);
 
         return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtoList, "메인 도감 정보 조회 성공"));
-
     }
 
     //메인에서 사진함 이미지를 띄워줍니다.

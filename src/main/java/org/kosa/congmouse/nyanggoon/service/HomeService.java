@@ -41,6 +41,20 @@ public class HomeService {
                 .toList();
 
 
+//        //만약 추출한 북마크 개수가 4개 이하라면
+//        //랜덤한 문화재를 넣습니다.
+//        if (heritageEncyclopediaResult.size() < 4) {
+//            int remaining = 4 - heritageEncyclopediaResult.size();
+//            List<HeritageEncyclopedia> heritageEncyclopediaRandom = heritageEncyclopediaRepository.findRandomHeritage(pageable);
+//
+//            List<HeritageEncyclopediaResponseDto> heritageEncyclopediaRandomResults = heritageEncyclopedias.stream()
+//                    .map(heritage -> HeritageEncyclopediaResponseDto.from(heritage, 0, false))
+//                    .toList();
+//
+//            heritageEncyclopediaResult.addAll(heritageEncyclopediaRandomResults);
+//        }
+
+
         return heritageEncyclopediaResult;
     }
 
@@ -50,24 +64,26 @@ public class HomeService {
     public PhotoBoxDetailResponseDto getPhotoBoxByBookmark() {
 
         //해당 사진함 가져오기
+        //만약 북마크 데이터가 없다면 (아무도 북마크 안했을때) 최신 사진함 사진 하나를 가져옵니다.
         PhotoBox photoBox = photoBoxRepository
                 .findMostPhotoBoxBookmark(PageRequest.of(0, 1))
                 .get(0);
-   
+
+        //만약 북마크 데이터가 없다면 (아무도 북마크 안했을때) 랜덤으로 사진함 사진 하나를 가져옵니다.
+        if (photoBox == null) {
+           photoBox = photoBoxRepository.findTopByOrderByCreatedAtDesc();
+
+        }
+
         // 해당 사진함의 사진 가져오기
         PhotoBoxPicture photoBoxPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
 
         // 해당 사진함의 태그 리스트 가져오기
         List<String> tags = photoBoxTagRepository.findTags(photoBox.getId());
-
-        // 4. 북마크 수 계산
-        long bookmarkCount = photoBoxBookmarkRepository.getBookmarkWithPhotoBoxId(photoBox.getId());
-
-        // 5. 로그인한 유저 기준 북마크 여부 (안가져와도 됨)
-        boolean isBookmarked = false;
-
+        
         //Dto 변환 후 반환
-        return   PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, tags, bookmarkCount, isBookmarked);
+        //북마크 수와 유저 북마크 여부는 전달해줄 필요가 없으므로 0으로 전달합니다.
+        return   PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, tags, 0L, false);
 
 
     }

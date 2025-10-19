@@ -3,6 +3,7 @@ package org.kosa.congmouse.nyanggoon.repository;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -96,8 +97,10 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             Pageable pageable
     );
 
+    //최다 북마크 가져오는 로직
     @Query("SELECT p FROM PhotoBox p LEFT JOIN PhotoBoxBookmark b ON b.photoBox.id = p.id GROUP BY p.id ORDER BY COUNT(b.id) DESC")
     List<PhotoBox> findMostPhotoBoxBookmark(Pageable pageable);
 
+    PhotoBox findTopByOrderByCreatedAtDesc();
 
 }

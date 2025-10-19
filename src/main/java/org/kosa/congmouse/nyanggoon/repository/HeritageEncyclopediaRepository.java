@@ -70,4 +70,9 @@ public interface HeritageEncyclopediaRepository extends JpaRepository<HeritageEn
     @Query("SELECT h FROM HeritageEncyclopedia h JOIN EncyclopediaBookmark eb ON h.id = eb.heritageEncyclopedia.id GROUP BY h.id ORDER BY COUNT(eb.id) DESC ")
     List<HeritageEncyclopedia> findTop4ByBookmarkCount(Pageable pageable);
 
+//    //랜덤한 문화재를 가져오는 메소드 입니다.
+//
+//    List<HeritageEncyclopedia> findRandomHeritage(Pageable pageable);
+
+
 }
