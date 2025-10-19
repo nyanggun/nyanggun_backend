@@ -9,7 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.ExplorationPhoto;
 import org.kosa.congmouse.nyanggoon.entity.Member;
-import org.kosa.congmouse.nyanggoon.entity.MemberSimpleResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.MemberSimpleResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

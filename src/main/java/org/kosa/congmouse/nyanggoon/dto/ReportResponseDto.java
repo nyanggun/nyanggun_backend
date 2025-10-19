@@ -16,7 +16,7 @@ public class ReportResponseDto {
     private Long id;
     private String contentType;
     private Long contentId;
-    private Long reportMemberId;
+    private MemberSimpleResponseDto reportMember;
     private String reason;
     private String reportState;
     private LocalDateTime createdAt;
@@ -29,7 +29,10 @@ public class ReportResponseDto {
                 .reportState(report.getReportState().toString())
                 .contentType(report.getContentType().toString())
                 .contentId(report.getContentId())
-                .reportMemberId(report.getReportMember().getId())
+                .reportMember(MemberSimpleResponseDto.builder()
+                        .id(report.getReportMember().getId())
+                        .nickname(report.getReportMember().getNickname())
+                        .build())
                 .build();
     }
 }

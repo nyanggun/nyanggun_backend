@@ -47,4 +47,12 @@ public class Report {
     @CreationTimestamp
     @Column(name="created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public void changeState(ReportState reportState) {
+        if(this.reportState == ReportState.PENDING)
+            this.reportState = ReportState.PROCESSED;
+        else{
+            this.reportState = ReportState.PENDING;
+        }
+    }
 }
