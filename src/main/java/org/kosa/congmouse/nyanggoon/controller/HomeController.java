@@ -28,11 +28,8 @@ public class HomeController {
     @GetMapping("/heritage")
     public ResponseEntity<?> getEncyclopediaByBookmark(){
 
-        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // 인증된 사용자의 username 추출 (username = 이메일)
-        String username = authentication.getName();
-        List<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtoList = homeService.getEncyclopediaByBookmark(username);
+
+        List<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtoList = homeService.getEncyclopediaByBookmark();
 
         return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtoList, "메인 도감 정보 조회 성공"));
     }

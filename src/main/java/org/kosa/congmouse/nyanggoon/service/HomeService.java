@@ -33,7 +33,7 @@ public class HomeService {
     //문화재 도감 정보를 가져오는 메소드 입니다.
     //총 4개, 전체 북마크 순으로 가져옵니다. (비회원일 시)
     //총 4개, 회원이 북마크한 것과 유사한 문화재를 가져옵니다. (회원일 시)
-    public List<HeritageEncyclopediaResponseDto> getEncyclopediaByBookmark(String username) {
+    public List<HeritageEncyclopediaResponseDto> getEncyclopediaByBookmark() {
         log.info("도감 정보를 북마크 순으로 가져옵니다. 4개를 가져옵니다.");
 
         Pageable pageable = PageRequest.of(0, 4);

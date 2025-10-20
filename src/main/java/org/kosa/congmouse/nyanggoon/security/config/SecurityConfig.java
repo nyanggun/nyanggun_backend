@@ -69,11 +69,12 @@ public class SecurityConfig {
                 //ROLE_은 자동삽입
                 .requestMatchers("/admin").hasRole("ADMIN")
                 // GET 방식, 전체 게시글 조회는 인증 없이 접근을 모두 허용
+                .requestMatchers(HttpMethod.GET, "/home/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/explorations").permitAll()
                 .requestMatchers(HttpMethod.GET, "/explorations/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/explorations/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/talks").permitAll()
-                .requestMatchers(HttpMethod.GET, "/talks/detail/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/talks/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox").permitAll()
                 .requestMatchers(HttpMethod.GET, "/photobox/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/heritages/**").permitAll()
@@ -83,7 +84,8 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
-                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**").permitAll()
+
                 .requestMatchers("/api-docs").permitAll()
                 .requestMatchers("/heritages/**").permitAll()
 
