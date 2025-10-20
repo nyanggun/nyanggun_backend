@@ -20,6 +20,7 @@ public class HunterBadgesAcquisitionResponseDto {
     private Long hunterBadgeId;
     private String badgeName;
     private String badgeImg;
+    private Long heritageEncyclopediaId;
 
     public static HunterBadgesAcquisitionResponseDto from(HunterBadgeAcquisition hunterBadgeAcquisition){
         return HunterBadgesAcquisitionResponseDto.builder()
@@ -28,6 +29,7 @@ public class HunterBadgesAcquisitionResponseDto {
                 .hunterBadgeId(hunterBadgeAcquisition.getHunterBadge().getId())
                 .badgeName(hunterBadgeAcquisition.getHunterBadge().getName())
                 .badgeImg(hunterBadgeAcquisition.getHunterBadge().getImgUrl())
+                .heritageEncyclopediaId(hunterBadgeAcquisition.getHunterBadge().getHeritageEncyclopedia().getId())
                 .build();
     }
 }
