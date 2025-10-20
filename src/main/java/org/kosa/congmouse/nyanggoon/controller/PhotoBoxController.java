@@ -145,9 +145,12 @@ public class PhotoBoxController {
         return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "게시물 검색 결과 조회 성공"));
     }
 
-
-
     //사진함 게시글을 신고하는 컨트롤러 입니다.
     //인증 필요
+    @PostMapping("/reports")
+    public ResponseEntity<?> postPhotoBoxReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+        ReportResponseDto explorationReportResponseDto = photoBoxService.createPhotoBoxReport(reportCreateRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "신고 완료"));
+    }
 }
 

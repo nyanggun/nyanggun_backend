@@ -83,7 +83,8 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 // 참고 /api/product/ , /api/products/** 경로에 대한 접근을 모두 허용
-                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**").permitAll()
+
                 .requestMatchers("/api-docs").permitAll()
                 .requestMatchers("/heritages/**").permitAll()
 
