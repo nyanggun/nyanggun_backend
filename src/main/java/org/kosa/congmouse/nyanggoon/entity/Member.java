@@ -47,4 +47,11 @@ public class Member {
     @JoinColumn(name="profile_picture_id", nullable = true, foreignKey = @ForeignKey(name = "fk_member_profile_picture"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ProfilePicture profilePicture;
+
+    public void changeMemberState() {
+        if(this.memberstate == MemberState.ACTIVE)
+            this.memberstate = MemberState.DISABLED;
+        else
+            this.memberstate = MemberState.ACTIVE;
+    }
 }

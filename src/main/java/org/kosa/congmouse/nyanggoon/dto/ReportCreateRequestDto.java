@@ -1,14 +1,12 @@
 package org.kosa.congmouse.nyanggoon.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ReportCreateRequestDto {
     private String reason;
     private Long postId;
