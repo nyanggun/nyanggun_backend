@@ -122,7 +122,7 @@ public class ExplorationService {
          List<String> pathsToDelete = explorationUpdateDto.getImagesToDelete();
          if(pathsToDelete != null && !pathsToDelete.isEmpty()){
              updateExploration.getExplorationPhotos().removeIf(photo ->{
-                 boolean shouldDelete = pathsToDelete.contains(photo.getPath());
+                 boolean shouldDelete = pathsToDelete.contains(photo.getSavedName());
                  if(shouldDelete){
                      new File(photo.getPath()).delete();
                  }
