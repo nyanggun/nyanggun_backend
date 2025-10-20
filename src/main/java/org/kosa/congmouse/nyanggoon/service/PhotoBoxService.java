@@ -3,10 +3,7 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCursorResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCreateRequestDto;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +30,7 @@ public class PhotoBoxService {
     private final PhotoBoxTagRepository photoBoxTagRepository;
     private final PhotoBoxPictureRepository photoBoxPictureRepository;
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
+    private final ReportRepository reportRepository;
 
     //사진함 게시글들을 모두 조회하는 메소드 입니다.
     public PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> findAllPhotoBoxList(Long cursorId) {
@@ -359,5 +357,23 @@ public class PhotoBoxService {
         return new PhotoBoxCursorResponseDto<>(findPhotoBoxWithTag, nextCursor, hasNext);
     }
 
+    //사진함 게시글을 신고하는 컨트롤러 입니다.
+    @Transactional
+    public ReportResponseDto createPhotoBoxReport(ReportCreateRequestDto reportCreateRequestDto) {
+        Report createdPhotoBoxReport = Report.builder()
+                .contentType(ContentType.PHOTO_BOX)
+                .contentId(photoBoxRepository.findById(reportCreateRequestDto.getPostId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 문화재 사진함이 존재하지 않습니다");
+                        }).getId())
+                .reason(reportCreateRequestDto.getReason())
+                .reportMember(memberRepository.findById(reportCreateRequestDto.getMemberId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 멤버가 존재하지 않습니다");
+                        }))
+                .build();
+        reportRepository.save(createdPhotoBoxReport);
+        return ReportResponseDto.from(createdPhotoBoxReport);
+    }
 
 }

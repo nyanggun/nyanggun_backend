@@ -506,6 +506,7 @@ public class TalkService {
 
     }
 
+    //담소 게시글을 신고하는 컨트롤러 입니다.
     @Transactional
     public ReportResponseDto createTalkReport(ReportCreateRequestDto reportCreateRequestDto) {
         Report createdTalkReport = Report.builder()

@@ -204,14 +204,10 @@ public class TalkController {
         return ResponseEntity.ok(ApiResponseDto.success(talks, "게시물 검색 조회 성공"));
     }
 
-    /**
-     * 문화재 탐방기 게시글 신고 요청
-     * @param reportCreateRequestDto
-     * @return 신고 요청에 대한 결과를 반환
-     */
+   //담소를 신고하는 컨트롤러 입니다.
     @PostMapping("/reports")
     public ResponseEntity<?> postTalkReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
         ReportResponseDto explorationReportResponseDto = talkService.createTalkReport(reportCreateRequestDto);
-        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "신고 완료"));
+        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "담소 신고 완료"));
     }
 }

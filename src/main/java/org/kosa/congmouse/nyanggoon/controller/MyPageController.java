@@ -50,87 +50,87 @@ public class MyPageController {
         return myPageService.updateProfile(memberId, dto);
     }
 
-    /**
-     * 내가 작성한 게시글 목록 조회
-     */
-    @GetMapping("/posts")
-    public List<?> getMyPosts(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 게시글 목록 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyPosts(memberId);
-    }
-
-    /**
-     * 내가 북마크한 게시글 조회
-     */
-    @GetMapping("/bookmarks")
-    public List<?> getMyBookmarks(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 북마크 게시글 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyBookmarks(memberId);
-    }
-
-    /**
-     * 내가 작성한 댓글 목록 조회
-     */
-    @GetMapping("/comments")
-    public List<?> getMyComments(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 댓글 목록 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyComments(memberId);
-    }
-
-    /**
-     * 내가 업로드한 사진 조회
-     */
-    @GetMapping("/photos")
-    public List<?> getMyPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 사진 목록 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyPhotos(memberId);
-    }
-
-    /**
-     * 내가 북마크한 사진 조회
-     */
-    @GetMapping("/photos/bookmarked")
-    public List<?> getMyBookmarkedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 북마크 사진 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyBookmarkedPhotos(memberId);
-    }
-
-    /**
-     * 내가 댓글 단 사진 조회
-     */
-    @GetMapping("/photos/commented")
-    public List<?> getMyCommentedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        Long memberId = user.getMemberId();
-        log.info("내 댓글 단 사진 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getMyCommentedPhotos(memberId);
-    }
+//    /**
+//     * 내가 작성한 게시글 목록 조회
+//     */
+//    @GetMapping("/posts")
+//    public List<?> getMyPosts(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 게시글 목록 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyPosts(memberId);
+//    }
+//
+//    /**
+//     * 내가 북마크한 게시글 조회
+//     */
+//    @GetMapping("/bookmarks")
+//    public List<?> getMyBookmarks(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 북마크 게시글 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyBookmarks(memberId);
+//    }
+//
+//    /**
+//     * 내가 작성한 댓글 목록 조회
+//     */
+//    @GetMapping("/comments")
+//    public List<?> getMyComments(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 댓글 목록 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyComments(memberId);
+//    }
+//
+//    /**
+//     * 내가 업로드한 사진 조회
+//     */
+//    @GetMapping("/photos")
+//    public List<?> getMyPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 사진 목록 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyPhotos(memberId);
+//    }
+//
+//    /**
+//     * 내가 북마크한 사진 조회
+//     */
+//    @GetMapping("/photos/bookmarked")
+//    public List<?> getMyBookmarkedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 북마크 사진 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyBookmarkedPhotos(memberId);
+//    }
+//
+//    /**
+//     * 내가 댓글 단 사진 조회
+//     */
+//    @GetMapping("/photos/commented")
+//    public List<?> getMyCommentedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+//        }
+//        Long memberId = user.getMemberId();
+//        log.info("내 댓글 단 사진 요청 by 사용자 ID={}", memberId);
+//
+//        return myPageService.getMyCommentedPhotos(memberId);
+//    }
 }
