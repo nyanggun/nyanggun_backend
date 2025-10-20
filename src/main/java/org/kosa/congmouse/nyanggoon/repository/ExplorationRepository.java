@@ -2,6 +2,7 @@ package org.kosa.congmouse.nyanggoon.repository;
 
 import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,4 +41,12 @@ public interface ExplorationRepository extends JpaRepository<Exploration, Long> 
             "ORDER BY e.createdAt DESC"
     )
     List<ExplorationDetailDto> findAllWithBookmarkCountAndCommentCounts();
+
+
+    //북마크 순으로 탐방기를 가져오는 메소드 입니다.
+    @Query("SELECT e FROM Exploration e JOIN ExplorationBookmark eb ON e.id = eb.exploration.id GROUP BY e.id ORDER BY COUNT(eb.id) DESC ")
+    List<Exploration> findExplorationTop4ByBookmarkCount(Pageable pageable);
+
+    @Query("SELECT e FROM Exploration e ORDER BY e.createdAt DESC")
+    List<Exploration> findLatestExplorations(Pageable latestPageable);
 }
