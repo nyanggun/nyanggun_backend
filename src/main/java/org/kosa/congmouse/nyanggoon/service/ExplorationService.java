@@ -2,14 +2,8 @@ package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationBookmarkRequestDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCreateDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationUpdateDto;
-import org.kosa.congmouse.nyanggoon.entity.Exploration;
-import org.kosa.congmouse.nyanggoon.entity.ExplorationBookmark;
-import org.kosa.congmouse.nyanggoon.entity.ExplorationPhoto;
-import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.dto.*;
+import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +24,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ExplorationService {
     private final ExplorationRepository explorationRepository;
-    private final MemberRepository memberRepository;
     private final ExplorationBookmarkRepository explorationBookmarkRepository;
     private final ExplorationCommentRepository explorationCommentRepository;
     private final ExplorationPhotoRepository explorationPhotoRepository;
+    private final MemberRepository memberRepository;
+    private final ReportRepository reportRepository;
 
     @Value("${exploration.img.path}")
     private String uploadDirPath;
@@ -204,5 +199,23 @@ public class ExplorationService {
         List<Exploration> explorationList = explorationRepository.findByKeyword(keyword);
         List<ExplorationDetailDto> explorationDetailDtoList = explorationList.stream().map(exploration -> ExplorationDetailDto.from(exploration)).toList().reversed();
         return explorationDetailDtoList;
+    }
+
+    @Transactional
+    public ReportResponseDto createExplorationReport(ReportCreateRequestDto explorationReportCreateRequestDto) {
+        Report newExplorationReport = Report.builder()
+                .contentType(ContentType.EXPLORATION)
+                .contentId(explorationRepository.findById(explorationReportCreateRequestDto.getPostId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("explorationId에 해당하는 member가 존재하지 않습니다");
+                        }).getId())
+                .reason(explorationReportCreateRequestDto.getReason())
+                .reportMember(memberRepository.findById(explorationReportCreateRequestDto.getMemberId())
+                        .orElseThrow(() -> {
+                            throw new RuntimeException("memberId에 해당하는 exploration이 존재하지 않습니다");
+                        }))
+                .build();
+        Report resultExplorationReport = reportRepository.save(newExplorationReport);
+        return ReportResponseDto.from(resultExplorationReport);
     }
 }

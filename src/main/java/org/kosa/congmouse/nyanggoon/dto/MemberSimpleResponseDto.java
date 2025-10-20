@@ -1,4 +1,4 @@
-package org.kosa.congmouse.nyanggoon.entity;
+package org.kosa.congmouse.nyanggoon.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
