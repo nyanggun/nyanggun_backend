@@ -59,4 +59,11 @@ public class ExplorationCommentController {
         List<ExplorationCommentResponseDto> explorationCommentResponseDtoList =  explorationCommentService.getExplorationCommentListOfExploration(explorationId);
         return ResponseEntity.ok(ApiResponseDto.success(explorationCommentResponseDtoList, "문화재 탐방기에 대한 댓글 조회 성공"));
     }
+
+    //탐방기 댓글을 신고하는 컨트롤러 입니다.
+    @PostMapping("/reports/comments")
+    public ResponseEntity<?> postTalkCommentReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+        ReportResponseDto explorationReportResponseDto = explorationCommentService.createTalkCommentReport(reportCreateRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "탐방기 댓글 신고 완료"));
+    }
 }

@@ -524,6 +524,25 @@ public class TalkService {
         reportRepository.save(createdTalkReport);
         return ReportResponseDto.from(createdTalkReport);
     }
+
+    //담소 댓글을 신고하는 컨트롤러 입니다.
+    @Transactional
+    public ReportResponseDto createTalkCommentReport(ReportCreateRequestDto reportCreateRequestDto) {
+        Report createdTalkCommentReport = Report.builder()
+                .contentType(ContentType.TALK_COMMENT)
+                .contentId(talkCommentRepository.findById(reportCreateRequestDto.getPostId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 문화재 담소 댓글이 존재하지 않습니다");
+                        }).getId())
+                .reason(reportCreateRequestDto.getReason())
+                .reportMember(memberRepository.findById(reportCreateRequestDto.getMemberId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 멤버가 존재하지 않습니다");
+                        }))
+                .build();
+        reportRepository.save(createdTalkCommentReport);
+        return ReportResponseDto.from(createdTalkCommentReport);
+    }
 }
 
 
