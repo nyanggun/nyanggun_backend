@@ -7,11 +7,11 @@ import org.kosa.congmouse.nyanggoon.dto.MemberUpdateRequestDto;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.MyPageService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,33 +22,61 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
-    /**
-     * 마이페이지 초기 로드: 로그인된 사용자의 기본 프로필 정보만 불러오기
-     */
-    @GetMapping
-    public MemberResponseDto getProfile(@AuthenticationPrincipal CustomMemberDetails customMemberDetails) {
-        if (customMemberDetails == null || customMemberDetails.getMember() == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+    /* 내 정보 조회 - 로그인 필수 */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProfile(@PathVariable Long id) {
+        CustomMemberDetails user = getAuthenticatedUser(); // 로그인 필수
+        if (!user.getMemberId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정 정보만 조회 가능합니다.");
         }
 
-        Long memberId = customMemberDetails.getMember().getId();
-        log.info("내정보(프로필) 요청 by 사용자 ID={}", memberId);
-
-        return myPageService.getProfileData(memberId);
+        MemberResponseDto profile = myPageService.getProfileData(id);
+        return ResponseEntity.ok(profile);
     }
 
-    /**
-     * 회원 정보 수정
-     */
-    @PutMapping("/profileupdate")
-    public MemberResponseDto updateProfile(
-            @AuthenticationPrincipal CustomMemberDetails user,
-            @RequestBody MemberUpdateRequestDto dto
-    ) {
-        Long memberId = user.getMemberId();
-        log.info("회원정보 수정 요청 by ID={}", memberId);
-        return myPageService.updateProfile(memberId, dto);
+    /* 내 정보 수정 - 로그인 필수 */
+    @PutMapping("/profileupdate/{id}")
+    public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody MemberUpdateRequestDto dto) {
+        CustomMemberDetails user = getAuthenticatedUser();
+        if (!user.getMemberId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정만 수정할 수 있습니다.");
+        }
+
+        MemberResponseDto updatedProfile = myPageService.updateProfile(id, dto);
+        return ResponseEntity.ok(updatedProfile);
     }
+
+    /* 회원 탈퇴 - 로그인 필수 */
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMember(@PathVariable Long id) {
+        CustomMemberDetails user = getAuthenticatedUser();
+        if (!user.getMemberId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정만 탈퇴할 수 있습니다.");
+        }
+
+        myPageService.deleteMember(id);
+    }
+
+    /* ===== Helper ===== */
+    private CustomMemberDetails getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
+        }
+        return (CustomMemberDetails) authentication.getPrincipal();
+    }
+
+//    /* 회원 제재 (관리자 전용) */
+//    @PutMapping("/sanction/{id}")
+//    public ResponseEntity<?> sanctionMember(@PathVariable Long id) {
+//        CustomMemberDetails user = getAuthenticatedUser();
+//        if (!user.getMember().getRole().toString().equals("ROLE_ADMIN")) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다.");
+//        }
+//        myPageService.sanctionMember(id);
+//        return ResponseEntity.ok("회원 제재 완료: ID=" + id);
+//    }
 
 //    /**
 //     * 내가 작성한 게시글 목록 조회
