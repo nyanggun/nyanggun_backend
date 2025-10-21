@@ -19,6 +19,7 @@ public interface ExplorationRepository extends JpaRepository<Exploration, Long> 
     @Query("SELECT e FROM Exploration e WHERE " +
             "e.title LIKE %:keyword% OR " +
             "e.content LIKE %:keyword% OR " +
+            "e.relatedHeritage LIKE %:keyword% OR " +
             "e.member.nickname LIKE %:keyword%")
     List<Exploration> findByKeyword(@Param("keyword") String keyword);
 
