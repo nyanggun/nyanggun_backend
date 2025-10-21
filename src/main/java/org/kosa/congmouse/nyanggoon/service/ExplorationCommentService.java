@@ -2,15 +2,12 @@ package org.kosa.congmouse.nyanggoon.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentCreateDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentUpdateDto;
-import org.kosa.congmouse.nyanggoon.entity.Exploration;
-import org.kosa.congmouse.nyanggoon.entity.ExplorationComment;
-import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.dto.*;
+import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationCommentRepository;
 import org.kosa.congmouse.nyanggoon.repository.ExplorationRepository;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
+import org.kosa.congmouse.nyanggoon.repository.ReportRepository;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +23,7 @@ public class ExplorationCommentService {
     private final ExplorationCommentRepository explorationCommentRepository;
     private final ExplorationRepository explorationRepository;
     private final MemberRepository memberRepository;
+    private final ReportRepository reportRepository;
 
     @Transactional
     public ExplorationCommentResponseDto createExplorationComment(ExplorationCommentCreateDto explorationCommentCreateDto, Long memberId){
@@ -100,5 +98,24 @@ public class ExplorationCommentService {
         List<ExplorationComment> explorationCommentList = explorationCommentRepository.findByExplorationId(explorationId);
         List<ExplorationCommentResponseDto> explorationCommentResponseDtoList = explorationCommentList.stream().map(ExplorationCommentResponseDto::from).toList().reversed();
         return explorationCommentResponseDtoList;
+    }
+
+    //탐방기 댓글을 신고하는 컨트롤러 입니다.
+    @Transactional
+    public ReportResponseDto createTalkCommentReport(ReportCreateRequestDto reportCreateRequestDto) {
+        Report createdTalkCommentReport = Report.builder()
+                .contentType(ContentType.EXPLORATION_COMMENT)
+                .contentId(explorationCommentRepository.findById(reportCreateRequestDto.getPostId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 문화재 탐방기 댓글이 존재하지 않습니다");
+                        }).getId())
+                .reason(reportCreateRequestDto.getReason())
+                .reportMember(memberRepository.findById(reportCreateRequestDto.getMemberId())
+                        .orElseThrow(()->{
+                            throw new RuntimeException("해당하는 멤버가 존재하지 않습니다");
+                        }))
+                .build();
+        reportRepository.save(createdTalkCommentReport);
+        return ReportResponseDto.from(createdTalkCommentReport);
     }
 }

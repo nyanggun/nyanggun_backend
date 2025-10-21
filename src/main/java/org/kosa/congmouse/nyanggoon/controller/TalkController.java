@@ -210,4 +210,10 @@ public class TalkController {
         ReportResponseDto explorationReportResponseDto = talkService.createTalkReport(reportCreateRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "담소 신고 완료"));
     }
+    //담소 댓글을 신고하는 컨트롤러 입니다.
+    @PostMapping("/reports/comments")
+    public ResponseEntity<?> postTalkCommentReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+        ReportResponseDto explorationReportResponseDto = talkService.createTalkCommentReport(reportCreateRequestDto);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "담소 댓글 신고 완료"));
+    }
 }
