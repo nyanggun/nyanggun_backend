@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -53,7 +55,21 @@ public class MemberService {
 
     public MemberResponseDto getMyInfo(String email) {
         log.debug("내 정보 조회: email={}", email);
-
         return findByUsername(email);
+    }
+
+    public List<MemberResponseDto> findAllMembers(){
+        List<Member> memberList = memberRepository.findAll();
+        List<MemberResponseDto> memberResponseDtoList = memberList.stream().map(MemberResponseDto::from).toList();
+        return memberResponseDtoList;
+    }
+
+    @Transactional
+    public MemberResponseDto changeUserState(Long id) {
+        Member member = memberRepository.findById(id).orElseThrow(()->{
+            throw new RuntimeException("해당하는 멤버가 존재하지 않습니다");
+        });
+        member.changeMemberState();
+        return MemberResponseDto.from(member);
     }
 }

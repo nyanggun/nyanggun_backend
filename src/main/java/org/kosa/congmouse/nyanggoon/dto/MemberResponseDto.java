@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.MemberRole;
+import org.kosa.congmouse.nyanggoon.entity.MemberState;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,8 @@ public class MemberResponseDto {
 
     private MemberRole role;            // 권한
 
+    private MemberState state;          // 상태
+
     private LocalDateTime createdAt;    // 가입일시
 
     /**
@@ -41,6 +44,7 @@ public class MemberResponseDto {
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
+                .state(member.getMemberstate())
                 .createdAt(member.getCreatedAt())
                 .build();
     }
