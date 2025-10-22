@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class HunterBadgesAcquisitionResponseDto {
     private Long hunterBadgeAcquisitionId;
     private LocalDateTime acquisitionDate;
-    private Long hunterBadgeId;
+    private Long badgeId;
     private String badgeName;
     private String badgeImg;
     private Long heritageEncyclopediaId;
@@ -26,7 +26,7 @@ public class HunterBadgesAcquisitionResponseDto {
         return HunterBadgesAcquisitionResponseDto.builder()
                 .hunterBadgeAcquisitionId(hunterBadgeAcquisition.getId())
                 .acquisitionDate(hunterBadgeAcquisition.getAcquisitionDate())
-                .hunterBadgeId(hunterBadgeAcquisition.getHunterBadge().getId())
+                .badgeId(hunterBadgeAcquisition.getHunterBadge().getId())
                 .badgeName(hunterBadgeAcquisition.getHunterBadge().getName())
                 .badgeImg(hunterBadgeAcquisition.getHunterBadge().getImgUrl())
                 .heritageEncyclopediaId(hunterBadgeAcquisition.getHunterBadge().getHeritageEncyclopedia().getId())
