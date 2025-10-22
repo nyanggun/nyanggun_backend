@@ -57,7 +57,7 @@ public class ExplorationDetailDto {
                         .id(exploration.getMember().getId())
                         .nickname(exploration.getMember().getNickname())
                         .build())
-                .imageNameList(exploration.getExplorationPhotos().stream().map(ExplorationPhoto::getSavedName).toList())
+                .imageNameList(exploration.getExplorationPhotos().stream().map(ExplorationPhoto::getSavedName).toList().reversed())
                 .build();
         return explorationDetailDto;
     }
