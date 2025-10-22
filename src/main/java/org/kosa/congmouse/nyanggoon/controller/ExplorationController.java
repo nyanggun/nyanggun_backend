@@ -7,6 +7,7 @@ import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.ExplorationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,17 +27,23 @@ import java.util.List;
 public class ExplorationController {
     private final ExplorationService explorationService;
 
-    @GetMapping("")
-    public ResponseEntity getExplorationList(){
-        List<ExplorationDetailDto> explorationList = explorationService.getExplorationList();
-        return ResponseEntity.status(HttpStatus.OK).body(explorationList);
+//    @GetMapping("")
+//    public ResponseEntity getExplorationList(){
+//        List<ExplorationDetailDto> explorationList = explorationService.getExplorationList();
+//        return ResponseEntity.status(HttpStatus.OK).body(explorationList);
+//    }
+
+    @GetMapping(params={"page", "size"})
+    public ResponseEntity<?> getExplorationListInfiniteScroll(@RequestParam Long page, @RequestParam Long size){
+        Page<ExplorationDetailDto> explorationDetailDtoPage = explorationService.getExplorationInfiniteScrollList(page, size);
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoPage, "문화재 탐방기 무한스크롤 조회 성공"));
     }
 
     // 검색
     @GetMapping("/search")
     public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
         List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
-        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 "));
+        return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 검색 조회 성공"));
     }
 
     @PostMapping("")

@@ -7,6 +7,10 @@ import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -152,32 +156,32 @@ public class ExplorationService {
         return ExplorationDetailDto.from(updateExploration);
     }
 
-    public List<ExplorationDetailDto> getExplorationList() {
-        // Exploration과 bookmarkCount, commentCount 정보를 닮은 dtoList 먼저 반환
-        List<ExplorationDetailDto> dtoList = explorationRepository.findAllWithBookmarkCountAndCommentCounts();
-        // 조회 결과가 없으면 바로 반환
-        if (dtoList.isEmpty()) {
-            return dtoList;
-        }
-        // 전체 문화재 탐방기 이미지 리스트 반환
-        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
-        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
-                .collect(Collectors.toMap(
-                        Exploration::getId, // Key: Exploration ID
-                        e -> e.getExplorationPhotos().stream() // Value: 이미지 파일명 리스트
-                                .map(ExplorationPhoto::getSavedName)
-                                .toList()
-                ));
-
-        // 최종 조합: 기본 DTO 리스트에 이미지 정보 주입(Hydration)
-        dtoList.forEach(dto -> {
-            List<String> photoNames = photoMap.get(dto.getId());
-            if (photoNames != null) {
-                dto.setImageNameList(photoNames);
-            }
-        });
-        return dtoList;
-    }
+//    public List<ExplorationDetailDto> getExplorationList() {
+//        // Exploration과 bookmarkCount, commentCount 정보를 닮은 dtoList 먼저 반환
+//        List<ExplorationDetailDto> dtoList = explorationRepository.findAllWithBookmarkCountAndCommentCounts();
+//        // 조회 결과가 없으면 바로 반환
+//        if (dtoList.isEmpty()) {
+//            return dtoList;
+//        }
+//        // 전체 문화재 탐방기 이미지 리스트 반환
+//        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
+//        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
+//                .collect(Collectors.toMap(
+//                        Exploration::getId, // Key: Exploration ID
+//                        e -> e.getExplorationPhotos().stream() // Value: 이미지 파일명 리스트
+//                                .map(ExplorationPhoto::getSavedName)
+//                                .toList()
+//                ));
+//
+//        // 최종 조합: 기본 DTO 리스트에 이미지 정보 주입(Hydration)
+//        dtoList.forEach(dto -> {
+//            List<String> photoNames = photoMap.get(dto.getId());
+//            if (photoNames != null) {
+//                dto.setImageNameList(photoNames);
+//            }
+//        });
+//        return dtoList;
+//    }
 
     @Transactional
     public void createExplorationBookmark(ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
@@ -217,5 +221,27 @@ public class ExplorationService {
                 .build();
         Report resultExplorationReport = reportRepository.save(newExplorationReport);
         return ReportResponseDto.from(resultExplorationReport);
+    }
+
+    public Page<ExplorationDetailDto> getExplorationInfiniteScrollList(Long page, Long count) {
+        Pageable pageable = PageRequest.of(page.intValue(), count.intValue(), Sort.by("createdAt").descending());
+        Page<ExplorationDetailDto> explorationPageDetailDtoPage =  explorationRepository.findAllWithBookmarkCountAndCommentCounts(pageable);
+
+        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
+        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
+                .collect(Collectors.toMap(
+                        Exploration::getId, // Key: Exploration ID
+                        e -> e.getExplorationPhotos().stream() // Value: 이미지 파일명 리스트
+                                .map(ExplorationPhoto::getSavedName)
+                                .toList()
+                ));
+
+        explorationPageDetailDtoPage.getContent().forEach(dto -> {
+            List<String> photoNames = photoMap.get(dto.getId());
+            if (photoNames != null) {
+                dto.setImageNameList(photoNames);
+            }
+        });
+        return explorationPageDetailDtoPage;
     }
 }
