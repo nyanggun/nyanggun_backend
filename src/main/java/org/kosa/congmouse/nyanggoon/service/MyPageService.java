@@ -12,9 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -25,6 +31,7 @@ public class MyPageService {
     private final MemberRepository memberRepository;
     private final ProfilePictureRepository profilePictureRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String uploadDir = "uploads/profilepicture";
 
     /* =================== 내 정보 조회 =================== */
     public MemberResponseDto getProfileData(Long memberId) {
@@ -37,7 +44,7 @@ public class MyPageService {
 
     /* =================== 내 정보 수정 =================== */
     @Transactional
-    public MemberResponseDto updateProfile(Long memberId, MemberUpdateRequestDto dto) {
+    public MemberResponseDto updateProfile(Long memberId, MemberUpdateRequestDto dto, MultipartFile profileImage) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
@@ -54,29 +61,28 @@ public class MyPageService {
         memberRepository.updateMemberInfo(memberId, email, nickname, phone, password);
 
         // 프로필 이미지 처리
-        if (dto.getProfileImage() != null) {
-            if (!dto.getProfileImage().isBlank()) {
-                // 기존 이미지 삭제 후 새로 저장
-                profilePictureRepository.deleteByMember(member);
+        if (profileImage != null && !profileImage.isEmpty()) {
+            profilePictureRepository.deleteByMember(member); // DB에서 기존 ProfilePicture 삭제
 
-                String path = dto.getProfileImage();
-                String originalName = path.substring(path.lastIndexOf('/') + 1);
+            try {
+                // 파일 업로드 로직 호출 (MyPageService 내부의 헬퍼 메서드 사용)
+                String newProfilePath = this.saveProfileImage(profileImage);
 
+                // DB에 새 경로 저장
                 ProfilePicture picture = ProfilePicture.builder()
-                        .path(path)
-                        .originalName(originalName)
-                        .savedName(UUID.randomUUID() + "_" + originalName)
-                        .size(0L)
-                        .fileExtension(getFileExtension(originalName))
+                        .path(newProfilePath) // 업로드된 URL 사용
+                        .originalName(profileImage.getOriginalFilename())
+                        .savedName(UUID.randomUUID() + "_" + profileImage.getOriginalFilename())
+                        .size(profileImage.getSize())
+                        .fileExtension(getFileExtension(profileImage.getOriginalFilename()))
                         .build();
 
                 picture.profileOwner(member);
                 profilePictureRepository.save(picture);
-                log.info("프로필 이미지 수정 완료: {}", path);
-            } else {
-                // 빈 문자열일 경우 이미지 삭제 요청
-                profilePictureRepository.deleteByMember(member);
-                log.info("프로필 이미지 삭제 완료: memberId={}", memberId);
+                log.info("프로필 이미지 수정 완료: {}", newProfilePath);
+            } catch (IOException e) {
+                log.error("파일 업로드 중 오류 발생 (Local I/O)", e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다.");
             }
         }
 
@@ -84,6 +90,25 @@ public class MyPageService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "수정된 회원 정보를 찾을 수 없습니다."));
         return MemberResponseDto.from(updated);
+    }
+
+    // private 헬퍼 메서드로 로컬 파일 저장 로직 구현
+    private String saveProfileImage(MultipartFile file) throws IOException {
+        String originalFileName = file.getOriginalFilename();
+        String savedFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+
+        Path uploadPath = Paths.get(uploadDir);
+        // 디렉토리가 없으면 생성
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath); // 이 부분에서 IO 예외가 발생할 수 있습니다.
+        }
+
+        Path filePath = uploadPath.resolve(savedFileName);
+        // 파일을 실제 저장소에 복사 (저장)
+        file.transferTo(filePath.toFile());
+
+        // 클라이언트가 접근할 수 있는 경로 반환
+        return "/" + uploadDir + "/" + savedFileName;
     }
 
     /* =================== 회원 탈퇴 =================== */
@@ -94,6 +119,15 @@ public class MyPageService {
                         HttpStatus.NOT_FOUND, "탈퇴할 회원을 찾을 수 없습니다."));
         memberRepository.delete(member);
         log.info("회원 탈퇴 완료: ID={}", memberId);
+    }
+
+    /* =================== Helper =================== */
+    private String getFileExtension(String originalName) {
+        if (originalName != null && originalName.contains(".")) {
+            String ext = originalName.substring(originalName.lastIndexOf(".") + 1);
+            return ext.length() > 10 ? ext.substring(0, 10) : ext.toLowerCase();
+        }
+        return "";
     }
 
 //    /* =================== 관리자 제재 (상태 변경) =================== */
@@ -114,14 +148,6 @@ public class MyPageService {
 //        log.info("회원 제재 완료: ID={}", memberId);
 //    }
 //
-    /* =================== Helper =================== */
-    private String getFileExtension(String originalName) {
-        if (originalName != null && originalName.contains(".")) {
-            String ext = originalName.substring(originalName.lastIndexOf(".") + 1);
-            return ext.length() > 10 ? ext.substring(0, 10) : ext.toLowerCase();
-        }
-        return "";
-    }
 
     /* =================== 탐방기 / 게시글 =================== */
 
