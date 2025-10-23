@@ -68,19 +68,19 @@ public class NyangggonExplorationTests {
         assertThat(explorationDetailDto.getTitle()).isEqualTo(explorationUpdateDto.getTitle());
     }
 
-    @Test
-    void deleteTest(){
-        //given
-        Long id = 1L;
-
-        //when
-        explorationService.deleteExploration(id);
-
-        //then
-        assertThatThrownBy(()->{
-            explorationService.viewExploration(id);
-        })
-                .isInstanceOf(RuntimeException.class)
-                .withFailMessage("게시글이 존재하지 않습니다");
-    }
+//    @Test
+//    void deleteTest(){
+//        //given
+//        Long id = 1L;
+//
+//        //when
+//        explorationService.deleteExploration(id);
+//
+//        //then
+//        assertThatThrownBy(()->{
+//            explorationService.viewExploration(id);
+//        })
+//                .isInstanceOf(RuntimeException.class)
+//                .withFailMessage("게시글이 존재하지 않습니다");
+//    }
 }

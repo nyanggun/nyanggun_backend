@@ -69,7 +69,7 @@ public class ExplorationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteExploration(@PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails memberDetails){
-        explorationService.deleteExploration(id, memberDetails.getMemberId());
+        explorationService.deleteExploration(id, memberDetails);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
