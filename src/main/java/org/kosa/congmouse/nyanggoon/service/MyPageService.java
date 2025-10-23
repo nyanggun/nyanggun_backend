@@ -1,10 +1,12 @@
 package org.kosa.congmouse.nyanggoon.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.MemberUpdateRequestDto;
 import org.kosa.congmouse.nyanggoon.entity.Member;
+import org.kosa.congmouse.nyanggoon.entity.MemberState;
 import org.kosa.congmouse.nyanggoon.entity.ProfilePicture;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
 import org.kosa.congmouse.nyanggoon.repository.ProfilePictureRepository;
@@ -15,100 +17,93 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MyPageService {
-
     private final MemberRepository memberRepository;
     private final ProfilePictureRepository profilePictureRepository;
     private final PasswordEncoder passwordEncoder;
-    private final String uploadDir = "uploads/profilepicture";
+    private final String defaultUploadDir = System.getProperty("user.dir") + "/uploads/profilepicture/";
 
     /* =================== 내 정보 조회 =================== */
     public MemberResponseDto getProfileData(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        Member updated = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
         log.info("회원 정보 조회 완료: ID={}", memberId);
-        return MemberResponseDto.from(member);
-    }
 
-    /* =================== 내 정보 수정 =================== */
-    @Transactional
-    public MemberResponseDto updateProfile(Long memberId, MemberUpdateRequestDto dto, MultipartFile profileImage) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
-
-        // 이메일, 닉네임, 전화번호, 비밀번호 업데이트
-        String email = dto.getEmail() != null ? dto.getEmail() : member.getEmail();
-        String nickname = dto.getNickname() != null ? dto.getNickname() : member.getNickname();
-        String phone = dto.getPhoneNumber() != null ? dto.getPhoneNumber() : member.getPhoneNumber();
-
-        String password = dto.getPassword() != null && !dto.getPassword().isBlank()
-                ? passwordEncoder.encode(dto.getPassword())
-                : member.getPassword();
-
-        memberRepository.updateMemberInfo(memberId, email, nickname, phone, password);
-
-        // 프로필 이미지 처리
-        if (profileImage != null && !profileImage.isEmpty()) {
-            profilePictureRepository.deleteByMember(member); // DB에서 기존 ProfilePicture 삭제
-
-            try {
-                // 파일 업로드 로직 호출 (MyPageService 내부의 헬퍼 메서드 사용)
-                String newProfilePath = this.saveProfileImage(profileImage);
-
-                // DB에 새 경로 저장
-                ProfilePicture picture = ProfilePicture.builder()
-                        .path(newProfilePath) // 업로드된 URL 사용
-                        .originalName(profileImage.getOriginalFilename())
-                        .savedName(UUID.randomUUID() + "_" + profileImage.getOriginalFilename())
-                        .size(profileImage.getSize())
-                        .fileExtension(getFileExtension(profileImage.getOriginalFilename()))
-                        .build();
-
-                picture.profileOwner(member);
-                profilePictureRepository.save(picture);
-                log.info("프로필 이미지 수정 완료: {}", newProfilePath);
-            } catch (IOException e) {
-                log.error("파일 업로드 중 오류 발생 (Local I/O)", e);
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다.");
-            }
-        }
-
-        Member updated = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "수정된 회원 정보를 찾을 수 없습니다."));
         return MemberResponseDto.from(updated);
     }
 
-    // private 헬퍼 메서드로 로컬 파일 저장 로직 구현
-    private String saveProfileImage(MultipartFile file) throws IOException {
-        String originalFileName = file.getOriginalFilename();
-        String savedFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+    @Transactional
+    public MemberResponseDto updateProfile(Long memberId, MemberUpdateRequestDto dto, MultipartFile profileImage) {
+        log.info("updateProfile 시작: memberId={}", memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."));
+        log.info("회원조회 완료");
+        // 1. 회원 기본 정보 업데이트
+        // DTO 값이 있으면 사용, 없으면 기존 값 유지
+        String newNickname = dto.getNickname() != null ? dto.getNickname() : member.getNickname();
+        String newPhone = dto.getPhoneNumber() != null ? dto.getPhoneNumber() : member.getPhoneNumber();
+        String newPassword = null;
 
-        Path uploadPath = Paths.get(uploadDir);
-        // 디렉토리가 없으면 생성
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath); // 이 부분에서 IO 예외가 발생할 수 있습니다.
+        // 비밀번호가 입력되었으면 인코딩
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            member.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
+        log.info("회원 정보 업데이트 시작");
+        member.changeMemberInfo(dto);
 
-        Path filePath = uploadPath.resolve(savedFileName);
-        // 파일을 실제 저장소에 복사 (저장)
-        file.transferTo(filePath.toFile());
+        log.info("회원 기본 정보 업데이트: ID={}, 닉네임={}", memberId, newNickname);
 
-        // 클라이언트가 접근할 수 있는 경로 반환
-        return "/" + uploadDir + "/" + savedFileName;
+        // ------------------ 2. 프로필 이미지 처리 ------------------
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                // 기존 이미지 삭제
+                profilePictureRepository.findByMember(member).ifPresent(existingPicture -> {
+                    File file = new File(defaultUploadDir + existingPicture.getSavedName());
+                    if (file.exists()) file.delete();
+                    profilePictureRepository.delete(existingPicture);
+                });
+
+                // 새 ProfilePicture 생성 및 세팅
+                ProfilePicture newPicture = new ProfilePicture();
+                newPicture.setFirstProfilePicture(profileImage, member);
+
+                // 파일 서버에 저장
+                File uploadsProfilepictureDir = new File(defaultUploadDir);
+                if(!uploadsProfilepictureDir.exists()){
+                    uploadsProfilepictureDir.mkdirs();
+                }
+                profileImage.transferTo(new File(defaultUploadDir + newPicture.getSavedName()));
+//                Path filePath = Paths.get(defaultUploadDir + newPicture.getPath());
+//                if (!Files.exists(filePath.getParent())) Files.createDirectories(filePath.getParent());
+//                profileImage.transferTo(filePath.toFile());
+
+                // DB 저장 및 Member에 연결
+                profilePictureRepository.save(newPicture);
+                member.setProfilePicture(newPicture);
+
+                log.info("새 프로필 이미지 저장 완료: {}", newPicture.getPath());
+            } catch (IOException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다.", e);
+            }
+        }else {
+            log.info("프로필 이미지 없음");
+        }
+        MemberResponseDto dtoResult = MemberResponseDto.from(member);
+        return dtoResult;
     }
 
     /* =================== 회원 탈퇴 =================== */
@@ -130,24 +125,23 @@ public class MyPageService {
         return "";
     }
 
-//    /* =================== 관리자 제재 (상태 변경) =================== */
-//    @Transactional
-//    public void sanctionMember(Long memberId) {
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new ResponseStatusException(
-//                        HttpStatus.NOT_FOUND, "제재할 회원을 찾을 수 없습니다."));
-//
-//        // 현재 상태가 DISABLE인지 먼저 체크
-//        if (member.getMemberstate() == MemberState.DISABLE) {
-//            log.warn("이미 제재 상태인 회원: {}", memberId);
-//            return;
-//        }
-//
-//        // 상태 변경
-//        memberRepository.updateMemberState(memberId, MemberState.DISABLE);
-//        log.info("회원 제재 완료: ID={}", memberId);
-//    }
-//
+    /* =================== 관리자 제재 (상태 변경) =================== */
+    @Transactional
+    public void sanctionMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "제재할 회원을 찾을 수 없습니다."));
+
+        // 현재 상태가 DISABLE인지 먼저 체크
+        if (member.getMemberstate() == MemberState.DISABLED) {
+            log.warn("이미 제재 상태인 회원: {}", memberId);
+            return;
+        }
+
+        // 상태 변경
+        memberRepository.updateMemberState(memberId, MemberState.DISABLED);
+        log.info("회원 제재 완료: ID={}", memberId);
+    }
 
     /* =================== 탐방기 / 게시글 =================== */
 
