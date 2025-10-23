@@ -5,8 +5,10 @@ import lombok.Getter;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.MemberRole;
 import org.kosa.congmouse.nyanggoon.entity.MemberState;
+import org.kosa.congmouse.nyanggoon.entity.ProfilePicture;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * 회원 정보 응답 DTO
@@ -23,11 +25,10 @@ public class MemberResponseDto {
     private String email;            // 로그인 ID
 
     private String nickname;                // 사용자 실명
-
     private MemberRole role;            // 권한
-
+    private String phoneNumber;     // 전화번호
     private MemberState state;          // 상태
-
+    private String profileImagePath;    // 이미지 경로
     private LocalDateTime createdAt;    // 가입일시
 
     /**
@@ -44,8 +45,14 @@ public class MemberResponseDto {
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
+                .phoneNumber(member.getPhoneNumber())
                 .state(member.getMemberstate())
                 .createdAt(member.getCreatedAt())
+                .profileImagePath(
+                        Optional.ofNullable(member.getProfilePicture())
+                                .map(ProfilePicture::getPath)
+                                .orElse(null)
+                )
                 .build();
     }
 }
