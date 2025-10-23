@@ -31,7 +31,7 @@ public class MyPageController {
     }
 
     /* 내 정보 수정 - 로그인 필수 */
-    @PutMapping("/{id}/profileupdate")
+    @PatchMapping("/{id}/profileupdate")
     public ResponseEntity<?> updateProfile(@PathVariable Long id,
                                            @RequestPart("dto") MemberUpdateRequestDto dto,// Dto 수신
                                            // RequestPart로 변경: 프론트엔드에서 파일과 DTO를 multipart/form-data로 보냄

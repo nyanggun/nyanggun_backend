@@ -7,8 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 // 프로필 사진 entity
 @Entity
@@ -32,7 +34,7 @@ public class ProfilePicture {
     @Column(name = "size", nullable = false)
     private Long size;
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     @Column(name = "file_extension", nullable = false, length = 10)
     private String fileExtension;
@@ -46,4 +48,15 @@ public class ProfilePicture {
     public void profileOwner(Member member){
         this.member = member;
     }
+
+    // 첫 프로필 사진 등록
+    public void setFirstProfilePicture(MultipartFile newImage,Member member){
+        this.originalName = newImage.getOriginalFilename();
+        this.fileExtension = newImage.getOriginalFilename().substring(newImage.getOriginalFilename().lastIndexOf(".") + 1);
+        this.savedName = UUID.randomUUID().toString()+"."+this.fileExtension;
+        this.path = "/uploads/profilepicture/"+ this.savedName;
+        this.size = newImage.getSize();
+        profileOwner(member);
+    }
+
 }
