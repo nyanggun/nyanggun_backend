@@ -429,7 +429,7 @@ gradle-app.setting
 *.hprof
 
 # Spring Boot 설정 파일
-# /src/main/resources/application.properties
+/src/main/resources/application.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/java,react,windows,macos,maven,gradle,intellij,visualstudiocode,git,node
 .idea/
