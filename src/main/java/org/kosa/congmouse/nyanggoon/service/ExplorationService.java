@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
+import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -97,12 +98,15 @@ public class ExplorationService {
     }
 
     @Transactional
-    public void deleteExploration(Long id, Long memberId){
+    public void deleteExploration(Long id, CustomMemberDetails customMemberDetails){
         Exploration exploration = explorationRepository.findById(id).orElseThrow(() -> {
             throw new RuntimeException("게시글이 존재하지 않습니다");
         });
-        if(exploration.getMember().getId() != memberId)
-            throw new IllegalArgumentException("본인이 작성한 글만 삭제할 수 있습니다.");
+        if(customMemberDetails.getMember().getRole() != MemberRole.ROLE_ADMIN){
+            if(exploration.getMember().getId() != customMemberDetails.getMemberId())
+                throw new IllegalArgumentException("본인이 작성한 글만 삭제할 수 있습니다.");
+        }
+
         explorationRepository.deleteById(id);
     }
 
