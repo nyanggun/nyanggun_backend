@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.MemberUpdateRequestDto;
 
 import java.time.LocalDateTime;
 // 사냥꾼(멤버) entity
@@ -53,5 +55,16 @@ public class Member {
             this.memberstate = MemberState.DISABLED;
         else
             this.memberstate = MemberState.ACTIVE;
+    }
+    public void changeMemberInfo(MemberUpdateRequestDto memberUpdateRequestDto){
+        this.nickname = memberUpdateRequestDto.getNickname();
+        this.phoneNumber = memberUpdateRequestDto.getPhoneNumber();
+    }
+    public void setPassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void setProfilePicture(ProfilePicture profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
