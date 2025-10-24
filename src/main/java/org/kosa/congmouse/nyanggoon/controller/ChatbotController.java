@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173")
-@RestController
-@RequestMapping("/api/chat")
+//@CrossOrigin(origins = "http://localhost:5173")
+//@RestController
+//@RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatbotController {
 
