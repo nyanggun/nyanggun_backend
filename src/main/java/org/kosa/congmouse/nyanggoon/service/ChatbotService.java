@@ -27,8 +27,8 @@ public class ChatbotService {
     private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
 
     // --- AI 모델명(application.properties에서 groq.api.model 값 읽어오기) ---
-    @Value("${groq.api.model:openai/gpt-oss-20b}")
-    private String model;
+//    @Value("${groq.api.model:openai/gpt-oss-20b}")
+    private final String model="openai/gpt-oss-20b";
 
     /**
      * 챗봇 메시지 처리 메인 함수

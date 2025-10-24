@@ -8,11 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class GroqConfig {
 
-    @Value("${groq.api.url}")
-    private String apiUrl;
+    private String apiUrl = "https://api.groq.com/openai/v1";
 
-    @Value("${groq.api.key}")
-    private String apiKey;
+    private String apiKey = "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";
 
     @Bean
     public WebClient groqWebClient() {
