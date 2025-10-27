@@ -60,10 +60,12 @@ K‑Culture 유행으로 한국 방문 외국인이 증가하고 있습니다. �
 ---
 
 ## 🗺 스크린샷
-<img width="328" height="701" alt="image 9" src="https://github.com/user-attachments/assets/6e57d9db-1682-4ec1-b486-2e69ff96b5f5" />
-<img width="399" height="797" alt="image 10" src="https://github.com/user-attachments/assets/08b46e9f-971d-4554-aa36-d9895404f9aa" />
-<img width="442" height="962" alt="image 12" src="https://github.com/user-attachments/assets/9d62a4c1-f0d7-426f-9248-2bf7326db8a7" />
-<img width="470" height="880" alt="image 13" src="https://github.com/user-attachments/assets/1eab4802-2a7b-4646-a1b4-5cf1949052eb" />
+<div align="center">
+    <img width="200" height="700" alt="image 9" src="https://github.com/user-attachments/assets/6e57d9db-1682-4ec1-b486-2e69ff96b5f5" />
+    <img width="200" height="700" alt="image 10" src="https://github.com/user-attachments/assets/08b46e9f-971d-4554-aa36-d9895404f9aa" />
+    <img width="200" height="700" alt="image 12" src="https://github.com/user-attachments/assets/9d62a4c1-f0d7-426f-9248-2bf7326db8a7" />
+    <img width="200" height="700" alt="image 13" src="https://github.com/user-attachments/assets/1eab4802-2a7b-4646-a1b4-5cf1949052eb" />
+</div>
 
 ### 시연 영상
 https://youtu.be/fEZU-rIgKQM
@@ -72,4 +74,7 @@ https://youtu.be/fEZU-rIgKQM
 
 ## 👩‍💻 팀
 
-* 김ㅇㅇ · 김ㅇㅇ · 김ㅇㅇ · 주ㅇㅇ
+* 김남주 : 이슈관리리더, 스터디리더, 메인 디벨로퍼
+* 주순형 : 프로젝트 리더, 도큐먼트 리더, 메인 디벨로퍼
+* 김혜경 : 프로젝트 매니저, 메인 디벨로퍼
+* 김기영 : QA리더, 형상관리리더, 메인 디벨로퍼
