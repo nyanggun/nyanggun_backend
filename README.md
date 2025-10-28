@@ -16,14 +16,14 @@
 ## 시연 영상
 ### [전체 시연 영상 링크(유투브 링크)](https://youtu.be/fEZU-rIgKQM)
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/30d4ba37-0f00-44a0-acc8-fc97c451e29b" width="300" alt="1" />
-  <img src="https://github.com/user-attachments/assets/ee5eaaec-506c-40d7-bdcf-b44de4e5a754" width="300" alt="2" />
-  <img src="https://github.com/user-attachments/assets/493aee56-e89e-4b8d-ab0b-d32ede3bc287" width="300" alt="3" />
+  <img src="https://github.com/user-attachments/assets/30d4ba37-0f00-44a0-acc8-fc97c451e29b" width="280" alt="1" />
+  <img src="https://github.com/user-attachments/assets/ee5eaaec-506c-40d7-bdcf-b44de4e5a754" width="280" alt="2" />
+  <img src="https://github.com/user-attachments/assets/493aee56-e89e-4b8d-ab0b-d32ede3bc287" width="280" alt="3" />
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1cb11779-2dfc-428e-8e5f-2ab5daecea7b" width="300" alt="4" />
-  <img src="https://github.com/user-attachments/assets/09e74ee8-d4ad-4d3d-82ce-fae0413cf6ff" width="300" alt="5" />
-  <img src="https://github.com/user-attachments/assets/79dc7ce4-66de-49b4-a700-58f7d8887fb6" width="300" alt="6" />
+  <img src="https://github.com/user-attachments/assets/1cb11779-2dfc-428e-8e5f-2ab5daecea7b" width="280" alt="4" />
+  <img src="https://github.com/user-attachments/assets/09e74ee8-d4ad-4d3d-82ce-fae0413cf6ff" width="280" alt="5" />
+  <img src="https://github.com/user-attachments/assets/79dc7ce4-66de-49b4-a700-58f7d8887fb6" width="280" alt="6" />
 </p>
 
 
