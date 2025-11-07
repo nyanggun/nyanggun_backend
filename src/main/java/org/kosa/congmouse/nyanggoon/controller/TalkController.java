@@ -1,5 +1,12 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
@@ -19,6 +26,7 @@ import java.util.List;
 @RequestMapping("/talks")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "문화재 담소", description = "문화재 담소 게시판 컨트롤러 입니다.")
 //담소 컨트롤러 입니다.
 public class TalkController {
     private final TalkService talkService;
@@ -28,7 +36,11 @@ public class TalkController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<?> getAllTalkList(@RequestParam(required = false) Long cursor){
+    @Operation(summary = "게시글들을 가져오는 컨트롤러", description = "담소 게시글들을 가져옵니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글들을 조회했습니다."))
+    public ResponseEntity<?> getAllTalkList(
+            @Parameter(description = "커서 (마지막으로 가져오는 게시글의 id)", example = "")
+            @RequestParam(required = false) Long cursor){
         log.info("게시글들 조회 컨트롤러 작동 ok");
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -45,7 +57,10 @@ public class TalkController {
      * @return
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTalkDetailById(@PathVariable Long id){
+    @Operation(summary = "게시글을 상세 확인하는 컨트롤러" , description = "담소 게시글 상세를 확인합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글의 상세를 조회했습니다."))
+    public ResponseEntity<?> getTalkDetailById( @Parameter(description = "게시글 id", example = "")
+                                                    @PathVariable Long id){
         log.info("게시글 상세 조회 컨트롤러 작동 ok");
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,8 +75,19 @@ public class TalkController {
      * @param talkCreateRequestDto
      * @return
      */
+    @Operation(summary = "게시글을 작성하는 컨트롤러", description = "담소 게시글을 작성합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 작성했습니다."))
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createTalk( @RequestPart("talkData") TalkCreateRequestDto talkCreateRequestDto,  @RequestPart(value = "files", required = false) List<MultipartFile> files){
+    public ResponseEntity<?> createTalk( @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                     description = "게시글 제목 및 내용 데이터",
+                                                     required = true,
+                                                     content = @Content(
+                                                             mediaType = "application/json",
+                                                             schema = @Schema(implementation = TalkCreateRequestDto.class)
+                                                     )
+                                             )
+                                             @RequestPart("talkData") TalkCreateRequestDto talkCreateRequestDto,
+                                         @RequestPart(value = "files", required = false) List<MultipartFile> files){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
@@ -77,8 +103,17 @@ public class TalkController {
      * @param talkUpdateRequestDto
      * @return
      */
+    @Operation(summary = "게시글을 수정하는 컨트롤러" , description = "담소 게시글을 수정합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 수정했습니다."))
     @PutMapping(value = "/{talkId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateTalkById(@PathVariable Long talkId,  @RequestPart("talkData") TalkUpdateRequestDto talkUpdateRequestDto ,  @RequestPart(value = "files", required = false) List<MultipartFile> files){
+    public ResponseEntity<?> updateTalkById(@Parameter(description = "게시글 id", example = "") @PathVariable Long talkId, @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "게시글 제목 및 내용 데이터",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TalkUpdateRequestDto.class)
+            )
+    )@RequestPart("talkData") TalkUpdateRequestDto talkUpdateRequestDto ,  @Parameter(description = "게시글 사진", example = "")@RequestPart(value = "files", required = false) List<MultipartFile> files){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
@@ -93,7 +128,9 @@ public class TalkController {
      * @return
      */
     @DeleteMapping("/{talkId}")
-    public ResponseEntity<Void> deleteTalkById(@PathVariable Long talkId) {
+    @Operation(summary = "게시글을 삭제하는 컨트롤러", description = "담소 게시글을 삭제합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 삭제했습니다."))
+    public ResponseEntity<Void> deleteTalkById(@Parameter(description = "게시글 id", example = "") @PathVariable Long talkId) {
         log.info("게시글 삭제 컨트롤러 작동 ok");
         log.info("삭제할 게시글 id : {}", talkId);
         try {
@@ -110,7 +147,16 @@ public class TalkController {
      * @return
      */
         @PostMapping("/{talkId}/comments")
-        public ResponseEntity<?> createTalkComment(@RequestBody TalkCommentCreateRequestDto talkCommentCreateRequestDto){
+        @Operation(summary = "댓글을 작성하는 컨트롤러", description = "담소 게시글의 댓글을 작성합니다.")
+        @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 댓글을 작성했습니다."))
+        public ResponseEntity<?> createTalkComment(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "게시글 id 및 댓글 내용",
+                required = true,
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = TalkCommentCreateRequestDto.class)
+                )
+        )@RequestBody TalkCommentCreateRequestDto talkCommentCreateRequestDto){
            TalkComment savedComment =  talkService.createTalkComment(talkCommentCreateRequestDto);
             // 응답 DTO 생성
             TalkCommentResponseDto talkCommentResponseDto = TalkCommentResponseDto.builder()
@@ -133,8 +179,17 @@ public class TalkController {
      * @param talkCommentUpdateRequestDto
      * @return
      */
-        @PutMapping("/{talkId}/comments/{commentId}")
-        public ResponseEntity<?> updateTalkCommentById(@PathVariable Long talkId, @PathVariable Long commentId, @RequestBody TalkCommentUpdateRequestDto talkCommentUpdateRequestDto){
+    @Operation(summary = "댓글을 수정하는 컨트롤러", description = "담소 게시글의 댓글을 수정합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 댓글을 수정했습니다."))
+    @PutMapping("/{talkId}/comments/{commentId}")
+        public ResponseEntity<?> updateTalkCommentById(@Parameter(description = "게시글 id", example = "")@PathVariable Long talkId, @Parameter(description = "댓글 id", example = "")@PathVariable Long commentId, @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "게시글 id 및 댓글 내용",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TalkCommentUpdateRequestDto.class)
+            )
+    )@RequestBody TalkCommentUpdateRequestDto talkCommentUpdateRequestDto){
             talkService.updateTalkComment(commentId, talkCommentUpdateRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkCommentUpdateRequestDto, "댓글이 수정되었습니다."));
         }
@@ -145,8 +200,10 @@ public class TalkController {
      * @param commentId
      * @return
      */
-        @DeleteMapping("/{talkId}/comments/{commentId}")
-        public ResponseEntity<Void> deleteTalkCommentById(@PathVariable Long talkId, @PathVariable Long commentId){
+    @Operation(summary = "댓글을 삭제하는 컨트롤러" , description = "담소 게시글의 댓글을 삭제합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 댓글을 삭제했습니다."))
+    @DeleteMapping("/{talkId}/comments/{commentId}")
+        public ResponseEntity<Void> deleteTalkCommentById(@Parameter(description = "게시글 id", example = "")@PathVariable Long talkId, @Parameter(description = "댓글 id", example = "")@PathVariable Long commentId){
             log.info("댓글 삭제 컨트롤러 작동 ok");
             log.info("댓글을 삭제할 게시글 id : {}", talkId);
             log.info("삭제할 댓글 id : {}", commentId);
@@ -161,7 +218,9 @@ public class TalkController {
 
     //담소를 북마크하는 컨트롤러 입니다.
     @PostMapping("/bookmark/{talkId}")
-    public ResponseEntity<?> createTalkBookmark(@PathVariable Long talkId){
+    @Operation(summary = "담소를 북마크하는 컨트롤러", description = "담소 게시글을 북마크합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소를 북마크했습니다."))
+    public ResponseEntity<?> createTalkBookmark(@Parameter(description = "게시글 id", example = "") @PathVariable Long talkId){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
@@ -175,8 +234,10 @@ public class TalkController {
 
     //담소 게시글을 북마크 취소하는 컨트롤러 입니다.
     //인증 필요
+    @Operation(summary = "담소 게시글을 북마크 취소하는 컨트롤러", description = "담소 게시글 북마크를 취소합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 해당 북마크를 취소했습니다."))
     @DeleteMapping("/bookmark/{talkId}")
-    public ResponseEntity<Void> deletePhotoBoxBookmark(@PathVariable Long talkId){
+    public ResponseEntity<Void> deletePhotoBoxBookmark(@Parameter(description = "게시글 id", example = "")@PathVariable Long talkId){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
@@ -193,8 +254,10 @@ public class TalkController {
     }
 
     //담소 게시글을 검색하는 컨트롤러 입니다.
+    @Operation(summary = "담소 게시글을 검색하는 컨트롤러", description = "담소 게시글을 검색합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 검색했습니다."))
     @GetMapping("/search")
-    public ResponseEntity<?> findTalkListWithKeyword(@RequestParam String keyword, Long cursor){
+    public ResponseEntity<?> findTalkListWithKeyword(@Parameter(description = "키워드", example = "")@RequestParam String keyword, @Parameter(description = "커서 (마지막으로 조회된 게시글 id)", example = "")Long cursor){
         log.info("게시글들 검색 컨트롤러 작동 ok");
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -205,14 +268,32 @@ public class TalkController {
     }
 
    //담소를 신고하는 컨트롤러 입니다.
-    @PostMapping("/reports")
-    public ResponseEntity<?> postTalkReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+   @Operation(summary = "담소를 신고하는 컨트롤러", description = "담소 게시글을 신고합니다.")
+   @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 신고했습니다."))
+   @PostMapping("/reports")
+    public ResponseEntity<?> postTalkReport(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+           description = "담소 신고 내용 및 게시글 id, 회원 id",
+           required = true,
+           content = @Content(
+                   mediaType = "application/json",
+                   schema = @Schema(implementation = ReportCreateRequestDto.class)
+           )
+   )@RequestBody ReportCreateRequestDto reportCreateRequestDto){
         ReportResponseDto explorationReportResponseDto = talkService.createTalkReport(reportCreateRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "담소 신고 완료"));
     }
     //담소 댓글을 신고하는 컨트롤러 입니다.
+    @Operation(summary = "담소 댓글을 신고하는 컨트롤러", description = "담소 댓글을 신고합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 댓글을 신고했습니다."))
     @PostMapping("/reports/comments")
-    public ResponseEntity<?> postTalkCommentReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+    public ResponseEntity<?> postTalkCommentReport(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "담소 댓글 신고 내용 및 댓글 id, 회원 id",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ReportCreateRequestDto.class)
+            )
+    )@RequestBody ReportCreateRequestDto reportCreateRequestDto){
         ReportResponseDto explorationReportResponseDto = talkService.createTalkCommentReport(reportCreateRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "담소 댓글 신고 완료"));
     }
