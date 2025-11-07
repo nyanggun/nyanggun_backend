@@ -30,7 +30,7 @@ public class HeritageEncyclopediaController {
 
     // 문화재 도감 리스트-가나다순
     @GetMapping("/list/name")
-    public ResponseEntity<?> getHeritageEncyclopediaNameList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> getHeritageEncyclopediaNameList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size, @AuthenticationPrincipal CustomMemberDetails member){
         Long memberId = (member != null) ? member.getMemberId() : null;
         Page<HeritageEncyclopediaResponseDto> result = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByKoreanName(page, size, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(result, "문화재 도감 목록 조회 성공"));
@@ -38,7 +38,7 @@ public class HeritageEncyclopediaController {
 
     // 문화재 도감 리스트-인기순
     @GetMapping("/list/popular")
-    public ResponseEntity<?> getHeritageEncyclopediaPopularList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> getHeritageEncyclopediaPopularList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "4") int size, @AuthenticationPrincipal CustomMemberDetails member){
         Long memberId = (member != null) ? member.getMemberId() : null;
         Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.getAllHeritageEncyclopediasSortedByPopular(page, size, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDtosPage, "문화재 도감 목록 조회 성공"));
@@ -46,7 +46,7 @@ public class HeritageEncyclopediaController {
 
     // 문화재 도감 상세페이지
     @GetMapping("/detail/{HeritageEncyclopediaId}")
-    public ResponseEntity<?> getHeritageEncyclopediaDetail(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> getHeritageEncyclopediaDetail(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
         Long memberId = (member != null) ? member.getMemberId() : null;
         HeritageEncyclopediaResponseDto heritageEncyclopediaResponseDto = heritageEncyclopediaService.getHeritageEncyclopediaById(HeritageEncyclopediaId, memberId);
         return ResponseEntity.ok(ApiResponseDto.success(heritageEncyclopediaResponseDto, "문화재 조회 성공"));
@@ -54,7 +54,7 @@ public class HeritageEncyclopediaController {
 
     // 북마크 저장
     @PostMapping("/bookmark/{HeritageEncyclopediaId}")
-    public ResponseEntity<?> postBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> postBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
         log.info("북마크 생성");
         Long memberId = (member != null) ? member.getMemberId() : null;
         EncyclopediaBookmarkDto bookmarkDto = heritageEncyclopediaService.saveBookmark(HeritageEncyclopediaId, memberId);
@@ -63,7 +63,7 @@ public class HeritageEncyclopediaController {
 
     // 북마크 삭제
     @DeleteMapping("/bookmark/{HeritageEncyclopediaId}")
-    public ResponseEntity<?> deleteBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> deleteBookmark(@PathVariable Long HeritageEncyclopediaId, @AuthenticationPrincipal CustomMemberDetails member){
         log.info("북마크 삭제");
         Long memberId = (member != null) ? member.getMemberId() : null;
         EncyclopediaBookmarkDto bookmarkDto = heritageEncyclopediaService.deleteBookmark(HeritageEncyclopediaId, memberId);
@@ -72,7 +72,7 @@ public class HeritageEncyclopediaController {
 
     // 검색 기능
     @GetMapping("/search")
-    public ResponseEntity<?> getHeritageEncyclopediaSearch(@RequestParam String keyword, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "4")int size, @AuthenticationPrincipal CustomMemberDetails member){
+    public ResponseEntity<ApiResponseDto<?>> getHeritageEncyclopediaSearch(@RequestParam String keyword, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "4")int size, @AuthenticationPrincipal CustomMemberDetails member){
         log.info("검색 시작 키워드 {} ", keyword);
         Long memberId = (member != null) ? member.getMemberId() : null;
         Page<HeritageEncyclopediaResponseDto> heritageEncyclopediaResponseDtosPage = heritageEncyclopediaService.searchHeritageEncyclopedia(keyword, page, size, memberId);
