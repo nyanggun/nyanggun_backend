@@ -1,5 +1,10 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
@@ -20,6 +25,7 @@ import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 
+@Tag(name="문화재 탐방기", description="문화재 탐방기 CRUD 관련 API")
 @RestController
 @RequestMapping("/explorations")
 @RequiredArgsConstructor
@@ -33,31 +39,61 @@ public class ExplorationController {
 //        return ResponseEntity.status(HttpStatus.OK).body(explorationList);
 //    }
 
+    @Operation(summary="문화재 탐방기 리스트 조회", description="문화재 탐방기 리스트를 무한스크롤로 조회한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description="정상 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description="서버 내부 오류")
+    })
     @GetMapping(params={"page", "size"})
-    public ResponseEntity<?> getExplorationListInfiniteScroll(@RequestParam Long page, @RequestParam Long size){
+    public ResponseEntity<  ?> getExplorationListInfiniteScroll(@RequestParam Long page, @RequestParam Long size){
         Page<ExplorationDetailDto> explorationDetailDtoPage = explorationService.getExplorationInfiniteScrollList(page, size);
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoPage, "문화재 탐방기 무한스크롤 조회 성공"));
     }
 
     // 검색
+    @Operation(summary="문화재 탐방기 검색", description="키워드가 포함된 문화재 탐방기 글을 검색한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/search")
-    public ResponseEntity<?> getSearchExplorationPost(@RequestParam String keyword){
+    public ResponseEntity<ApiResponseDto<?>> getSearchExplorationPost(@Parameter(description = "검색 키워드", example="광화문") @RequestParam String keyword){
         List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "문화재 탐방기 검색 조회 성공"));
     }
 
+    @Operation(summary="문화재 탐방기 작성", description = "문화재 탐방기 글을 작성한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 등록 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @PostMapping("")
-    public ResponseEntity<?> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
+    public ResponseEntity<ApiResponseDto<?>> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
         ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDto, "문화재 탐방기 작성 완료"));
     }
 
+    @Operation(summary="문화재 탐방기 조회", description="문화재 탐방기 개별 글을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @GetMapping("/{id}")
     public ResponseEntity getExploration(@PathVariable Long id){
         ExplorationDetailDto explorationDetailDto = explorationService.viewExploration(id);
         return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
+    @Operation(summary="문화재 탐방기 수정", description = "이미 작성한 문화재 탐방기를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @PatchMapping("/{id}")
     public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFilelist, @AuthenticationPrincipal CustomMemberDetails memberDetails) throws IOException {
         log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -67,6 +103,12 @@ public class ExplorationController {
         return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
+    @Operation(summary="문화재 탐방기 삭제", description="문화재 탐방기를 삭제합니다")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity deleteExploration(@PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails memberDetails){
         explorationService.deleteExploration(id, memberDetails);
@@ -74,23 +116,26 @@ public class ExplorationController {
     }
 
     // 북마크 생성 요청
+    @Operation(summary="문화재 탐방기 북마크 생성", description="문화재 탐방기 북마크를 생성합니다.")
     @PostMapping("/bookmarks")
-    public ResponseEntity<?> postExplorationBookmark(@RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto){
+    public ResponseEntity<?> postExplorationBookmark(@Parameter(description="문화재 탐방기 북마크 DTO") @RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto){
         log.debug("{} {}", explorationBookmarkRequestDto.getExplorationId(), explorationBookmarkRequestDto.getMemberId());
         explorationService.createExplorationBookmark(explorationBookmarkRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(201, "북마크 생성 완료"));
     }
 
+    @Operation(summary="문화재 탐방기 북마크 삭제", description="문화재 탐방기 북마크를 삭제합니다")
     @DeleteMapping("/bookmarks")
-    public ResponseEntity<?> deleteExplorationBookmark(@RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
+    public ResponseEntity<?> deleteExplorationBookmark(@Parameter(description="문화재 탐방기 북마크 DTO")@RequestBody ExplorationBookmarkRequestDto explorationBookmarkRequestDto) {
         log.debug("{} {}", explorationBookmarkRequestDto.getExplorationId(), explorationBookmarkRequestDto.getMemberId());
         explorationService.deleteExplorationBookmark(explorationBookmarkRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(204, "북마크 삭제 완료"));
     }
 
     // 북마크 체크 여부 조회
+    @Operation(summary="문화재 탐방기 북마크 조회", description="문화재 탐방기 북마크를 조회합니다")
     @GetMapping("/bookmarks")
-    public ResponseEntity<?> getExplorationBookmarkChecked(@RequestParam Long memberId, Long explorationId) {
+    public ResponseEntity<?> getExplorationBookmarkChecked(@Parameter(description = "멤버 아이디", example="1")@RequestParam Long memberId, @Parameter(description="탐방기 아이디", example="1")Long explorationId) {
         log.debug("{} {}", memberId, explorationId);
         Boolean result = explorationService.checkExplorationBookmarked(memberId, explorationId);
         return ResponseEntity.ok(ApiResponseDto.success(result, "북마크 여부 조회 완료"));
@@ -101,8 +146,9 @@ public class ExplorationController {
      * @param reportCreateRequestDto
      * @return 신고 요청에 대한 결과를 반환
      */
+    @Operation(summary="문화재 탐방기 신고", description="문화재 탐방기 신고를 등록합니다")
     @PostMapping("/reports")
-    public ResponseEntity<?> postExplorationReport(@RequestBody ReportCreateRequestDto reportCreateRequestDto){
+    public ResponseEntity<?> postExplorationReport(@Parameter(description = "문화재 탐방기 신고 요청 DTO", example="")@RequestBody ReportCreateRequestDto reportCreateRequestDto){
         ReportResponseDto explorationReportResponseDto = explorationService.createExplorationReport(reportCreateRequestDto);
         return ResponseEntity.ok(ApiResponseDto.success(explorationReportResponseDto, "신고 완료"));
     }
