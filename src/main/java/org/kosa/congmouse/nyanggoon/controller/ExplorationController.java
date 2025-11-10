@@ -40,24 +40,14 @@ public class ExplorationController {
 //    }
 
     @Operation(summary="문화재 탐방기 리스트 조회", description="문화재 탐방기 리스트를 무한스크롤로 조회한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description="정상 조회 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description="서버 내부 오류")
-    })
     @GetMapping(params={"page", "size"})
-    public ResponseEntity<  ?> getExplorationListInfiniteScroll(@RequestParam Long page, @RequestParam Long size){
+    public ResponseEntity<  ?> getExplorationListInfiniteScroll(@Parameter(description = "페이지 숫자", example="1") @RequestParam Long page, @Parameter(description = "조회할 문화재 탐방기 숫자", example="2")@RequestParam Long size){
         Page<ExplorationDetailDto> explorationDetailDtoPage = explorationService.getExplorationInfiniteScrollList(page, size);
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoPage, "문화재 탐방기 무한스크롤 조회 성공"));
     }
 
     // 검색
     @Operation(summary="문화재 탐방기 검색", description="키워드가 포함된 문화재 탐방기 글을 검색한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
     @GetMapping("/search")
     public ResponseEntity<ApiResponseDto<?>> getSearchExplorationPost(@Parameter(description = "검색 키워드", example="광화문") @RequestParam String keyword){
         List<ExplorationDetailDto> explorationDetailDtoList = explorationService.searchExploration(keyword);
@@ -65,11 +55,6 @@ public class ExplorationController {
     }
 
     @Operation(summary="문화재 탐방기 작성", description = "문화재 탐방기 글을 작성한다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "정상 등록 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
     @PostMapping("")
     public ResponseEntity<ApiResponseDto<?>> postExploration(@RequestPart("dto") ExplorationCreateDto explorationCreateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFileList) throws IOException {
         ExplorationDetailDto explorationDetailDto = explorationService.createExploration(explorationCreateDto, imageFileList);
@@ -77,25 +62,15 @@ public class ExplorationController {
     }
 
     @Operation(summary="문화재 탐방기 조회", description="문화재 탐방기 개별 글을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
     @GetMapping("/{id}")
-    public ResponseEntity getExploration(@PathVariable Long id){
+    public ResponseEntity getExploration(@Parameter(description = "조회할 문화재 탐방기 id", example="1") @PathVariable Long id){
         ExplorationDetailDto explorationDetailDto = explorationService.viewExploration(id);
         return ResponseEntity.status(HttpStatus.OK).body(explorationDetailDto);
     }
 
     @Operation(summary="문화재 탐방기 수정", description = "이미 작성한 문화재 탐방기를 수정합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
     @PatchMapping("/{id}")
-    public ResponseEntity patchExploration(@PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFilelist, @AuthenticationPrincipal CustomMemberDetails memberDetails) throws IOException {
+    public ResponseEntity patchExploration(@Parameter(description = "수정할 문화재 탐방기 id", example="") @PathVariable Long id, @RequestPart("dto") ExplorationUpdateDto explorationUpdateDto, @RequestPart(name = "images", required = false) List<MultipartFile> imageFilelist, @AuthenticationPrincipal CustomMemberDetails memberDetails) throws IOException {
         log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         log.debug("글쓴이id={} 수정하는사람id={}", explorationUpdateDto.getMemberId(), memberDetails.getMember());
         log.debug("사진들{}", imageFilelist);
@@ -104,13 +79,8 @@ public class ExplorationController {
     }
 
     @Operation(summary="문화재 탐방기 삭제", description="문화재 탐방기를 삭제합니다")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "정상 조회 완료"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
-    })
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteExploration(@PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails memberDetails){
+    public ResponseEntity deleteExploration(@Parameter(description = "삭제할 문화재 탐방기 id", example="") @PathVariable Long id, @AuthenticationPrincipal CustomMemberDetails memberDetails){
         explorationService.deleteExploration(id, memberDetails);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
