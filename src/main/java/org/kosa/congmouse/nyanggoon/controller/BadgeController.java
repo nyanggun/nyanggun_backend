@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
+import org.kosa.congmouse.nyanggoon.exception.GlobalErrorResponse;
 import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.BadgeService;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,16 @@ public class BadgeController {
                     responseCode = "200",
                     description = "모든 증표 리스트 요청 성공",
                     content = @Content(schema = @Schema(implementation = ApiResponseDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "사용자가 요청한 리소스를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = GlobalErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부 오류가 발생했습니다.",
+                    content = @Content(schema = @Schema(implementation = GlobalErrorResponse.class))
             )
     })
     @GetMapping("/markers")
