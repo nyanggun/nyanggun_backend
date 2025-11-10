@@ -1,5 +1,8 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
@@ -13,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name="멤버 관리", description = "멤버 관리 관련 controller")
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
@@ -21,13 +25,15 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary="회원가입", description = "회원가입을 진행한다")
     @PostMapping
-    public ResponseEntity<?> postMember(@RequestBody MemberRegisterDto memberRegisterDto){
+    public ResponseEntity<?> postMember(@Parameter(description="회원가입 dto") @RequestBody MemberRegisterDto memberRegisterDto){
         MemberResponseDto responseDto = memberService.registerMember(memberRegisterDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(responseDto, "회원가입이 완료되었습니다."));
     }
 
+    @Operation(summary="내 정보 조회", description = "로그인 이후 내 정보를 조회한다")
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo() {
         log.info("=== 내 정보 조회 요청 ===");
