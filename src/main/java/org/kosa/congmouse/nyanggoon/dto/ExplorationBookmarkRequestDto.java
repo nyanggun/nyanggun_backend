@@ -1,5 +1,6 @@
 package org.kosa.congmouse.nyanggoon.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,8 +14,14 @@ import org.kosa.congmouse.nyanggoon.entity.Member;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExplorationBookmarkRequestDto {
+
+    @Schema(description = "문화재 탐방기 북마크 id", example="1")
     private Long id;
+
+    @Schema(description = "멤버 id", example="1")
     private Long memberId;
+
+    @Schema(description = "문화재 탐방기 id", example="1")
     private Long explorationId;
 
     public static ExplorationBookmarkRequestDto from(ExplorationBookmark explorationBookmark) {
