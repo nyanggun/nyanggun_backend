@@ -15,12 +15,12 @@ public class GlobalErrorResponse {
     @Schema(description = "에러 발생 시각")
     private LocalDateTime timestamp;
     // HTTP Response 상태 코드
-    @Schema(description = "HTTP 상태 코드", example = "404")
+    @Schema(description = "HTTP 상태 코드")
     private int status;
     // 에러 코드
-    @Schema(description = "에러 코드",  example = "NOT_FOUND")
+    @Schema(description = "에러 코드")
     private String code;
     // 사용자에게 보여줄 메세지
-    @Schema(description = "에러 메세지", example = "요청한 리소스를 찾을 수 없습니다.")
+    @Schema(description = "에러 메세지")
     private String message;
 }
