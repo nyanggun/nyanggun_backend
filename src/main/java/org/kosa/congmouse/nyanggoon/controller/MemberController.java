@@ -1,8 +1,16 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.MemberRegisterDto;
 import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
 import org.kosa.congmouse.nyanggoon.service.MemberService;
@@ -13,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name="멤버 관리", description = "멤버 관리 관련 controller")
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
@@ -21,6 +30,10 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary="회원가입", description = "회원가입을 진행한다")
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "회원 가입 성공", content = @Content(schema = @Schema(implementation = ExplorationCommentResponseDto.class)))
+    )
     @PostMapping
     public ResponseEntity<?> postMember(@RequestBody MemberRegisterDto memberRegisterDto){
         MemberResponseDto responseDto = memberService.registerMember(memberRegisterDto);
@@ -28,6 +41,10 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(responseDto, "회원가입이 완료되었습니다."));
     }
 
+    @Operation(summary="내 정보 조회", description = "로그인 이후 내 정보를 조회한다")
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "내 정보 조회 성공", content = @Content(schema = @Schema(implementation = MemberResponseDto.class)))
+    )
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo() {
         log.info("=== 내 정보 조회 요청 ===");
