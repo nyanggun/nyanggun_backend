@@ -40,6 +40,7 @@ public class Talk {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Builder.Default
     @OneToMany(mappedBy = "talk", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TalkPicture> talkPictures = new ArrayList<>();
 

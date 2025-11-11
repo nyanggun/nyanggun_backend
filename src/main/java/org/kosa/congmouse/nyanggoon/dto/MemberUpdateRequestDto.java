@@ -19,5 +19,4 @@ public class MemberUpdateRequestDto {
     private String nickname;      // 닉네임
     private String phoneNumber;   // 전화번호
     private String password;      // 비밀번호 (입력된 경우에만 업데이트)
-    private String profileImage;  // 프로필 이미지 경로(URL)
 }

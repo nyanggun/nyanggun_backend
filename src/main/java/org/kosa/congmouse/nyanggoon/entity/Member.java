@@ -67,4 +67,10 @@ public class Member {
     public void setProfilePicture(ProfilePicture profilePicture) {
         this.profilePicture = profilePicture;
     }
+
+    public void updateInfo(String email, String nickname, String phoneNumber) {
+        this.email = email;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+    }
 }
