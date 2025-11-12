@@ -1,8 +1,12 @@
 package org.kosa.congmouse.nyanggoon.repository;
 
 import org.kosa.congmouse.nyanggoon.entity.ExplorationBookmark;
+import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ExplorationBookmarkRepository extends JpaRepository<ExplorationBookmark, Long> {
@@ -18,4 +22,7 @@ public interface ExplorationBookmarkRepository extends JpaRepository<Exploration
     Boolean existsByMemberIdAndExplorationId(Long memberId, Long explorationId);
 
     void deleteByMemberIdAndExplorationId(Long memberId, Long explorationId);
+
+    @Query("SELECT tb.exploration.id FROM ExplorationBookmark tb WHERE tb.member = :member AND tb.exploration.id IN :explorationIds")
+    List<Long> findExplorationIdsByMemberWithCursor(Member member, List<Long> explorationIds);
 }

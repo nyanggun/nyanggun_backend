@@ -3,10 +3,7 @@ package org.kosa.congmouse.nyanggoon.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
-import org.kosa.congmouse.nyanggoon.entity.Member;
-import org.kosa.congmouse.nyanggoon.entity.ProfilePicture;
-import org.kosa.congmouse.nyanggoon.entity.Talk;
-import org.kosa.congmouse.nyanggoon.entity.TalkPicture;
+import org.kosa.congmouse.nyanggoon.entity.*;
 import org.kosa.congmouse.nyanggoon.repository.*;
 
 import org.kosa.congmouse.nyanggoon.security.jwt.JwtUtil;
@@ -20,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +34,10 @@ public class MyPageService {
     private final TalkPictureRepository talkPictureRepository;
     private final ExplorationPhotoRepository explorationPhotoRepository;
     private final CommentRepository commentRepository;
+    private final TalkRepository talkRepository;
+    private final TalkBookmarkRepository talkBookmarkRepository;
+    private final ExplorationBookmarkRepository explorationBookmarkRepository;
+    private final ExplorationRepository explorationRepository;
 
 
 
@@ -160,10 +159,14 @@ public class MyPageService {
     }
 
         //회원이 작성한 게시글들을 가져오는 메소드 입니다.
-        public PostCursorResponseDto findAllPostsById(Long userId, Long cursor) {
+        public PostCursorResponseDto<List<PostListSummaryResponseDto>> findAllPostsById(Long userId, Long cursor, String username) {
 
             log.info("작성 게시글 가져오는 중");
             int pageSize = 3;
+
+            // 유저 조회
+            Member member = memberRepository.findByEmail(username)
+                    .orElse(null); // 로그인 안 했을 수도 있음
 
             // 게시글 조회 (cursor 기반)
             List<Object[]> results;
@@ -173,8 +176,11 @@ public class MyPageService {
                 results = postRepository.getUserPostListNext(userId, cursor, pageSize);
             }
 
+            // Talk / Exploration ID 분류
+            List<Long> talkIds = new ArrayList<>();
+            List<Long> explorationIds = new ArrayList<>();
 
-
+            // 기본 DTO 리스트 빌드
             List<PostListSummaryResponseDto> postList = results.stream().map(obj -> {
                 Long postId = ((Number) obj[0]).longValue();
                 String title = (String) obj[1];
@@ -184,6 +190,63 @@ public class MyPageService {
                 String nickname = (String) obj[5];
                 String relatedHeritage = (String) obj[6];
                 String category = (String) obj[7];
+
+                if ("TALK".equals(category)) talkIds.add(postId);
+                else if ("EXPLORATION".equals(category)) explorationIds.add(postId);
+
+                return PostListSummaryResponseDto.builder()
+                        .postId(postId)
+                        .title(title)
+                        .content(content)
+                        .createdAt(createdAt)
+                        .memberId(memberId)
+                        .nickname(nickname)
+                        .relatedHeritage(relatedHeritage)
+                        .category(category)
+                        .build();
+            }).toList();
+
+            // ===== 댓글 / 북마크 개수용 맵 =====
+            Map<Long, Long> commentCountMap = new HashMap<>();
+            Map<Long, Long> bookmarkCountMap = new HashMap<>();
+            Set<Long> bookmarkedIds = new HashSet<>();
+
+            // ✅ TALK 관련 통계
+            if (!talkIds.isEmpty()) {
+                List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(talkIds);
+                List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(talkIds);
+
+                commentCountMap.putAll(commentCounts.stream()
+                        .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+                bookmarkCountMap.putAll(bookmarkCounts.stream()
+                        .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+
+                if (member != null) {
+                    List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMemberWithCursor(member, talkIds);
+                    bookmarkedIds.addAll(bookmarkedTalkIds);
+                }
+            }
+
+            // ✅ EXPLORATION 관련 통계
+            if (!explorationIds.isEmpty()) {
+                List<Object[]> commentCounts = explorationRepository.countCommentsPerExploration(explorationIds);
+                List<Object[]> bookmarkCounts = explorationRepository.countBookmarksPerExploration(explorationIds);
+
+                commentCountMap.putAll(commentCounts.stream()
+                        .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+                bookmarkCountMap.putAll(bookmarkCounts.stream()
+                        .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+
+                if (member != null) {
+                    List<Long> bookmarkedExplorationIds = explorationBookmarkRepository.findExplorationIdsByMemberWithCursor(member, explorationIds);
+                    bookmarkedIds.addAll(bookmarkedExplorationIds);
+                }
+            }
+
+            // ===== 최종 DTO 빌드 =====
+            List<PostListSummaryResponseDto> finalPostList = postList.stream().map(dto -> {
+                Long postId = dto.getPostId();
+                String category = dto.getCategory();
 
                 List<TalkPictureResponseDto> talkPictures = null;
                 List<ExplorationPictureResponseDto> explorationPictures = null;
@@ -201,35 +264,41 @@ public class MyPageService {
                 }
 
                 return PostListSummaryResponseDto.builder()
-                        .postId(postId)
-                        .title(title)
-                        .content(content)
-                        .createdAt(createdAt)
-                        .memberId(memberId)
-                        .category(category)
-                        .nickname(nickname)
-                        .relatedHeritage(relatedHeritage)
+                        .postId(dto.getPostId())
+                        .title(dto.getTitle())
+                        .content(dto.getContent())
+                        .createdAt(dto.getCreatedAt())
+                        .memberId(dto.getMemberId())
+                        .nickname(dto.getNickname())
+                        .relatedHeritage(dto.getRelatedHeritage())
+                        .category(dto.getCategory())
                         .talkPictureList(talkPictures)
                         .explorationPictureList(explorationPictures)
+                        .commentCount(commentCountMap.getOrDefault(postId, 0L))
+                        .bookmarkCount(bookmarkCountMap.getOrDefault(postId, 0L))
+                        .isBookmarked(bookmarkedIds.contains(postId))
                         .build();
             }).toList();
 
+            // ===== 커서 계산 =====
+            Long nextCursor = finalPostList.isEmpty() ? null : finalPostList.get(finalPostList.size() - 1).getPostId();
+            boolean hasNext = finalPostList.size() == pageSize;
 
-            // 커서 계산
-            Long nextCursor = postList.isEmpty() ? null : postList.get(postList.size() - 1).getPostId();
-            boolean hasNext = postList.size() == pageSize;
-            log.info("작성 게시글 가져오기 완료 ");
-            return new PostCursorResponseDto(postList, nextCursor, hasNext);
-
+            log.info("작성 게시글 가져오기 완료");
+            return new PostCursorResponseDto<>(finalPostList, nextCursor, hasNext);
         }
-    //회원이 북마크한 게시글들을 가져오는 메소드 입니다.
-    public PostCursorResponseDto<List<PostListSummaryResponseDto>> findBookmarkPostsById(Long userId, Long cursor) {
 
+    //회원이 북마크한 게시글들을 가져오는 메소드 입니다.
+    public PostCursorResponseDto<List<PostListSummaryResponseDto>> findBookmarkPostsById(Long userId, Long cursor, String username) {
+
+        // 유저 조회
+        Member member = memberRepository.findByEmail(username)
+                .orElse(null); // 로그인 안 했을 수도 있음
 
         log.info("북마크한 게시글 가져오는 중");
         int pageSize = 3;
 
-        // 게시글 조회 (cursor 기반)
+        // 커서 기반 북마크 게시글 조회
         List<Object[]> results;
         if (cursor == null) {
             results = postRepository.getUserBookmarkList(userId, pageSize);
@@ -237,8 +306,11 @@ public class MyPageService {
             results = postRepository.getUserBookmarkListNext(userId, cursor, pageSize);
         }
 
+        // 게시글 ID 수집용
+        List<Long> talkIds = new ArrayList<>();
+        List<Long> explorationIds = new ArrayList<>();
 
-
+        // 기본 DTO 리스트 빌드
         List<PostListSummaryResponseDto> postList = results.stream().map(obj -> {
             Long postId = ((Number) obj[0]).longValue();
             String title = (String) obj[1];
@@ -248,6 +320,63 @@ public class MyPageService {
             String nickname = (String) obj[5];
             String relatedHeritage = (String) obj[6];
             String category = (String) obj[7];
+
+            if ("TALK".equals(category)) talkIds.add(postId);
+            else if ("EXPLORATION".equals(category)) explorationIds.add(postId);
+
+            return PostListSummaryResponseDto.builder()
+                    .postId(postId)
+                    .title(title)
+                    .content(content)
+                    .createdAt(createdAt)
+                    .memberId(memberId)
+                    .nickname(nickname)
+                    .relatedHeritage(relatedHeritage)
+                    .category(category)
+                    .build();
+        }).toList();
+
+        // ===== 댓글 수, 북마크 수 맵으로 변환 =====
+        Map<Long, Long> commentCountMap = new HashMap<>();
+        Map<Long, Long> bookmarkCountMap = new HashMap<>();
+        Set<Long> bookmarkedIds = new HashSet<>();
+
+        // ✅ TALK 관련 데이터
+        if (!talkIds.isEmpty()) {
+            List<Object[]> commentCounts = talkRepository.countCommentsPerTalk(talkIds);
+            List<Object[]> bookmarkCounts = talkRepository.countBookmarksPerTalk(talkIds);
+
+            commentCountMap.putAll(commentCounts.stream()
+                    .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+            bookmarkCountMap.putAll(bookmarkCounts.stream()
+                    .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+
+            if (member != null) {
+                List<Long> bookmarkedTalkIds = talkBookmarkRepository.findTalkIdsByMemberWithCursor(member, talkIds);
+                bookmarkedIds.addAll(bookmarkedTalkIds);
+            }
+        }
+
+        // ✅ EXPLORATION 관련 데이터
+        if (!explorationIds.isEmpty()) {
+            List<Object[]> commentCounts = explorationRepository.countCommentsPerExploration(explorationIds);
+            List<Object[]> bookmarkCounts = explorationRepository.countBookmarksPerExploration(explorationIds);
+
+            commentCountMap.putAll(commentCounts.stream()
+                    .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+            bookmarkCountMap.putAll(bookmarkCounts.stream()
+                    .collect(Collectors.toMap(arr -> (Long) arr[0], arr -> (Long) arr[1])));
+
+            if (member != null) {
+                List<Long> bookmarkedExplorationIds = explorationBookmarkRepository.findExplorationIdsByMemberWithCursor(member, explorationIds);
+                bookmarkedIds.addAll(bookmarkedExplorationIds);
+            }
+        }
+
+        // ===== 최종 DTO 빌드 =====
+        List<PostListSummaryResponseDto> finalPostList = postList.stream().map(dto -> {
+            Long postId = dto.getPostId();
+            String category = dto.getCategory();
 
             List<TalkPictureResponseDto> talkPictures = null;
             List<ExplorationPictureResponseDto> explorationPictures = null;
@@ -265,28 +394,30 @@ public class MyPageService {
             }
 
             return PostListSummaryResponseDto.builder()
-                    .postId(postId)
-                    .title(title)
-                    .content(content)
-                    .createdAt(createdAt)
-                    .memberId(memberId)
-                    .category(category)
-                    .nickname(nickname)
-                    .relatedHeritage(relatedHeritage)
+                    .postId(dto.getPostId())
+                    .title(dto.getTitle())
+                    .content(dto.getContent())
+                    .createdAt(dto.getCreatedAt())
+                    .memberId(dto.getMemberId())
+                    .nickname(dto.getNickname())
+                    .relatedHeritage(dto.getRelatedHeritage())
+                    .category(dto.getCategory())
                     .talkPictureList(talkPictures)
                     .explorationPictureList(explorationPictures)
+                    .commentCount(commentCountMap.getOrDefault(postId, 0L))
+                    .bookmarkCount(bookmarkCountMap.getOrDefault(postId, 0L))
+                    .isBookmarked(bookmarkedIds.contains(postId))
                     .build();
         }).toList();
 
+        // ===== 커서 계산 =====
+        Long nextCursor = finalPostList.isEmpty() ? null : finalPostList.get(finalPostList.size() - 1).getPostId();
+        boolean hasNext = finalPostList.size() == pageSize;
 
-        // 커서 계산
-        Long nextCursor = postList.isEmpty() ? null : postList.get(postList.size() - 1).getPostId();
-        boolean hasNext = postList.size() == pageSize;
-        log.info("북마크한 게시글 가져오기 완료 ");
-        return new PostCursorResponseDto(postList, nextCursor, hasNext);
-
-
+        log.info("북마크한 게시글 가져오기 완료");
+        return new PostCursorResponseDto<>(finalPostList, nextCursor, hasNext);
     }
+
     //회원이 작성한 댓글들을 가져오는 메소드 입니다.
     public CommentCursorResponseDto<List<CommentResponseDto>> findCommentById(Long userId, Long cursor) {
         log.info("북마크한 게시글 가져오는 중");

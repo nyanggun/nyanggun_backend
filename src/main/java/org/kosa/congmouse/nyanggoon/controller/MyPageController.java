@@ -68,9 +68,12 @@ public class MyPageController {
             @RequestParam(required = false) Long cursor) {
 
         log.info("전체 게시글 조회 컨트롤러 작동 ok");
-
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
         // 담소 + 탐방기 조회 (cursor 기준)
-        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findAllPostsById(id, cursor);
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findAllPostsById(id, cursor, username);
 
         return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
     }
@@ -86,7 +89,12 @@ public class MyPageController {
         log.info("북마크한 게시글 조회 컨트롤러 작동 ok");
 
         // 담소 + 탐방기 조회 (cursor 기준)
-        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findBookmarkPostsById(id, cursor);
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findBookmarkPostsById(id, cursor, username);
 
         return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
     }
