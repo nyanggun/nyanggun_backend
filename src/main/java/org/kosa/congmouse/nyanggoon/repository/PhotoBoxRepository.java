@@ -103,4 +103,55 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
 
     PhotoBox findTopByOrderByCreatedAtDesc();
 
+    //회원이 작성한 사진함 가져오기
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.photoBox.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxPicture p
+    JOIN p.photoBox pb
+    JOIN pb.member u
+    WHERE u.id = :userId
+    ORDER BY p.id DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxById(@Param("userId")Long userId, Pageable pageable);
+    //회원이 작성한 사진함 가져오기 다음 로직
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.photoBox.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxPicture p
+    JOIN p.photoBox pb
+    JOIN pb.member u
+    WHERE u.id = :userId AND p.id < :cursorId
+    ORDER BY p.id DESC
+    """)
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxNextById(@Param("userId")Long userId, @Param("cursorId")Long cursorId, Pageable pageable);
+
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        pb.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxBookmark b
+    JOIN b.photoBox pb
+    JOIN PhotoBoxPicture p ON p.photoBox = pb
+    WHERE b.member.id = :userId
+    ORDER BY p.id DESC
+""")
+    //회원이 북마크한 사진함 가져오기
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkById(@Param("userId")Long userId, PageRequest of);
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        pb.id, p.id, p.path, p.createdAt
+    )
+    FROM PhotoBoxBookmark b
+    JOIN b.photoBox pb
+    JOIN PhotoBoxPicture p ON p.photoBox = pb
+    WHERE b.member.id = :userId
+      AND p.id < :cursorId
+    ORDER BY p.id DESC
+""")
+    //회원이 북마크한 사진함 가져오기 다음 로직
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkNextById(@Param("userId")Long userId, @Param("cursorId") Long cursorId, PageRequest of);
+
 }

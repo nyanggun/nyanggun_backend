@@ -1,25 +1,17 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.MemberUpdateRequestDto;
-import org.kosa.congmouse.nyanggoon.dto.TokenResponse;
-import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.service.MemberService;
 import org.kosa.congmouse.nyanggoon.service.MyPageService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -67,8 +59,70 @@ public class MyPageController {
 
     }
 
-    /**
-     * 내 게시글을 조회하는 컨트롤러 입니다.
-     */
+
+    //유저가 작성한 탐방기와 담소를 조회하는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/post")
+    public ResponseEntity<?> getAllPosts(@PathVariable Long id,
+            @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+            @RequestParam(required = false) Long cursor) {
+
+        log.info("전체 게시글 조회 컨트롤러 작동 ok");
+
+        // 담소 + 탐방기 조회 (cursor 기준)
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findAllPostsById(id, cursor);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
+    }
+
+
+    //유저가 북마크한 탐방기와 담소 게시글을 가져오는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/bookmarkpost")
+    public ResponseEntity<?> getBookmarkPosts(@PathVariable Long id,
+                                         @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+                                         @RequestParam(required = false) Long cursor) {
+
+        log.info("북마크한 게시글 조회 컨트롤러 작동 ok");
+
+        // 담소 + 탐방기 조회 (cursor 기준)
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findBookmarkPostsById(id, cursor);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
+    }
+
+    //유저가 작성한 탐방기와 담소 댓글을 가져오는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소 댓글을 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?> getComment(@PathVariable Long id,
+                                              @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+                                              @RequestParam(required = false) Long cursor) {
+
+        log.info("댓글 조회 컨트롤러 작동 ok");
+
+        // 담소 + 탐방기 조회 (cursor 기준)
+        CommentCursorResponseDto<List<CommentResponseDto>> posts = myPageService.findCommentById(id, cursor);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "댓글 목록 조회 성공"));
+    }
+
+    //회원이 작성한 사진함을 조회하는 컨트롤러 입니다.
+    @GetMapping("/{id}/photobox")
+    public ResponseEntity<?> getPhotoBoxById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+        log.info("회원이 작성한 사진함 게시글 조회 컨트롤러 작동 ok");
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxListById(id, cursor);
+        return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "작성 사진함 게시물 목록 조회 성공"));
+
+    }
+
+    //회원이 북마크한 사진함 게시글을 가져오는 컨트롤러 입니다.
+    @GetMapping("/{id}/photoboxbookmark")
+    public ResponseEntity<?> getPhotoBoxBookmarkById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+
+        log.info("회원이 북마크한 사진함 게시글 조회 컨트롤러 작동 ok");
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxBookmarkListById(id, cursor);
+        return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "북마크한 사진함 게시물 목록 조회 성공"));
+
+    }
 
 }
