@@ -305,14 +305,16 @@ public class MyPageService {
             String content = (String) obj[1];                                   // 두번째 컬럼: content
             LocalDateTime createdAt = obj[2] != null ? ((Timestamp) obj[2]).toLocalDateTime() : null; // created_at
             Long memberId = ((Number) obj[3]).longValue();                       // member_id
-            Long postId = ((Number) obj[4]).longValue();                         // exploration_id or talk_id
-            String category = (String) obj[5];                                   // "EXPLORATION" or "TALK"
+            String nickname = (String) obj[4];              // nickname (새로 추가됨)
+            Long postId = ((Number) obj[5]).longValue();    // post_id
+            String category = (String) obj[6];                                // "EXPLORATION" or "TALK"
 
             return CommentResponseDto.builder()
                     .commentId(commentId)
                     .content(content)
                     .createdAt(createdAt)
                     .memberId(memberId)
+                    .nickname(nickname)
                     .postId(postId)
                     .category(category)
                     .build();

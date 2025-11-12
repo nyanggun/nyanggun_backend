@@ -19,9 +19,11 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             ec.content AS content,
             ec.created_at AS created_at,
             ec.member_id AS member_id,
+            m.nickname AS nickname,
             ec.exploration_id AS post_id,
             'EXPLORATION' AS category
         FROM exploration_comments ec
+        JOIN members m ON ec.member_id = m.id
         WHERE ec.member_id = :memberId
 
         UNION ALL
@@ -31,15 +33,20 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             tc.content AS content,
             tc.created_at AS created_at,
             tc.member_id AS member_id,
+            m.nickname AS nickname,
             tc.talk_id AS post_id,
             'TALK' AS category
         FROM talk_comments tc
+        JOIN members m ON tc.member_id = m.id
         WHERE tc.member_id = :memberId
     ) AS comments
     ORDER BY created_at DESC
     LIMIT :pageSize
     """, nativeQuery = true)
-    List<Object[]> getUserComments(@Param("memberId") Long memberId, @Param("pageSize") int pageSize);
+    List<Object[]> getUserComments(
+            @Param("memberId") Long memberId,
+            @Param("pageSize") int pageSize
+    );
 
     // 다음 커서 이후 조회
     @Query(value = """
@@ -49,9 +56,11 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             ec.content AS content,
             ec.created_at AS created_at,
             ec.member_id AS member_id,
+            m.nickname AS nickname,
             ec.exploration_id AS post_id,
             'EXPLORATION' AS category
         FROM exploration_comments ec
+        JOIN members m ON ec.member_id = m.id
         WHERE ec.member_id = :memberId AND ec.id < :cursor
 
         UNION ALL
@@ -61,13 +70,19 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             tc.content AS content,
             tc.created_at AS created_at,
             tc.member_id AS member_id,
+            m.nickname AS nickname,
             tc.talk_id AS post_id,
             'TALK' AS category
         FROM talk_comments tc
+        JOIN members m ON tc.member_id = m.id
         WHERE tc.member_id = :memberId AND tc.id < :cursor
     ) AS comments
     ORDER BY created_at DESC
     LIMIT :pageSize
     """, nativeQuery = true)
-    List<Object[]> getUserCommentsNext(@Param("memberId") Long memberId, @Param("cursor") Long cursor, @Param("pageSize") int pageSize);
+    List<Object[]> getUserCommentsNext(
+            @Param("memberId") Long memberId,
+            @Param("cursor") Long cursor,
+            @Param("pageSize") int pageSize
+    );
 }
