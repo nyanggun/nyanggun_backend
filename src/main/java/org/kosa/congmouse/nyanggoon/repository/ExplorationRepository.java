@@ -51,4 +51,19 @@ public interface ExplorationRepository extends JpaRepository<Exploration, Long> 
 
     @Query("SELECT e FROM Exploration e ORDER BY e.createdAt DESC")
     List<Exploration> findLatestExplorations(Pageable latestPageable);
+
+
+    // 게시글별 댓글 수 조회
+    @Query("SELECT t.id, COUNT(c) FROM Exploration t " +
+            "LEFT JOIN ExplorationComment c ON c.exploration.id = t.id " +
+            "WHERE t.id IN :explorationIds " +
+            "GROUP BY t.id")
+    List<Object[]> countCommentsPerExploration(List<Long> explorationIds);
+
+    //게시글별 북마크 수 조회
+    @Query("SELECT t.id, COUNT(b) FROM Exploration t " +
+            "LEFT JOIN ExplorationBookmark b ON b.exploration.id = t.id " +
+            "WHERE t.id IN :explorationIds " +
+            "GROUP BY t.id")
+    List<Object[]> countBookmarksPerExploration(@Param("explorationIds") List<Long> explorationIds);
 }

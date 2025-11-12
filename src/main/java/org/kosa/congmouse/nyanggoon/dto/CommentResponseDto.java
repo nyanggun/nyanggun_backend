@@ -16,6 +16,7 @@ public class CommentResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private Long memberId;
+    private String nickname;
     private Long postId;       // 댓글이 달린 게시글 ID
     private String category;   // "EXPLORATION" or "TALK"
 }
