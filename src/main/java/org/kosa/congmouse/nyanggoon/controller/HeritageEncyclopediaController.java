@@ -2,7 +2,6 @@ package org.kosa.congmouse.nyanggoon.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +20,7 @@ import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
 import org.kosa.congmouse.nyanggoon.service.HeritageEncyclopediaService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +36,7 @@ public class HeritageEncyclopediaController {
 
     private final HeritageEncyclopediaService heritageEncyclopediaService;
 
-    // 문화재 db 저장
+    // 관리자 수동 문화재 db 저장
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "[관리자전용]데이터베이스에 문화재 리스트 저장(국가유산성 API 요청)",
@@ -47,7 +47,7 @@ public class HeritageEncyclopediaController {
             @ApiResponse(responseCode = "200", description = "성공")
     })
     @PostMapping("/save")
-    public ResponseEntity<?> postHeritage(){
+    public ResponseEntity<?> saveHeritageByAdmin(){
         heritageEncyclopediaService.saveHeritageList();
         return ResponseEntity.ok("문화재 정보 저장 완료");
     }
