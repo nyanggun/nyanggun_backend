@@ -36,23 +36,6 @@ public class HeritageEncyclopediaController {
 
     private final HeritageEncyclopediaService heritageEncyclopediaService;
 
-    // 스케줄러 자동 문화재 db 저장
-    @Scheduled(cron = "0 0 3 1 1 *") // 1월 1일 새벽 3시
-    @Scheduled(cron = "0 0 3 1 7 *") // 7월 1일 새벽 3시
-    @Operation(
-            summary = "[스케줄러]데이터베이스에 문화재 리스트 저장(국가유산성 API 요청)",
-            description = "문화재 도감에 보여줄 문화재 리스트를 국가유산성 API를 요청해 저장합니다.이 API는 매년 1월 1일, 7월 1일에 " +
-                    "자동으로 실행됩니다.",
-            security = {@SecurityRequirement(name = "JWT Token")}
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "성공")
-    })
-    public ResponseEntity<?> saveHeritageAuto(){
-        heritageEncyclopediaService.saveHeritageList();
-        return ResponseEntity.ok("문화재 정보 저장 완료");
-    }
-
     // 관리자 수동 문화재 db 저장
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
