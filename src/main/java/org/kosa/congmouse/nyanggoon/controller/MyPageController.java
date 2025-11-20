@@ -1,165 +1,136 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.MemberUpdateRequestDto;
-import org.kosa.congmouse.nyanggoon.security.user.CustomMemberDetails;
+import org.kosa.congmouse.nyanggoon.dto.*;
+import org.kosa.congmouse.nyanggoon.service.MemberService;
 import org.kosa.congmouse.nyanggoon.service.MyPageService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/mypage")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class MyPageController {
 
     private final MyPageService myPageService;
+    private final MemberService memberService;
 
-    /* 내 정보 조회 - 로그인 필수 */
+    /**
+     * 유저의 정보를 가져오는 컨트롤러 입니다.
+     * 본인 정보/다른 유저 조회 용으로도 사용 가능합니다.
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProfile(@PathVariable Long id) {
-        MemberResponseDto profile = myPageService.getProfileData(id);
-        return ResponseEntity.ok(profile);
+    public ResponseEntity<?> getUserInfo(@PathVariable Long id){
+
+        MemberResponseDto memberResponseDto = myPageService.getMemberInfo(id);
+
+        return ResponseEntity.ok(ApiResponseDto.success(memberResponseDto , "회원 정보 조회 성공"));
+
     }
 
-    /* 내 정보 수정 - 로그인 필수 */
-    @PatchMapping("/{id}/profileupdate")
-    public ResponseEntity<?> updateProfile(@PathVariable Long id,
-                                           @RequestPart("dto") MemberUpdateRequestDto dto,// Dto 수신
-                                           // RequestPart로 변경: 프론트엔드에서 파일과 DTO를 multipart/form-data로 보냄
-                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage// 파일 수신
-                                           ) {
 
-        CustomMemberDetails user = getAuthenticatedUser();
-        if (!user.getMemberId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정만 수정할 수 있습니다.");
-        }
+    /**
+     * 내 정보를 수정하는 컨트롤러 입니다.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUserInfo(@PathVariable Long id, @RequestBody MemberUpdateRequestDto memberUpdateRequestDto){
 
-        MemberResponseDto updatedProfile = myPageService.updateProfile(id, dto, profileImage);
-        return ResponseEntity.ok(updatedProfile);
+        TokenResponse token = myPageService.updateUserInfo(id, memberUpdateRequestDto);
+
+        return ResponseEntity.ok(ApiResponseDto.success(null , "회원 정보 수정 성공"));
+
     }
 
-    /* 회원 탈퇴 - 로그인 필수 */
-    @DeleteMapping("/{id}/delete")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMember(@PathVariable Long id) {
-        CustomMemberDetails user = getAuthenticatedUser();
-        if (!user.getMemberId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정만 탈퇴할 수 있습니다.");
-        }
+    /**
+     * 회원 탈퇴하는 컨트롤러 입니다.
+     */
 
-        myPageService.deleteMember(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUserInfo(@PathVariable Long id){
+        myPageService.deleteUserInfo(id);
+        return ResponseEntity.ok(ApiResponseDto.success(null , "회원 탈퇴 성공"));
+
     }
 
-    /* ===== Helper ===== */
-    private CustomMemberDetails getAuthenticatedUser() {
+
+    //유저가 작성한 탐방기와 담소를 조회하는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/post")
+    public ResponseEntity<?> getAllPosts(@PathVariable Long id,
+            @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+            @RequestParam(required = false) Long cursor) {
+
+        log.info("전체 게시글 조회 컨트롤러 작동 ok");
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-        }
-        return (CustomMemberDetails) authentication.getPrincipal();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+        // 담소 + 탐방기 조회 (cursor 기준)
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findAllPostsById(id, cursor, username);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
     }
 
-    /* 회원 제재 (관리자 전용) */
-    @PutMapping("/sanction/{id}")
-    public ResponseEntity<?> sanctionMember(@PathVariable Long id) {
-        CustomMemberDetails user = getAuthenticatedUser();
-        if (!user.getMember().getRole().toString().equals("ROLE_ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다.");
-        }
-    //    myPageService.sanctionMember(id);
-        return ResponseEntity.ok("회원 제재 완료: ID=" + id);
+
+    //유저가 북마크한 탐방기와 담소 게시글을 가져오는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/bookmarkpost")
+    public ResponseEntity<?> getBookmarkPosts(@PathVariable Long id,
+                                         @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+                                         @RequestParam(required = false) Long cursor) {
+
+        log.info("북마크한 게시글 조회 컨트롤러 작동 ok");
+
+        // 담소 + 탐방기 조회 (cursor 기준)
+        //SecurityContext 에서 현재 인증된 사용자 정보를 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 인증된 사용자의 username 추출 (username = 이메일)
+        String username = authentication.getName();
+
+        PostCursorResponseDto<List<PostListSummaryResponseDto>> posts = myPageService.findBookmarkPostsById(id, cursor, username);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "게시물 목록 조회 성공"));
     }
 
-//    /**
-//     * 내가 작성한 게시글 목록 조회
-//     */
-//    @GetMapping("/{id}/posts")
-//    public List<?> getMyPosts(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 게시글 목록 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyPosts(memberId);
-//    }
-//
-//    /**
-//     * 내가 북마크한 게시글 조회
-//     */
-//    @GetMapping("/{id}/bookmarks")
-//    public List<?> getMyBookmarks(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 북마크 게시글 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyBookmarks(memberId);
-//    }
-//
-//    /**
-//     * 내가 작성한 댓글 목록 조회
-//     */
-//    @GetMapping("/{id}/comments")
-//    public List<?> getMyComments(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 댓글 목록 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyComments(memberId);
-//    }
-//
-//    /**
-//     * 내가 업로드한 사진 조회
-//     */
-//    @GetMapping("/{id}/photos")
-//    public List<?> getMyPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 사진 목록 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyPhotos(memberId);
-//    }
-//
-//    /**
-//     * 내가 북마크한 사진 조회
-//     */
-//    @GetMapping("/{id}/photos/bookmarked")
-//    public List<?> getMyBookmarkedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 북마크 사진 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyBookmarkedPhotos(memberId);
-//    }
-//
-//    /**
-//     * 내가 댓글 단 사진 조회
-//     */
-//    @GetMapping("/{id}/photos/commented")
-//    public List<?> getMyCommentedPhotos(@AuthenticationPrincipal CustomMemberDetails user) {
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 후 이용해주세요.");
-//        }
-//        Long memberId = user.getMemberId();
-//        log.info("내 댓글 단 사진 요청 by 사용자 ID={}", memberId);
-//
-//        return myPageService.getMyCommentedPhotos(memberId);
-//    }
+    //유저가 작성한 탐방기와 담소 댓글을 가져오는 컨트롤러 입니다.
+    //무한스크롤로 구현하므로 탐방기와 담소 댓글을 한꺼번에 조회한 후 하나로 출력해야 합니다.
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?> getComment(@PathVariable Long id,
+                                              @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
+                                              @RequestParam(required = false) Long cursor) {
+
+        log.info("댓글 조회 컨트롤러 작동 ok");
+
+        // 담소 + 탐방기 조회 (cursor 기준)
+        CommentCursorResponseDto<List<CommentResponseDto>> posts = myPageService.findCommentById(id, cursor);
+
+        return ResponseEntity.ok(ApiResponseDto.success(posts, "댓글 목록 조회 성공"));
+    }
+
+    //회원이 작성한 사진함을 조회하는 컨트롤러 입니다.
+    @GetMapping("/{id}/photobox")
+    public ResponseEntity<?> getPhotoBoxById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+        log.info("회원이 작성한 사진함 게시글 조회 컨트롤러 작동 ok");
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxListById(id, cursor);
+        return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "작성 사진함 게시물 목록 조회 성공"));
+
+    }
+
+    //회원이 북마크한 사진함 게시글을 가져오는 컨트롤러 입니다.
+    @GetMapping("/{id}/photoboxbookmark")
+    public ResponseEntity<?> getPhotoBoxBookmarkById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+
+        log.info("회원이 북마크한 사진함 게시글 조회 컨트롤러 작동 ok");
+        PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxBookmarkListById(id, cursor);
+        return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "북마크한 사진함 게시물 목록 조회 성공"));
+
+    }
+
 }

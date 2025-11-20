@@ -88,7 +88,7 @@ public class SecurityConfig {
 
                 .requestMatchers("/api-docs").permitAll()
                 .requestMatchers("/heritages/**").permitAll()
-
+                .requestMatchers("/mypage/**").permitAll()
                 // 챗봇 API는 인증 필요
                 .requestMatchers("/api/chat/**").authenticated()
 
