@@ -1,6 +1,10 @@
 package org.kosa.congmouse.nyanggoon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.*;
@@ -15,19 +19,21 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Tag(name = "마이페이지", description = "마이페이지 컨트롤러 입니다.")
 @RequestMapping("/mypage")
 @RequiredArgsConstructor
 public class MyPageController {
 
     private final MyPageService myPageService;
-    private final MemberService memberService;
 
     /**
      * 유저의 정보를 가져오는 컨트롤러 입니다.
      * 본인 정보/다른 유저 조회 용으로도 사용 가능합니다.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserInfo(@PathVariable Long id){
+    @Operation(summary = "회원의 정보를 가져오는 컨트롤러", description = "회원의 정보를 조회합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 회원의 정보를 조회했습니다."))
+    public ResponseEntity<?> getUserInfo(@Parameter(description = "회원 id", example = "")@PathVariable Long id){
 
         MemberResponseDto memberResponseDto = myPageService.getMemberInfo(id);
 
@@ -40,7 +46,10 @@ public class MyPageController {
      * 내 정보를 수정하는 컨트롤러 입니다.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserInfo(@PathVariable Long id, @RequestBody MemberUpdateRequestDto memberUpdateRequestDto){
+    @Operation(summary = "회원의 정보를 수정하는 컨트롤러", description = "회원의 정보를 수정합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 회원의 정보를 수정했습니다."))
+
+    public ResponseEntity<?> updateUserInfo(@Parameter(description = "회원 id", example = "")@PathVariable Long id, @RequestBody MemberUpdateRequestDto memberUpdateRequestDto){
 
         TokenResponse token = myPageService.updateUserInfo(id, memberUpdateRequestDto);
 
@@ -53,7 +62,10 @@ public class MyPageController {
      */
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUserInfo(@PathVariable Long id){
+    @Operation(summary = "회원 탈퇴하는 컨트롤러", description = "회원 탈퇴합니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 회원탈퇴했습니다."))
+
+    public ResponseEntity<?> deleteUserInfo(@Parameter(description = "회원 id", example = "")@PathVariable Long id){
         myPageService.deleteUserInfo(id);
         return ResponseEntity.ok(ApiResponseDto.success(null , "회원 탈퇴 성공"));
 
@@ -63,7 +75,10 @@ public class MyPageController {
     //유저가 작성한 탐방기와 담소를 조회하는 컨트롤러 입니다.
     //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
     @GetMapping("/{id}/post")
-    public ResponseEntity<?> getAllPosts(@PathVariable Long id,
+    @Operation(summary = "회원이 작성한 탐방기와 담소를 조회하는 컨트롤러", description = "회원이 작성한 탐방기와 담소를 조회하는 컨트롤러 입니다. 무한 스크롤로 구현했습니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 게시글을 조회했습니다."))
+
+    public ResponseEntity<?> getAllPosts(@Parameter(description = "회원 id", example = "")@PathVariable Long id,
             @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
             @RequestParam(required = false) Long cursor) {
 
@@ -82,7 +97,10 @@ public class MyPageController {
     //유저가 북마크한 탐방기와 담소 게시글을 가져오는 컨트롤러 입니다.
     //무한스크롤로 구현하므로 탐방기와 담소를 한꺼번에 조회한 후 하나로 출력해야 합니다.
     @GetMapping("/{id}/bookmarkpost")
-    public ResponseEntity<?> getBookmarkPosts(@PathVariable Long id,
+    @Operation(summary = "회원이 북마크한 탐방기와 담소를 조회하는 컨트롤러", description = "회원이 북마크한 탐방기와 담소를 조회하는 컨트롤러 입니다. 무한 스크롤로 구현했습니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 북마크한 게시글 정보를 조회했습니다."))
+
+    public ResponseEntity<?> getBookmarkPosts(@Parameter(description = "회원 id", example = "")@PathVariable Long id,
                                          @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
                                          @RequestParam(required = false) Long cursor) {
 
@@ -102,7 +120,9 @@ public class MyPageController {
     //유저가 작성한 탐방기와 담소 댓글을 가져오는 컨트롤러 입니다.
     //무한스크롤로 구현하므로 탐방기와 담소 댓글을 한꺼번에 조회한 후 하나로 출력해야 합니다.
     @GetMapping("/{id}/comment")
-    public ResponseEntity<?> getComment(@PathVariable Long id,
+    @Operation(summary = "회원이 작성한 탐방기와 담소 댓글을 조회하는 컨트롤러", description = "회원이 작성한 탐방기와 담소 댓글을 조회하는 컨트롤러 입니다. 무한 스크롤로 구현했습니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 작성한 댓글들을 조회했습니다."))
+    public ResponseEntity<?> getComment(@Parameter(description = "회원 id", example = "")@PathVariable Long id,
                                               @Parameter(description = "커서 (마지막으로 가져온 게시글 id)", example = "")
                                               @RequestParam(required = false) Long cursor) {
 
@@ -116,7 +136,9 @@ public class MyPageController {
 
     //회원이 작성한 사진함을 조회하는 컨트롤러 입니다.
     @GetMapping("/{id}/photobox")
-    public ResponseEntity<?> getPhotoBoxById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+    @Operation(summary = "회원이 작성한 사진함 게시글을 조회하는 컨트롤러", description = "회원이 작성한 사진함 게시글을 조회하는 컨트롤러 입니다. 무한 스크롤로 구현했습니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 사진함 정보를 조회했습니다."))
+    public ResponseEntity<?> getPhotoBoxById(@Parameter(description = "회원 id", example = "")@PathVariable Long id, @Parameter(description = "커서 (마지막으로 가져오는 게시글의 id)", example = "")@RequestParam(required = false) Long cursor){
         log.info("회원이 작성한 사진함 게시글 조회 컨트롤러 작동 ok");
         PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxListById(id, cursor);
         return ResponseEntity.ok(ApiResponseDto.success(photoBoxList, "작성 사진함 게시물 목록 조회 성공"));
@@ -125,7 +147,9 @@ public class MyPageController {
 
     //회원이 북마크한 사진함 게시글을 가져오는 컨트롤러 입니다.
     @GetMapping("/{id}/photoboxbookmark")
-    public ResponseEntity<?> getPhotoBoxBookmarkById(@PathVariable Long id, @RequestParam(required = false) Long cursor){
+    @Operation(summary = "회원이 북마크한 사진함 게시글을 조회하는 컨트롤러", description = "회원이 북마크한 사진함 게시글을 조회하는 컨트롤러 입니다. 무한 스크롤로 구현했습니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 북마크한 사진함 정보를 조회했습니다."))
+    public ResponseEntity<?> getPhotoBoxBookmarkById(@Parameter(description = "회원 id", example = "")@PathVariable Long id, @Parameter(description = "커서 (마지막으로 가져오는 게시글의 id)", example = "")@RequestParam(required = false) Long cursor){
 
         log.info("회원이 북마크한 사진함 게시글 조회 컨트롤러 작동 ok");
         PhotoBoxCursorResponseDto<List<PhotoBoxSummaryResponseDto>> photoBoxList = myPageService.getPhotoBoxBookmarkListById(id, cursor);
