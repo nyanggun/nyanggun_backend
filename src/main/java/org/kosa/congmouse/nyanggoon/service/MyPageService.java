@@ -56,6 +56,9 @@ public class MyPageService {
                 .nickname(member.getNickname())
                 .profileImagePath(profilePicture != null ? profilePicture.getPath() : null)
                 .phoneNumber(member.getPhoneNumber())
+                .state(member.getMemberstate())
+                .role(member.getRole())
+                .createdAt(member.getCreatedAt())
                 .build();
 
 
