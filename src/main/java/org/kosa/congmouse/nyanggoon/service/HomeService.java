@@ -29,6 +29,7 @@ public class HomeService {
     private final PhotoBoxTagRepository photoBoxTagRepository;
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
     private final ExplorationRepository explorationRepository;
+    private final ExplorationPhotoRepository explorationPhotoRepository;
 
     //문화재 도감 정보를 가져오는 메소드 입니다.
     //총 4개, 전체 북마크 순으로 가져옵니다. (비회원일 시)
@@ -105,7 +106,7 @@ public class HomeService {
         Pageable pageable = PageRequest.of(0, 4);
         List<Exploration> explorations = explorationRepository.findExplorationTop4ByBookmarkCount(pageable);
         List<ExplorationDetailDto> explorationResult = explorations.stream()
-                .map(ExplorationDetailDto::from)
+                .map(e->ExplorationDetailDto.from(e, explorationPhotoRepository.findByExplorationId(e.getId())))
                 .collect(Collectors.toList());
 
         // 4개 미만일 경우 최신 탐방기로 채우기
@@ -117,7 +118,7 @@ public class HomeService {
             List<Exploration> latestExplorations = explorationRepository.findLatestExplorations(latestPageable);
 
             List<ExplorationDetailDto> latestResults = latestExplorations.stream()
-                    .map(ExplorationDetailDto::from)
+                    .map(e->ExplorationDetailDto.from(e, explorationPhotoRepository.findByExplorationId(e.getId())))
                     .collect(Collectors.toList());
 
             explorationResult.addAll(latestResults);
