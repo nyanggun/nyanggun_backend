@@ -3,9 +3,7 @@ package org.kosa.congmouse.nyanggoon.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
-import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
-import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.security.jwt.JwtAuthenticationEntryPoint;
@@ -26,7 +24,6 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
