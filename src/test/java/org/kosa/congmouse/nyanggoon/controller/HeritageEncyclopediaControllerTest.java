@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.kosa.congmouse.nyanggoon.dto.EncyclopediaBookmarkDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaCreateDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
+import org.kosa.congmouse.nyanggoon.entity.EncyclopediaBookmark;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.security.jwt.JwtAuthenticationEntryPoint;
@@ -24,8 +25,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 /*
@@ -108,75 +111,49 @@ public class HeritageEncyclopediaControllerTest {
 
     }
 
-//    // 인증 있는 POST API 테스트
-//    @Test
-//    @DisplayName("POST heritages/bookmark/{heritageEncyclopediaId} - 로그인 사용자 북마크 저장")
-//    void postBookmarkTest(){
-//        // given
-//        Long heritageId = 7L;
-//        Long memberId = 1L;
-//
-//        // 로그인 유저 세팅
-//        CustomMemberDetails mockMember = new CustomMemberDetails(
-//                Member.builder()
-//                        .id(memberId)
-//                        .email("test@test.com")
-//                        .password("1234")
-//                        .build());
-//        UsernamePasswordAuthenticationToken auth =
-//                new UsernamePasswordAuthenticationToken(mockMember, null,
-//                        mockMember.getAuthorities());
-//        SecurityContextHolder.getContext().setAuthentication(auth);
-//
-//        // 서비스 반환
-//        EncyclopediaBookmarkDto bookmarkDto = EncyclopediaBookmarkDto.builder()
-//                .heritageEncyclopedia()
-//                .member(mockMember)
-//                .build();
-//    }
+    // 3. 인증 있는 POST API 테스트
+    @Test
+    @DisplayName("POST /heritages/bookmark/{id} - 로그인 사용자 북마크 저장")
+    void postBookmark() throws Exception {
+        // given
+        Long heritageId = 7L;
+        Long memberId = 3L;
 
-//    @Test
-//    @DisplayName("GET /heritages/list/name - 로그인 사용자로 문화재(가나다순) 리스트 조회 + 북마크 검증")
-//    void getHeritageEncyclopediaNameListTest() throws Exception {
-//        // given
-//        int page = 0;
-//        int size = 4;
-//        CustomMemberDetails mockMember = new CustomMemberDetails(
-//                Member.builder()
-//                        .id(1L)
-//                        .email("test@test.com")
-//                        .password("1234")
-//                        .build());
-//        UsernamePasswordAuthenticationToken auth =
-//                new UsernamePasswordAuthenticationToken(mockMember, null,
-//                        mockMember.getAuthorities());
-//        SecurityContextHolder.getContext().setAuthentication(auth);
-//
-//        Page<HeritageEncyclopediaResponseDto> mockPage =
-//                new PageImpl<>(List.of(
-//                        HeritageEncyclopediaResponseDto.builder()
-//                                .id(1L)
-//                                .name("숭례문")
-//                                .address("서울특별시")
-//                                .bookmarkCount(10)
-//                                .isBookmarked(true)
-//                                .build())
-//                );
-//
-//        // 응답 mock 데이터
-//        when(heritageEncyclopediaService
-//                .getAllHeritageEncyclopediasSortedByKoreanName(page, size, mockMember.getMemberId()))
-//                .thenReturn(mockPage);
-//
-//        // when & then
-//        mockMvc.perform(get("/heritages/list/name")
-//                        .param("page", String.valueOf(page)) // page 파라미터 추가
-//                        .param("size", String.valueOf(size)) // size 파라미터 추가
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.data.totalPages").value(1))
-//                .andExpect(jsonPath("$.data.totalElements").value(1));
-//
-//    }
+        // 로그인 유저 Security 세팅
+        Member mockMember = Member.builder()
+                .id(memberId)
+                .email("test@test.com")
+                .password("password")
+                .build();
 
+        CustomMemberDetails user = new CustomMemberDetails(mockMember);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
+                null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        // 테스트 위한 service 반환
+        HeritageEncyclopedia mockHeritage = HeritageEncyclopedia.builder()
+                .id(heritageId)
+                .name("경복궁")
+                .build();
+        EncyclopediaBookmarkDto bookmarkDto = EncyclopediaBookmarkDto.builder()
+                .heritageEncyclopedia(mockHeritage)
+                .member(mockMember)
+                .build();
+
+        given(heritageEncyclopediaService.saveBookmark(heritageId, memberId))
+                .willReturn(bookmarkDto);
+
+        // when & then
+        mockMvc.perform(post("/heritages/bookmark/{id}", heritageId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("북마크 등록 성공"))
+                .andExpect(jsonPath("$.data.member.id").value(memberId))
+                .andExpect(jsonPath("$.data.heritageEncyclopedia.id").value(heritageId))
+                .andExpect(jsonPath("$.data.heritageEncyclopedia.name").value("경복궁"));
+
+        verify(heritageEncyclopediaService).saveBookmark(heritageId, memberId);
+    }
 }
