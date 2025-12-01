@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ExplorationRepository extends JpaRepository<Exploration, Long> {
 
-    @Query("SELECT distinct e from Exploration e LEFT JOIN FETCH e.explorationPhotos")
+    @Query("SELECT distinct e from Exploration e LEFT JOIN FETCH ExplorationPhoto ep ON ep.exploration = e")
     List<Exploration> findAllWithExplorationPhotos();
 
     @Query("SELECT e FROM Exploration e WHERE " +

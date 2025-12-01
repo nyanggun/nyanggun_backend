@@ -55,15 +55,4 @@ public class Exploration {
         content = explorationUpdateDto.getContent();
         relatedHeritage = explorationUpdateDto.getRelatedHeritage();
     }
-
-    // 문화재탐방기와 문화재탐방기사진은 일대다 관계
-    @OneToMany(mappedBy = "exploration", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ExplorationPhoto> explorationPhotos = new ArrayList<>();
-
-    // 미리 만들어 두어야 하는 연관관계 편의 메소드
-    public void addPhoto(ExplorationPhoto photo) {
-        this.explorationPhotos.add(photo); // 1. 내 리스트에 사진 추가
-        photo.setExploration(this);      // 2. 사진 객체에도 내가 부모라고 알려주기
-    }
 }
