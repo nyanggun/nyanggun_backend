@@ -24,10 +24,10 @@ jobs:
       - name: Build
         run: |
           chmod +x ./gradlew
-          echo "${{ secrets.SPRING_DATASOURCE_DRIVER_CLASS_NAME }}" > ./src/main/resources/application.properties
-          echo "${{ secrets.SPRING_DATASOURCE_PASSWORD }}" > ./src/main/resources/application.properties
-          echo "${{ secrets.SPRING_DATASOURCE_URL }}" > ./src/main/resources/application.properties
-          echo "${{ secrets.SPRING_DATASOURCE_USERNAME }}" > ./src/main/resources/application.properties
+          echo "${{ secrets.SPRING_DATASOURCE_DRIVER_CLASS_NAME }}" >> ./src/main/resources/application.properties
+          echo "${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> ./src/main/resources/application.properties
+          echo "${{ secrets.SPRING_DATASOURCE_URL }}" >> ./src/main/resources/application.properties
+          echo "${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> ./src/main/resources/application.properties
           ./gradlew clean build -x test
 
       - name: Deploy to EC2
