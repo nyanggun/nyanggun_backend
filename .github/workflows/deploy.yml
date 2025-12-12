@@ -29,6 +29,8 @@ jobs:
           echo "${{ secrets.SPRING_DATASOURCE_URL }}" >> ./src/main/resources/application.properties
           echo "${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> ./src/main/resources/application.properties
           echo "${{ secrets.SPRING_AI_OPENAI_API_KEY }}" >> ./src/main/resources/application.properties
+          echo "${{ secrets.SPRING_GOOGLE_MAP_API_KEY }}" >> ./src/main/resources/application
+          .properties
           ./gradlew clean build -x test
 
       - name: Deploy to EC2
