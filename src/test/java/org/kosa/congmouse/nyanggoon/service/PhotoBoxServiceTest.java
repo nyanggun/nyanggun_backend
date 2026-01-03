@@ -56,13 +56,12 @@ public class PhotoBoxServiceTest {
 
         PhotoBoxCreateRequestDto photoBox = PhotoBoxCreateRequestDto.builder()
                 .title("사진함 제목")
-                .memberid(member.getId())
                 .tags(new ArrayList<>())
                 .relatedHeritage("연관된 문화재")
                 .build();
 
         //when
-        photoBoxService.createPhoto(photoBox, file, "user1@example.com");
+        photoBoxService.createPhoto(photoBox, "user1@example.com");
 
         //then
         assertThat(photoBoxRepository.findAll()).isNotEmpty();
@@ -88,13 +87,12 @@ public class PhotoBoxServiceTest {
 
         PhotoBoxCreateRequestDto photoBox = PhotoBoxCreateRequestDto.builder()
                 .title("사진함 제목")
-                .memberid(member.getId())
                 .tags(new ArrayList<>())
                 .relatedHeritage("연관된 문화재")
                 .build();
 
         //when
-        PhotoBoxDetailResponseDto p = photoBoxService.createPhoto(photoBox, file, "user1@example.com");
+        PhotoBoxDetailResponseDto p = photoBoxService.createPhoto(photoBox, "user1@example.com");
         photoBoxService.createPhotoBookmark(p.getId(), "user1@example.com");
 
         //then
@@ -121,22 +119,20 @@ public class PhotoBoxServiceTest {
 
         PhotoBoxCreateRequestDto photoBox = PhotoBoxCreateRequestDto.builder()
                 .title("사진함 제목")
-                .memberid(member.getId())
                 .tags(new ArrayList<>())
                 .relatedHeritage("연관된 문화재")
                 .build();
 
         //when
-        PhotoBoxDetailResponseDto p = photoBoxService.createPhoto(photoBox, file, "user1@example.com");
+        PhotoBoxDetailResponseDto p = photoBoxService.createPhoto(photoBox, "user1@example.com");
 
         PhotoBoxCreateRequestDto photoBox2 = PhotoBoxCreateRequestDto.builder()
                 .title("사진함 제목222")
-                .memberid(member.getId())
                 .tags(new ArrayList<>())
                 .relatedHeritage("연관된 문화재222")
                 .build();
 
-        PhotoBoxDetailResponseDto p2 = photoBoxService.updatePhoto(p.getId(), photoBox2, file, "user1@example.com");
+        PhotoBoxDetailResponseDto p2 = photoBoxService.updatePhoto(p.getId(), photoBox2, "user1@example.com");
 
         //then
         PhotoBox updatedEntity = photoBoxRepository.findById(p.getId())

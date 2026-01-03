@@ -16,8 +16,8 @@ public class PhotoBoxCreateRequestDto {
 
     private String title;
     private String relatedHeritage;
-    private Long memberid;
     private List<String> tags;
+    private String path;
 
 
 }
