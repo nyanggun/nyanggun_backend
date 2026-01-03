@@ -75,7 +75,7 @@ public class PhotoBoxService {
 
     //사진함 게시글을 작성하는 메소드 입니다.
     @Transactional
-    public PhotoBoxDetailResponseDto createPhoto(PhotoBoxCreateRequestDto photoBoxCreateRequestDto, MultipartFile file, String username){
+    public PhotoBoxDetailResponseDto createPhoto(PhotoBoxCreateRequestDto photoBoxCreateRequestDto, String username){
         log.info("사진함 게시글 작성 시작");
 
         //해당 회원이 있는 지 확인한다. (이메일로 확인)
@@ -92,22 +92,16 @@ public class PhotoBoxService {
         PhotoBox savePhotoBox = photoBoxRepository.save(photoBox);
 
         //사진 저장
-        String originalName = file.getOriginalFilename(); // 사용자가 업로드한 파일 이름
-        long size = file.getSize();                       // 파일 크기
-        String extension = FilenameUtils.getExtension(originalName); // 확장자 추출 (commons-io)
-
-        String filePath = null;
-        if (file != null && !file.isEmpty()) {
-            filePath = saveFile(file, photoBox.getId(), extension);
-        }
-
+        //url을 받아서 저장한다.
+        String path = photoBoxCreateRequestDto.getPath();
+        //DB에 불필요한 컬럼 (size, fileExtension, originalName, savedName)을 삭제해야 한다.
         PhotoBoxPicture photoBoxPicture = PhotoBoxPicture.builder()
                 .photoBox(photoBox)
-                .originalName(originalName)
-                .savedName(filePath)
-                .path("/uploads/photobox/" + filePath)
-                .size(size)
-                .fileExtension(extension)
+                .path(path)
+                .size(10L)
+                .fileExtension("png")
+                .originalName("1")
+                .savedName("2")
                 .build();
 
         PhotoBoxPicture savePhotoBoxPicture = photoBoxPictureRepository.save(photoBoxPicture);
@@ -133,41 +127,41 @@ public class PhotoBoxService {
 
     }
 
-    //사진을 업로드하는 메소드 입니다.
-    private String saveFile(MultipartFile file, Long photoBoxId, String extension) {
-        // Windows 바탕화면 경로 (현재 사용자 기준)
-//        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
-//        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
-        // 서버 루트 기준 uploads 폴더
-        String uploadDir = System.getProperty("user.dir") + "/uploads/photobox/";
+//    //사진을 업로드하는 메소드 입니다.
+//    private String saveFile(MultipartFile file, Long photoBoxId, String extension) {
+//        // Windows 바탕화면 경로 (현재 사용자 기준)
 
-        //저장 파일 명 :
-        String savedFileName = String.valueOf(photoBoxId) + "."+ extension;
-
-        //폴더 없으면 폴더 만들기
-        File uploadPath = new File(uploadDir);
-        if (!uploadPath.exists()) {
-            uploadPath.mkdirs();
-        }
-        //파일 객체 생성
-        File dest = new File(uploadDir, savedFileName);
-
-        //파일 저장
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 실패", e);
-        }
-
-        return savedFileName;
-    }
+    /// /        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
+    /// /        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
+//        // 서버 루트 기준 uploads 폴더
+//        String uploadDir = System.getProperty("user.dir") + "/uploads/photobox/";
+//
+//        //저장 파일 명 :
+//        String savedFileName = String.valueOf(photoBoxId) + "."+ extension;
+//
+//        //폴더 없으면 폴더 만들기
+//        File uploadPath = new File(uploadDir);
+//        if (!uploadPath.exists()) {
+//            uploadPath.mkdirs();
+//        }
+//        //파일 객체 생성
+//        File dest = new File(uploadDir, savedFileName);
+//
+//        //파일 저장
+//        try {
+//            file.transferTo(dest);
+//        } catch (IOException e) {
+//            throw new RuntimeException("파일 저장 실패", e);
+//        }
+//
+//        return savedFileName;
+//    }
 
     //사진 게시글을 수정하는 메소드 입니다.
     @Transactional
     public PhotoBoxDetailResponseDto updatePhoto(
             Long photoId,
             PhotoBoxCreateRequestDto photoBoxCreateRequestDto,
-            MultipartFile file,
             String username) {
 
         log.info("사진함 게시글 수정 시작: photoId = {}", photoId);
@@ -185,27 +179,12 @@ public class PhotoBoxService {
         PhotoBoxPicture existingPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
         
         log.info("게시글 정보 수정 완료");
-        
-        // 사진 파일 수정 처리
-        if (file != null && !file.isEmpty()) {
 
-            // 기존 파일 삭제
-            deleteFile(existingPicture.getSavedName());
+        // 새 S3 URL
+        String newPath = photoBoxCreateRequestDto.getPath();
 
-            // 새 파일 저장
-            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-            String savedName = saveFile(file, photoBox.getId(), extension);
-            String path = "/uploads/photobox/" + savedName;
-
-            existingPicture.update(
-                    file.getOriginalFilename(),
-                    savedName,
-                    path,
-                    file.getSize(),
-                    extension
-            );
-        }
-
+        // path만 수정
+        existingPicture.update(newPath);
 
         // 기존 태그 연결 전부 삭제
         List<Tag> oldTags = photoBoxTagRepository.findTagsByPhotoBoxId(photoBox.getId());
@@ -253,22 +232,23 @@ public class PhotoBoxService {
     }
 
 
-    //사진 파일을 삭제하는 메소드 입니다.
-    private void deleteFile(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            return;
-        }
+//    //사진 파일을 삭제하는 메소드 입니다.
+//    private void deleteFile(String fileName) {
+//        if (fileName == null || fileName.isEmpty()) {
+//            return;
+//        }
+//
+//        // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
+//        Path filePath = Paths.get("uploads/photobox").resolve(fileName);
+//
+//        try {
+//            Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제
+//            log.info("파일 삭제 성공: {}", filePath);
+//        } catch (IOException e) {
+//            log.error("파일 삭제 실패: {}", filePath, e);
+//        }
+//    }
 
-        // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
-        Path filePath = Paths.get("uploads/photobox").resolve(fileName);
-
-        try {
-            Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제
-            log.info("파일 삭제 성공: {}", filePath);
-        } catch (IOException e) {
-            log.error("파일 삭제 실패: {}", filePath, e);
-        }
-    }
 
     //사진함 게시글을 삭제하는 메소드 입니다.
     @Transactional
@@ -281,11 +261,6 @@ public class PhotoBoxService {
 
         if (!photoBox.getMember().getEmail().equals(username)) {
             throw new AccessDeniedException("게시글 수정 권한이 없습니다.");
-        }
-        //사진 파일 삭제
-        PhotoBoxPicture existingPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBoxId);
-        if (existingPicture != null) {
-            deleteFile(existingPicture.getSavedName());
         }
 
         // 기존 태그 연결 (태그 교차 테이블은 cascade 옵션으로 자동 삭제됨)
@@ -300,7 +275,7 @@ public class PhotoBoxService {
                 log.info("사용되지 않는 태그 삭제: {}", oldTag.getName());
             }
         }
-        //사진함 게시글 삭제
+        //사진함 게시글 삭제 (삭제하면 photoboxpicture도 자동 삭제)
         photoBoxRepository.delete(photoBox);
         log.info("사진함 게시글 삭제 완료");
 

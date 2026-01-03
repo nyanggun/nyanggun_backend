@@ -54,6 +54,7 @@ public class PhotoBox {
     @OneToOne(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
     private PhotoBoxPicture picture;
 
+    @Builder.Default
     @OneToMany(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoBoxTag> tags = new ArrayList<>();
 

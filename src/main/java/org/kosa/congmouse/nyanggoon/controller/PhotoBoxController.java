@@ -61,23 +61,15 @@ public class PhotoBoxController {
     //인증 필요
     @Operation(summary = "사진함 게시글을 작성하는 컨트롤러", description = "사진함 게시글을 작성합니다.")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 사진함 게시글을 작성했습니다."))
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createPhoto (  @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                        description = "게시글 제목 및 태그",
-                                                        required = true,
-                                                        content = @Content(
-                                                                mediaType = "application/json",
-                                                                schema = @Schema(implementation = PhotoBoxCreateRequestDto.class)
-                                                        )
-                                                )@RequestPart("photoData") PhotoBoxCreateRequestDto photoCreateRequestDto,
-                                            @Parameter(description = "사진 파일", example = "")
-                                           @RequestPart(value = "file", required = false) MultipartFile file){
+    @PostMapping(value = "")
+    public ResponseEntity<?> createPhoto (  @RequestBody PhotoBoxCreateRequestDto photoCreateRequestDto
+                                            ){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
         log.info("사진함 게시글 작성, 작성자 {}", username);
-        PhotoBoxDetailResponseDto photoDetailResponseDto = photoBoxService.createPhoto(photoCreateRequestDto, file, username);
+        PhotoBoxDetailResponseDto photoDetailResponseDto = photoBoxService.createPhoto(photoCreateRequestDto, username);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(photoDetailResponseDto, "사진함 게시글이 작성되었습니다."));
     }
@@ -87,28 +79,18 @@ public class PhotoBoxController {
     //인증 필요
     @Operation(summary = "사진함 게시글을 수정하는 컨트롤러", description = "사진함 게시글을 수정합니다.")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 사진함 게시글을 수정했습니다."))
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}")
     public ResponseEntity<?> updatePhoto(
             @Parameter(description = "게시글 id", example = "")
             @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "게시글 제목 및 태그",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PhotoBoxCreateRequestDto.class)
-                    )
-            )
-            @RequestPart("photoData") PhotoBoxCreateRequestDto photoBoxCreateRequestDto,
-            @Parameter(description = "사진 파일", example = "")
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+            @RequestBody PhotoBoxCreateRequestDto photoBoxCreateRequestDto) {
 
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
 
-        PhotoBoxDetailResponseDto photoDetailResponseDto = photoBoxService.updatePhoto(id, photoBoxCreateRequestDto, file, username);
+        PhotoBoxDetailResponseDto photoDetailResponseDto = photoBoxService.updatePhoto(id, photoBoxCreateRequestDto, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(photoDetailResponseDto, "사진함 게시글이 수정되었습니다."));
 
     }
