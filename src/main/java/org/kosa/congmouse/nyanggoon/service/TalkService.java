@@ -148,7 +148,7 @@ public class TalkService {
 
     //담소 게시글을 작성하는 메소드 입니다.
     @Transactional
-    public Long createTalk(TalkCreateRequestDto talkCreateRequestDto, List<MultipartFile> files, String username) {
+    public Long createTalk(TalkCreateRequestDto talkCreateRequestDto, String username) {
         log.info("담소 게시글 작성 시작");
 
         //해당 회원이 있는 지 확인한다.
@@ -167,26 +167,19 @@ public class TalkService {
         //담소 게시글을 저장한다.
         Talk savedTalk = talkRepository.save(talk);
 
-        if (files != null) {
+        if (talkCreateRequestDto.getPath() != null) {
             //사진 저장 (여러개)
-            for (MultipartFile file : files) {
-                String originalName = file.getOriginalFilename(); // 사용자가 업로드한 파일 이름
-                long size = file.getSize();                       // 파일 크기
-                String extension = FilenameUtils.getExtension(originalName); // 확장자 추출 (commons-io)
-
-                String filePath = null;
-                if (file != null && !file.isEmpty()) {
-                    filePath = saveFile(file, savedTalk.getId(), extension);
-                }
+            List<String> paths = talkCreateRequestDto.getPath();
+            for (String path : paths) {
 
                 //사진 저장하는 객체
                 TalkPicture talkPicture = TalkPicture.builder()
                         .talk(savedTalk)
-                        .originalName(originalName)
-                        .savedName(filePath)
-                        .path("/uploads/talks/" + filePath)
-                        .size(size)
-                        .fileExtension(extension)
+                        .originalName("1")
+                        .savedName("1")
+                        .path(path)
+                        .size(10L)
+                        .fileExtension("1")
                         .build();
 
                 TalkPicture saveTalkPicture = talkPictureRepository.save(talkPicture);
@@ -199,40 +192,40 @@ public class TalkService {
 
     }
 
-    //사진을 업로드하는 메소드 입니다.
-    //여러 사진을 업로드합니다. (최대 4장)
-    private String saveFile(MultipartFile file, Long photoBoxId, String extension) {
-        // Windows 바탕화면 경로 (현재 사용자 기준)
-//        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
-//        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
-        // 서버 루트 기준 uploads 폴더
-        String uploadDir = System.getProperty("user.dir") + "/uploads/talks/";
-
-        //저장 파일 명 :
-        String savedFileName = UUID.randomUUID() + "." + extension;
-
-        //폴더 없으면 폴더 만들기
-        File uploadPath = new File(uploadDir);
-        if (!uploadPath.exists()) {
-            uploadPath.mkdirs();
-        }
-        //파일 객체 생성
-        File dest = new File(uploadDir, savedFileName);
-
-        //파일 저장
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 실패", e);
-        }
-
-        return savedFileName;
-    }
+//    //사진을 업로드하는 메소드 입니다.
+//    //여러 사진을 업로드합니다. (최대 4장)
+//    private String saveFile(MultipartFile file, Long photoBoxId, String extension) {
+//        // Windows 바탕화면 경로 (현재 사용자 기준)
+////        String userHome = System.getProperty("user.home"); // C:/Users/사용자명
+////        String uploadDir = userHome + "/Desktop/uploads/"; // 바탕화면 하위 uploads 폴더
+//        // 서버 루트 기준 uploads 폴더
+//        String uploadDir = System.getProperty("user.dir") + "/uploads/talks/";
+//
+//        //저장 파일 명 :
+//        String savedFileName = UUID.randomUUID() + "." + extension;
+//
+//        //폴더 없으면 폴더 만들기
+//        File uploadPath = new File(uploadDir);
+//        if (!uploadPath.exists()) {
+//            uploadPath.mkdirs();
+//        }
+//        //파일 객체 생성
+//        File dest = new File(uploadDir, savedFileName);
+//
+//        //파일 저장
+//        try {
+//            file.transferTo(dest);
+//        } catch (IOException e) {
+//            throw new RuntimeException("파일 저장 실패", e);
+//        }
+//
+//        return savedFileName;
+//    }
 
 
     //담소 게시글을 수정하는 메소드 입니다.
     @Transactional
-    public Long updateTalk(Long talkId, TalkUpdateRequestDto talkUpdateRequestDto, List<MultipartFile> files, String username) {
+    public Long updateTalk(Long talkId, TalkUpdateRequestDto talkUpdateRequestDto, String username) {
         Talk talk = talkRepository.findById(talkId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
@@ -243,38 +236,32 @@ public class TalkService {
         // 1. 제목/내용 수정
         talk.update(talkUpdateRequestDto.getTitle(), talkUpdateRequestDto.getContent());
 
-        // 2. 기존 이미지 처리
-        List<Long> remainingImageIds = talkUpdateRequestDto.getRemainingImages();
-        if (talk.getTalkPictures() != null) {
-            talk.getTalkPictures().removeIf(picture -> {
-                // remainingImages에 포함되지 않으면 삭제
-                if (remainingImageIds == null || !remainingImageIds.contains(picture.getId())) {
-                    deleteFile(picture.getSavedName());
-                    return true;
-                }
-                return false;
-            });
-        }
+        // 기존 이미지 처리
+        // 1. 기존 DB path 조회
+        List<TalkPicture> existingPics = talkPictureRepository.findByTalkId(talkId);
 
-        // 3. 새 파일 업로드
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                if (file != null && !file.isEmpty()) {
-                    String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-                    String savedName = saveFile(file, talk.getId(), extension);
-                    String path = "/uploads/talks/" + savedName;
+        // 2. 삭제할 사진
+        List<TalkPicture> toDelete = existingPics.stream()
+                .filter(pic -> !talkUpdateRequestDto.getPath().contains(pic.getPath()))
+                .toList();
+        talkPictureRepository.deleteAll(toDelete);
 
-                    TalkPicture newPicture = TalkPicture.builder()
-                            .originalName(file.getOriginalFilename())
-                            .savedName(savedName)
-                            .path(path)
-                            .size(file.getSize())
-                            .fileExtension(extension)
-                            .talk(talk)
-                            .build();
+        // 3. 새로 추가할 사진
+        List<String> existingPaths = existingPics.stream()
+                .map(TalkPicture::getPath)
+                .toList();
 
-                    talk.getTalkPictures().add(newPicture);
-                }
+        for (String path : talkUpdateRequestDto.getPath()) {
+            if (!existingPaths.contains(path)) {
+                TalkPicture talkPicture = TalkPicture.builder()
+                        .talk(talk)
+                        .originalName("1")
+                        .savedName("1")
+                        .path(path)
+                        .size(10L)
+                        .fileExtension("1")
+                        .build();
+                talkPictureRepository.save(talkPicture);
             }
         }
 
@@ -291,31 +278,31 @@ public class TalkService {
         log.info("해당하는 담소 게시물을 삭제합니다. {}", talkId);
        Talk talk= talkRepository.findById(talkId).orElseThrow(()-> new RuntimeException("게시글이 존재하지 않습니다."));
         //게시글 삭제하기
-        if(talk.getTalkPictures() != null) {
-            for(TalkPicture picture : talk.getTalkPictures()) {
-                deleteFile(picture.getSavedName()); // 실제 파일 삭제
-            }
-        }
+//        if(talk.getTalkPictures() != null) {
+//            for(TalkPicture picture : talk.getTalkPictures()) {
+//                deleteFile(picture.getSavedName()); // 실제 파일 삭제
+//            }
+//        }
         //자동 지원되는 메소드를 사용한다.
         talkRepository.deleteById(talkId);
     }
 
-    //사진 파일을 삭제하는 메소드 입니다.
-    private void deleteFile(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            return;
-        }
-
-        // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
-        Path filePath = Paths.get("uploads/talks/").resolve(fileName);
-
-        try {
-            Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제
-            log.info("파일 삭제 성공: {}", filePath);
-        } catch (IOException e) {
-            log.error("파일 삭제 실패: {}", filePath, e);
-        }
-    }
+//    //사진 파일을 삭제하는 메소드 입니다.
+//    private void deleteFile(String fileName) {
+//        if (fileName == null || fileName.isEmpty()) {
+//            return;
+//        }
+//
+//        // 저장 경로 설정 (create 시 saveFile()과 동일한 경로 구조여야 함)
+//        Path filePath = Paths.get("uploads/talks/").resolve(fileName);
+//
+//        try {
+//            Files.deleteIfExists(filePath); // 파일이 존재할 경우만 삭제
+//            log.info("파일 삭제 성공: {}", filePath);
+//        } catch (IOException e) {
+//            log.error("파일 삭제 실패: {}", filePath, e);
+//        }
+//    }
 
 
 
