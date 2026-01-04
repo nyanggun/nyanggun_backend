@@ -16,5 +16,5 @@ public class TalkUpdateRequestDto {
     private String title;
     private String content;
     private Long talkId;
-    private List<Long> remainingImages;
+    private List<String> path;
 }

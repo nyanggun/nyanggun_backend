@@ -77,22 +77,13 @@ public class TalkController {
      */
     @Operation(summary = "게시글을 작성하는 컨트롤러", description = "담소 게시글을 작성합니다.")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 작성했습니다."))
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createTalk( @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                                                     description = "게시글 제목 및 내용 데이터",
-                                                     required = true,
-                                                     content = @Content(
-                                                             mediaType = "application/json",
-                                                             schema = @Schema(implementation = TalkCreateRequestDto.class)
-                                                     )
-                                             )
-                                             @RequestPart("talkData") TalkCreateRequestDto talkCreateRequestDto,
-                                         @RequestPart(value = "files", required = false) List<MultipartFile> files){
+    @PostMapping(value = "")
+    public ResponseEntity<?> createTalk(  @RequestBody TalkCreateRequestDto talkCreateRequestDto ){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
-            Long talkId= talkService.createTalk(talkCreateRequestDto, files, username);
+            Long talkId= talkService.createTalk(talkCreateRequestDto, username);
         // ApiResponseDto 의 표준화된 형식으로 응답한다
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 작성되었습니다."));
     }
@@ -105,20 +96,15 @@ public class TalkController {
      */
     @Operation(summary = "게시글을 수정하는 컨트롤러" , description = "담소 게시글을 수정합니다.")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 담소 게시글을 수정했습니다."))
-    @PutMapping(value = "/{talkId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateTalkById(@Parameter(description = "게시글 id", example = "") @PathVariable Long talkId, @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "게시글 제목 및 내용 데이터",
-            required = true,
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = TalkUpdateRequestDto.class)
-            )
-    )@RequestPart("talkData") TalkUpdateRequestDto talkUpdateRequestDto ,  @Parameter(description = "게시글 사진", example = "")@RequestPart(value = "files", required = false) List<MultipartFile> files){
+    @PutMapping(value = "/{talkId}")
+    public ResponseEntity<?> updateTalkById(@Parameter(description = "게시글 id", example = "")
+                                                @PathVariable Long talkId,
+                                            @RequestBody TalkUpdateRequestDto talkUpdateRequestDto){
         //SecurityContext 에서 현재 인증된 사용자 정보를 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 인증된 사용자의 username 추출 (username = 이메일)
         String username = authentication.getName();
-        talkService.updateTalk(talkId, talkUpdateRequestDto, files, username);
+        talkService.updateTalk(talkId, talkUpdateRequestDto, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(talkId, "게시글이 수정되었습니다."));
     }
 
