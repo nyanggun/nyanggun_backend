@@ -24,6 +24,8 @@ import java.math.BigDecimal;
 @JsonDeserialize(builder = HeritageEncyclopediaCreateDto.HeritageEncyclopediaCreateDtoBuilder.class)
 public class HeritageEncyclopediaCreateDto {
 
+    private Long id;
+
     @JacksonXmlProperty(localName = "ccbaAsno")
     private String manageNumber;
 
@@ -70,8 +72,9 @@ public class HeritageEncyclopediaCreateDto {
         private String content;
     }
 
-    public HeritageEncyclopedia toEntity() {
+    public HeritageEncyclopedia toEntity(Long id) {
         return HeritageEncyclopedia.builder()
+                .id(id)
                 .longitude(this.longitude)
                 .latitude(this.latitude)
                 .name(this.item.getName())

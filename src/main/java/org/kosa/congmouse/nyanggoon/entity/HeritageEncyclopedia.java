@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @Builder
 @ToString
 public class HeritageEncyclopedia {
+    // 고유키값 : no
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
     private Long id;
     // 종목코드 : ccbaKdcd(11:국보, 12:보물, 13:사적... -> 숫자만)
@@ -54,4 +54,16 @@ public class HeritageEncyclopedia {
     // 내용 : content
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
+    // 지정해제여부 : ccbaCncl(N, Y)
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private ContentState state = ContentState.ACTIVE;
+
+    public void changeState(ContentState state){
+        if(this.state == ContentState.ACTIVE)
+            this.state = ContentState.INACTIVE;
+        else
+            this.state = ContentState.ACTIVE;
+    }
 }

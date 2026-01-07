@@ -45,10 +45,10 @@ public class Member {
     @Builder.Default
     private MemberState memberstate = MemberState.ACTIVE;
     // 프로필 사진 entity와 1:1 관계, null 가능
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name="profile_picture_id", nullable = true, foreignKey = @ForeignKey(name = "fk_member_profile_picture"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private ProfilePicture profilePicture;
+//    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+//    @JoinColumn(name="profile_picture_id", nullable = true, foreignKey = @ForeignKey(name = "fk_member_profile_picture"))
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+//    private ProfilePicture profilePicture;
 
     public void changeMemberState() {
         if(this.memberstate == MemberState.ACTIVE)
@@ -64,9 +64,9 @@ public class Member {
         this.password = encodedPassword;
     }
 
-    public void setProfilePicture(ProfilePicture profilePicture) {
-        this.profilePicture = profilePicture;
-    }
+//    public void setProfilePicture(ProfilePicture profilePicture) {
+//        this.profilePicture = profilePicture;
+//    }
 
     public void updateInfo(String email, String nickname, String phoneNumber) {
         this.email = email;

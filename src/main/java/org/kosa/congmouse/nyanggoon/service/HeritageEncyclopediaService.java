@@ -60,6 +60,7 @@ public class HeritageEncyclopediaService {
         RestTemplate restTemplate = new RestTemplate();
         XmlMapper xmlMapper = new XmlMapper();
         for(Map<String, Object> item : itemList){
+            Long id = Long.parseLong((String)item.get("no"));
             String manageNumber = (String)item.get("ccbaAsno");
 
             if(manageNumber != null && !manageNumber.isEmpty()){
@@ -70,7 +71,7 @@ public class HeritageEncyclopediaService {
                     log.info("국가유산청 api 문화재 조회 시도 xmlResponse{} ", xmlResponse);
                     HeritageEncyclopediaCreateDto dtos = xmlMapper.readValue(xmlResponse, HeritageEncyclopediaCreateDto.class);
                     log.info("국가유산청 api 문화재 조회 시도 dtos{} ", dtos);
-                    HeritageEncyclopedia heritageEncyclopedia = dtos.toEntity();
+                    HeritageEncyclopedia heritageEncyclopedia = dtos.toEntity(id);
                     log.info("국가유산청 api 문화재 조회 성공 manageNumber{} ", manageNumber);
                     // db 저장
                     heritageEncyclopediaRepository.save(heritageEncyclopedia);

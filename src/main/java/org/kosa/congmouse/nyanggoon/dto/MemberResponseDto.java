@@ -48,11 +48,11 @@ public class MemberResponseDto {
                 .phoneNumber(member.getPhoneNumber())
                 .state(member.getMemberstate())
                 .createdAt(member.getCreatedAt())
-                .profileImagePath(
-                        Optional.ofNullable(member.getProfilePicture())
-                                .map(ProfilePicture::getPath)
-                                .orElse(null)
-                )
+//                .profileImagePath(
+//                        Optional.ofNullable(member.getProfilePicture())
+//                                .map(ProfilePicture::getPath)
+//                                .orElse(null)
+//                )
                 .build();
     }
 }
