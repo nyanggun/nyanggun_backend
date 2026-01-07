@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MyPageService {
     private final MemberRepository memberRepository;
-    private final ProfilePictureRepository profilePictureRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;  // JsonLoginFilter에서 쓰던 JWT 유틸
     private final PhotoBoxRepository photoBoxRepository;
@@ -48,13 +47,12 @@ public class MyPageService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다. id=" + id));
 
-        ProfilePicture profilePicture = profilePictureRepository.findById(id).orElse(null);
 
         MemberResponseDto memberResponseDto = MemberResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .profileImagePath(profilePicture != null ? profilePicture.getPath() : null)
+                .profileImagePath(member.getPath())
                 .phoneNumber(member.getPhoneNumber())
                 .state(member.getMemberstate())
                 .role(member.getRole())
@@ -84,7 +82,8 @@ public class MyPageService {
         member.updateInfo(
                 memberUpdateRequestDto.getEmail(),
                 memberUpdateRequestDto.getNickname(),
-                memberUpdateRequestDto.getPhoneNumber()
+                memberUpdateRequestDto.getPhoneNumber(),
+                memberUpdateRequestDto.getPath()
         );
 
         memberRepository.save(member);

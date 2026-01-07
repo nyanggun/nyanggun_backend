@@ -40,6 +40,12 @@ public class Talk {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    //게시글 상태
+    @Builder.Default
+    @Column(name="state", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ContentState contentState = ContentState.ACTIVE;
+
     @Builder.Default
     @OneToMany(mappedBy = "talk", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TalkPicture> talkPictures = new ArrayList<>();

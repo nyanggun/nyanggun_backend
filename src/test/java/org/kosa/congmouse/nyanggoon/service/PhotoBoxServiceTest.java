@@ -5,17 +5,13 @@ import org.kosa.congmouse.nyanggoon.dto.PhotoBoxCreateRequestDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
-import org.kosa.congmouse.nyanggoon.entity.PhotoBoxBookmark;
-import org.kosa.congmouse.nyanggoon.entity.PhotoBoxPicture;
 import org.kosa.congmouse.nyanggoon.repository.MemberRepository;
 import org.kosa.congmouse.nyanggoon.repository.PhotoBoxBookmarkRepository;
 import org.kosa.congmouse.nyanggoon.repository.PhotoBoxRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

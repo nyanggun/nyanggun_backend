@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.kosa.congmouse.nyanggoon.entity.Member;
 import org.kosa.congmouse.nyanggoon.entity.MemberRole;
 import org.kosa.congmouse.nyanggoon.entity.MemberState;
-import org.kosa.congmouse.nyanggoon.entity.ProfilePicture;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -47,12 +46,8 @@ public class MemberResponseDto {
                 .role(member.getRole())
                 .phoneNumber(member.getPhoneNumber())
                 .state(member.getMemberstate())
+                .profileImagePath(member.getPath())
                 .createdAt(member.getCreatedAt())
-//                .profileImagePath(
-//                        Optional.ofNullable(member.getProfilePicture())
-//                                .map(ProfilePicture::getPath)
-//                                .orElse(null)
-//                )
                 .build();
     }
 }
