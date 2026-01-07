@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.ContentState;
 import org.kosa.congmouse.nyanggoon.entity.Talk;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class TalkDetailResponseDto {
     private String nickname;
     private LocalDateTime createdAt;
     private List<TalkPictureResponseDto> talkPictureList; //게시글 사진들 추가
+    private ContentState contentState;
     private long commentCount;   // 댓글 수
     private long bookmarkCount;  // 북마크 수
     private boolean isBookmarked; // 북마크 여부
@@ -45,6 +47,7 @@ public class TalkDetailResponseDto {
                                 .toList()
                                 : List.of()
                 )
+                .contentState(talk.getContentState())
                 .comments(comments)
                 .commentCount(commentCount)
                 .bookmarkCount(bookmarkCount)

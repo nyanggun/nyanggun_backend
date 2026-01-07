@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.ContentState;
 import org.kosa.congmouse.nyanggoon.entity.TalkComment;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class TalkCommentResponseDto {
     private Long memberId;
     private String nickname;
     private Long talkId;
+    private ContentState contentState;
     private Long talkParentCommentId;
 
     public static TalkCommentResponseDto from(TalkComment talkComment){
@@ -29,6 +31,7 @@ public class TalkCommentResponseDto {
                 .content(talkComment.getContent())
                 .createdAt(talkComment.getCreatedAt())
                 .memberId(talkComment.getMember().getId())
+                .contentState(talkComment.getContentState())
                 .nickname(talkComment.getMember().getNickname())
                 .talkId(talkComment.getTalk().getId())
                 //null 여부 체크

@@ -40,7 +40,7 @@ public class PhotoBox {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    public void update(String title, String relatedHeritage) {
+    public void update(String title, String relatedHeritage, String path) {
         // 제목 검증 및 수정
         if (title != null && !title.trim().isEmpty()) {
             this.title = title.trim();
@@ -49,10 +49,21 @@ public class PhotoBox {
         if (relatedHeritage != null && !relatedHeritage.trim().isEmpty()) {
             this.relatedHeritage = relatedHeritage.trim();
         }
+        // 사진 검증 및 수정
+        if (path != null && !path.trim().isEmpty()) {
+            this.path = path.trim();
+        }
     }
 
-    @OneToOne(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PhotoBoxPicture picture;
+    //사진 경로
+    @Column(name="path", nullable = false)
+    private String path;
+
+    //게시글 상태
+    @Builder.Default
+    @Column(name="state", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ContentState contentState = ContentState.ACTIVE;
 
     @Builder.Default
     @OneToMany(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)

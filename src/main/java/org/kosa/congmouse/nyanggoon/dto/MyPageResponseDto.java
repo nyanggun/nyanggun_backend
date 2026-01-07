@@ -20,7 +20,6 @@ public class MyPageResponseDto {
 
     private List<PhotoBox> myPhotoBoxes; // 내가 만든 포토박스
     private List<PhotoBoxBookmark> photoBoxBookmarks; // 포토박스 북마크
-    private List<PhotoBoxPicture> photoBoxPictures; // 내가 업로드한 사진들
 
     private List<Talk> myTalks; // 내가 쓴 담소글
     private List<TalkComment> myTalkComments; // 담소 댓글

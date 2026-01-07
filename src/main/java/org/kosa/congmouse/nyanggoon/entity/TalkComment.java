@@ -46,6 +46,12 @@ public class TalkComment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private TalkComment parentComment;
 
+    //댓글 상태
+    @Builder.Default
+    @Column(name="state", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ContentState contentState = ContentState.ACTIVE;
+
     public void update(String content) {
         this.content = content;
     }

@@ -19,33 +19,33 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
     long countBookmarksByPhotoId(@Param("photoBoxId") Long photoBoxId);
 
 
-    @Query("SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(" +
-            "p.photoBox.id, p.id, p.path, p.createdAt) " +
-            "FROM PhotoBoxPicture p")
-    List<PhotoBoxSummaryResponseDto> findAllPictures();
 
     //사진함 조회 쿼리문 입니다.
     //무한스크롤로 구현했습니다.
     // 첫 페이지 또는 cursor null
     @Query("""
-        SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-            p.photoBox.id, p.id, p.path, p.createdAt
-        )
-        FROM PhotoBoxPicture p
-        ORDER BY p.id DESC
-    """)
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        p.id, p.path, p.contentState, p.createdAt
+    )
+    FROM PhotoBox p
+    ORDER BY p.id DESC
+""")
     List<PhotoBoxSummaryResponseDto> findPhotoBox(Pageable pageable);
+
 
     // cursor 이후 데이터
     @Query("""
-        SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-            p.photoBox.id, p.id, p.path, p.createdAt
-        )
-        FROM PhotoBoxPicture p
-        WHERE p.id < :cursorId
-        ORDER BY p.id DESC
-    """)
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxNext(@Param("cursorId") Long cursorId, Pageable pageable);
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+       p.id, p.path, p.contentState, p.createdAt
+    )
+    FROM PhotoBox p
+    WHERE p.id < :cursorId
+    ORDER BY p.id DESC
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxNext(
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 
 
 //    @Query("""
@@ -65,30 +65,35 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
     //첫 페이지 (cursor = null)
     @Query("""
     SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        p.photoBox.id, p.id, p.path, p.createdAt
+        p.id, p.path, p.contentState, p.createdAt
     )
-    FROM PhotoBoxPicture p
-    JOIN p.photoBox.tags pt
+    FROM PhotoBox p
+    JOIN p.tags pt
     JOIN pt.tag t
-    WHERE (t.name LIKE CONCAT('%', :keyword, '%')
-    OR p.photoBox.title LIKE CONCAT('%', :keyword, '%'))
+    WHERE (
+        t.name LIKE CONCAT('%', :keyword, '%')
+        OR p.title LIKE CONCAT('%', :keyword, '%')
+    )
     ORDER BY p.id DESC
 """)
     List<PhotoBoxSummaryResponseDto> findPhotoBoxWithTag(
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
     // 다음 페이지 (cursor != null)
     @Query("""
     SELECT DISTINCT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        p.photoBox.id, p.id, p.path, p.createdAt
+      p.id, p.path, p.contentState, p.createdAt
     )
-    FROM PhotoBoxPicture p
-    JOIN p.photoBox.tags pt
+    FROM PhotoBox p
+    JOIN p.tags pt
     JOIN pt.tag t
-    WHERE (t.name LIKE CONCAT('%', :keyword, '%')
-        OR p.photoBox.title LIKE CONCAT('%', :keyword, '%'))
-      AND (:cursorId IS NULL OR p.id < :cursorId)
+    WHERE (
+        t.name LIKE CONCAT('%', :keyword, '%')
+        OR p.title LIKE CONCAT('%', :keyword, '%')
+    )
+    AND p.id < :cursorId
     ORDER BY p.id DESC
 """)
     List<PhotoBoxSummaryResponseDto> findPhotoBoxNextWithTag(
@@ -96,6 +101,7 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );
+
 
     //최다 북마크 가져오는 로직
     @Query("SELECT p FROM PhotoBox p LEFT JOIN PhotoBoxBookmark b ON b.photoBox.id = p.id GROUP BY p.id ORDER BY COUNT(b.id) DESC")
@@ -106,52 +112,77 @@ public interface PhotoBoxRepository extends JpaRepository<PhotoBox, Long> {
     //회원이 작성한 사진함 가져오기
     @Query("""
     SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        p.photoBox.id, p.id, p.path, p.createdAt
+        p.id,
+        p.path,
+        p.contentState,
+        p.createdAt
     )
-    FROM PhotoBoxPicture p
-    JOIN p.photoBox pb
-    JOIN pb.member u
+    FROM PhotoBox p
+    JOIN p.member u
     WHERE u.id = :userId
     ORDER BY p.id DESC
-    """)
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxById(@Param("userId")Long userId, Pageable pageable);
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxById(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
     //회원이 작성한 사진함 가져오기 다음 로직
     @Query("""
     SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        p.photoBox.id, p.id, p.path, p.createdAt
+        p.id,
+        p.path,
+        p.contentState,
+        p.createdAt
     )
-    FROM PhotoBoxPicture p
-    JOIN p.photoBox pb
-    JOIN pb.member u
-    WHERE u.id = :userId AND p.id < :cursorId
-    ORDER BY p.id DESC
-    """)
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxNextById(@Param("userId")Long userId, @Param("cursorId")Long cursorId, Pageable pageable);
-
-    @Query("""
-    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        pb.id, p.id, p.path, p.createdAt
-    )
-    FROM PhotoBoxBookmark b
-    JOIN b.photoBox pb
-    JOIN PhotoBoxPicture p ON p.photoBox = pb
-    WHERE b.member.id = :userId
-    ORDER BY p.id DESC
-""")
-    //회원이 북마크한 사진함 가져오기
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkById(@Param("userId")Long userId, PageRequest of);
-    @Query("""
-    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
-        pb.id, p.id, p.path, p.createdAt
-    )
-    FROM PhotoBoxBookmark b
-    JOIN b.photoBox pb
-    JOIN PhotoBoxPicture p ON p.photoBox = pb
-    WHERE b.member.id = :userId
+    FROM PhotoBox p
+    JOIN p.member u
+    WHERE u.id = :userId
       AND p.id < :cursorId
     ORDER BY p.id DESC
 """)
-    //회원이 북마크한 사진함 가져오기 다음 로직
-    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkNextById(@Param("userId")Long userId, @Param("cursorId") Long cursorId, PageRequest of);
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxNextById(
+            @Param("userId") Long userId,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
+
+    //회원이 북마크한 사진함 게시글 가져오기 (첫번째 로직)
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        pb.id,
+        pb.path,
+        pb.contentState,
+        pb.createdAt
+    )
+    FROM PhotoBoxBookmark b
+    JOIN b.photoBox pb
+    WHERE b.member.id = :userId
+    ORDER BY pb.id DESC
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkById(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
+    //회원이 북마크한 사진함 게시글 가져오기 (다음 로직)
+    @Query("""
+    SELECT new org.kosa.congmouse.nyanggoon.dto.PhotoBoxSummaryResponseDto(
+        pb.id,
+        pb.path,
+        pb.contentState,
+        pb.createdAt
+    )
+    FROM PhotoBoxBookmark b
+    JOIN b.photoBox pb
+    WHERE b.member.id = :userId
+      AND pb.id < :cursorId
+    ORDER BY pb.id DESC
+""")
+    List<PhotoBoxSummaryResponseDto> findPhotoBoxBookmarkNextById(
+            @Param("userId") Long userId,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 
 }
