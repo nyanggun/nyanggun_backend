@@ -28,7 +28,6 @@ public class PhotoBoxService {
     private final PhotoBoxRepository photoBoxRepository;
     private final TagRepository tagRepository;
     private final PhotoBoxTagRepository photoBoxTagRepository;
-    private final PhotoBoxPictureRepository photoBoxPictureRepository;
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
     private final ReportRepository reportRepository;
 
@@ -54,7 +53,6 @@ public class PhotoBoxService {
     public PhotoBoxDetailResponseDto findPhotoBox(Long id, String username) {
         log.info("사진함 게시글을 불러옵니다. {}", id);
         PhotoBox photoBox = photoBoxRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
-        PhotoBoxPicture photoBoxPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(id);
         List<String> photoBoxTag = photoBoxTagRepository.findTags(id);
         //북마크 개수 카운트하기
         Long bookmarkCounts = photoBoxRepository.countBookmarksByPhotoId(id); //북마크 개수
@@ -69,7 +67,7 @@ public class PhotoBoxService {
 
         }
 
-        return PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, photoBoxTag, bookmarkCounts, isBookmarked);
+        return PhotoBoxDetailResponseDto.from(photoBox, photoBoxTag, bookmarkCounts, isBookmarked);
 
     }
 
@@ -86,25 +84,13 @@ public class PhotoBoxService {
         PhotoBox photoBox = PhotoBox.builder()
                 .title(photoBoxCreateRequestDto.getTitle())
                 .relatedHeritage(photoBoxCreateRequestDto.getRelatedHeritage())
+                .path(photoBoxCreateRequestDto.getPath())
                 .member(member)
                 .build();
 
         PhotoBox savePhotoBox = photoBoxRepository.save(photoBox);
 
-        //사진 저장
-        //url을 받아서 저장한다.
-        String path = photoBoxCreateRequestDto.getPath();
-        //DB에 불필요한 컬럼 (size, fileExtension, originalName, savedName)을 삭제해야 한다.
-        PhotoBoxPicture photoBoxPicture = PhotoBoxPicture.builder()
-                .photoBox(photoBox)
-                .path(path)
-                .size(10L)
-                .fileExtension("png")
-                .originalName("1")
-                .savedName("2")
-                .build();
 
-        PhotoBoxPicture savePhotoBoxPicture = photoBoxPictureRepository.save(photoBoxPicture);
 
         //사진 태그 객체 생성
         for (String name : photoBoxCreateRequestDto.getTags()) {
@@ -123,7 +109,7 @@ public class PhotoBoxService {
         //북마크횟수 0 (처음 작성이므로)
         boolean isBookmarked = false;
 
-        return PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, photoBoxCreateRequestDto.getTags(), bookmarkCounts, isBookmarked);
+        return PhotoBoxDetailResponseDto.from(photoBox, photoBoxCreateRequestDto.getTags(), bookmarkCounts, isBookmarked);
 
     }
 
@@ -175,16 +161,8 @@ public class PhotoBoxService {
         }
 
         // 게시글 정보 수정
-        photoBox.update(photoBoxCreateRequestDto.getTitle(), photoBoxCreateRequestDto.getRelatedHeritage());
-        PhotoBoxPicture existingPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
-        
-        log.info("게시글 정보 수정 완료");
+        photoBox.update(photoBoxCreateRequestDto.getTitle(), photoBoxCreateRequestDto.getRelatedHeritage(), photoBoxCreateRequestDto.getPath());
 
-        // 새 S3 URL
-        String newPath = photoBoxCreateRequestDto.getPath();
-
-        // path만 수정
-        existingPicture.update(newPath);
 
         // 기존 태그 연결 전부 삭제
         List<Tag> oldTags = photoBoxTagRepository.findTagsByPhotoBoxId(photoBox.getId());
@@ -227,7 +205,7 @@ public class PhotoBoxService {
 
             log.info("사진함 게시글 수정 완료: photoId = {}", photoId);
 
-            return PhotoBoxDetailResponseDto.from(photoBox, existingPicture, photoBoxCreateRequestDto.getTags(), bookmarkCounts, isBookmarked);
+            return PhotoBoxDetailResponseDto.from(photoBox, photoBoxCreateRequestDto.getTags(), bookmarkCounts, isBookmarked);
 
     }
 

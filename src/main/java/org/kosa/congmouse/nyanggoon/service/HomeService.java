@@ -8,7 +8,6 @@ import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
-import org.kosa.congmouse.nyanggoon.entity.PhotoBoxPicture;
 import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 public class HomeService {
     private final HeritageEncyclopediaRepository heritageEncyclopediaRepository;
     private final PhotoBoxRepository photoBoxRepository;
-    private final PhotoBoxPictureRepository photoBoxPictureRepository;
     private final PhotoBoxTagRepository photoBoxTagRepository;
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
     private final ExplorationRepository explorationRepository;
@@ -82,16 +80,12 @@ public class HomeService {
            photoBox = photoBoxRepository.findTopByOrderByCreatedAtDesc();
 
         }
-
-        // 해당 사진함의 사진 가져오기
-        PhotoBoxPicture photoBoxPicture = photoBoxPictureRepository.findByIdwithPhotoBoxId(photoBox.getId());
-
         // 해당 사진함의 태그 리스트 가져오기
         List<String> tags = photoBoxTagRepository.findTags(photoBox.getId());
         
         //Dto 변환 후 반환
         //북마크 수와 유저 북마크 여부는 전달해줄 필요가 없으므로 0으로 전달합니다.
-        return   PhotoBoxDetailResponseDto.from(photoBox, photoBoxPicture, tags, 0L, false);
+        return   PhotoBoxDetailResponseDto.from(photoBox, tags, 0L, false);
 
 
     }

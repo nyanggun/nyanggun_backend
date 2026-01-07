@@ -85,7 +85,6 @@ public class TalkService {
                                     .talkId(p.getTalk().getId())
                                     .talkPictureId(p.getId())
                                     .path(p.getPath())
-                                    .createdAt(p.getCreatedAt())
                                     .build())
                             .collect(Collectors.toList());
 
@@ -97,6 +96,7 @@ public class TalkService {
                             .memberId(t.getMember().getId())
                             .nickname(t.getMember().getNickname())
                             .createdAt(t.getCreatedAt())
+                            .contentState(t.getContentState())
                             .talkPictureList(talkPictureResponseDto) // 변환된 DTO 리스트 사용
                             .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
                             .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L))
@@ -175,11 +175,7 @@ public class TalkService {
                 //사진 저장하는 객체
                 TalkPicture talkPicture = TalkPicture.builder()
                         .talk(savedTalk)
-                        .originalName("1")
-                        .savedName("1")
                         .path(path)
-                        .size(10L)
-                        .fileExtension("1")
                         .build();
 
                 TalkPicture saveTalkPicture = talkPictureRepository.save(talkPicture);
@@ -255,11 +251,7 @@ public class TalkService {
             if (!existingPaths.contains(path)) {
                 TalkPicture talkPicture = TalkPicture.builder()
                         .talk(talk)
-                        .originalName("1")
-                        .savedName("1")
                         .path(path)
-                        .size(10L)
-                        .fileExtension("1")
                         .build();
                 talkPictureRepository.save(talkPicture);
             }
@@ -465,7 +457,6 @@ public class TalkService {
                                     .talkId(p.getTalk().getId())
                                     .talkPictureId(p.getId())
                                     .path(p.getPath())
-                                    .createdAt(p.getCreatedAt())
                                     .build())
                             .collect(Collectors.toList());
 
@@ -477,6 +468,7 @@ public class TalkService {
                             .memberId(t.getMember().getId())
                             .nickname(t.getMember().getNickname())
                             .createdAt(t.getCreatedAt())
+                            .contentState(t.getContentState())
                             .talkPictureList(talkPictureResponseDto) // 변환된 DTO 리스트 사용
                             .commentCount(commentCountMap.getOrDefault(t.getId(), 0L))
                             .bookmarkCount(bookmarkCountMap.getOrDefault(t.getId(), 0L))

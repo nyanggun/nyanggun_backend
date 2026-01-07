@@ -16,6 +16,7 @@ public class PhotoBoxUpdateRequestDto {
     private String title;
     private String relatedHeritage;
     private Long memberid;
+    private String path;
     private List<String> tags;
 }
 

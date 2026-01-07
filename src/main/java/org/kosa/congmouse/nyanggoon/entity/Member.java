@@ -44,11 +44,10 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private MemberState memberstate = MemberState.ACTIVE;
-    // 프로필 사진 entity와 1:1 관계, null 가능
-//    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-//    @JoinColumn(name="profile_picture_id", nullable = true, foreignKey = @ForeignKey(name = "fk_member_profile_picture"))
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    private ProfilePicture profilePicture;
+
+    // 프로필 사진 entity 변경 -> 사진 경로만
+    @Column(name="path", nullable = true)
+    private String path;
 
     public void changeMemberState() {
         if(this.memberstate == MemberState.ACTIVE)
@@ -64,13 +63,11 @@ public class Member {
         this.password = encodedPassword;
     }
 
-//    public void setProfilePicture(ProfilePicture profilePicture) {
-//        this.profilePicture = profilePicture;
-//    }
 
-    public void updateInfo(String email, String nickname, String phoneNumber) {
+    public void updateInfo(String email, String nickname, String phoneNumber, String path) {
         this.email = email;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
+        this.path = path;
     }
 }
