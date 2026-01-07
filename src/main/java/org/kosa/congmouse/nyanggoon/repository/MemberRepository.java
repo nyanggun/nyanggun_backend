@@ -39,17 +39,17 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             @Param("phoneNumber") String phoneNumber,
             @Param("password") String password
     );
-    // 프로필 사진 수정
-    @Modifying
-    @Query("""
-    UPDATE Member m SET
-        m.profilePicture = :profilePicture
-    WHERE m.id = :id
-    """)
-    void updateProfilePicture(
-            @Param("id") Long memberId,
-            @Param("profilePicture") ProfilePicture profilePicture
-    );
+//    // 프로필 사진 수정
+//    @Modifying
+//    @Query("""
+//    UPDATE Member m SET
+//        m.profilePicture = :profilePicture
+//    WHERE m.id = :id
+//    """)
+//    void updateProfilePicture(
+//            @Param("id") Long memberId,
+//            @Param("profilePicture") ProfilePicture profilePicture
+//    );
 
      // 관리자 제재 기능: 회원의 상태(MemberState)를 변경합니다.
     @Modifying
