@@ -21,6 +21,7 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             ec.member_id AS member_id,
             m.nickname AS nickname,
             ec.exploration_id AS post_id,
+            ec.state AS content_state,
             'EXPLORATION' AS category
         FROM exploration_comments ec
         JOIN members m ON ec.member_id = m.id
@@ -35,6 +36,7 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             tc.member_id AS member_id,
             m.nickname AS nickname,
             tc.talk_id AS post_id,
+            tc.state AS content_state,
             'TALK' AS category
         FROM talk_comments tc
         JOIN members m ON tc.member_id = m.id
@@ -58,6 +60,7 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             ec.member_id AS member_id,
             m.nickname AS nickname,
             ec.exploration_id AS post_id,
+            ec.state AS content_state,
             'EXPLORATION' AS category
         FROM exploration_comments ec
         JOIN members m ON ec.member_id = m.id
@@ -72,6 +75,7 @@ public interface CommentRepository extends JpaRepository<TalkComment, Long> {
             tc.member_id AS member_id,
             m.nickname AS nickname,
             tc.talk_id AS post_id,
+            tc.state AS content_state,
             'TALK' AS category
         FROM talk_comments tc
         JOIN members m ON tc.member_id = m.id

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.ContentState;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class CommentResponseDto {
     private LocalDateTime createdAt;
     private Long memberId;
     private String nickname;
+    private ContentState contentState;
     private Long postId;       // 댓글이 달린 게시글 ID
     private String category;   // "EXPLORATION" or "TALK"
 }
