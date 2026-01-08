@@ -42,7 +42,7 @@ public class EncyclopediaBookmark {
     // 도감 entity를 foreignKey 처리
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
-            name = "encyclopedia_id",
+            name = "heritage_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_bookmark_encyclopedia")
     )
