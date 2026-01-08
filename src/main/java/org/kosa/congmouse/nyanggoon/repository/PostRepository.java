@@ -22,6 +22,7 @@ public interface PostRepository extends JpaRepository<Talk, Long> {
             t.member_id AS member_id,
             m.nickname AS nickname,
             NULL AS related_heritage,
+            t.state AS content_state,
             'TALK' AS category
         FROM talks t
         JOIN members m ON t.member_id = m.id
@@ -36,6 +37,7 @@ public interface PostRepository extends JpaRepository<Talk, Long> {
             e.member_id AS member_id,
             m.nickname AS nickname,
             e.related_heritage AS related_heritage,
+            e.state AS content_state,
             'EXPLORATION' AS category
         FROM explorations e
         JOIN members m ON e.member_id = m.id
@@ -59,6 +61,7 @@ public interface PostRepository extends JpaRepository<Talk, Long> {
             t.member_id AS member_id,
             m.nickname AS nickname,
             NULL AS related_heritage,
+            t.state AS content_state,
             'TALK' AS category
         FROM talks t
         JOIN members m ON t.member_id = m.id
@@ -74,6 +77,7 @@ public interface PostRepository extends JpaRepository<Talk, Long> {
             e.member_id AS member_id,
             m.nickname AS nickname,
             e.related_heritage AS related_heritage,
+            e.state AS content_state,
             'EXPLORATION' AS category
         FROM explorations e
         JOIN members m ON e.member_id = m.id
@@ -95,6 +99,7 @@ SELECT * FROM (
         e.member_id AS author_id,
         m.nickname AS nickname,
         e.related_heritage AS related_heritage,
+        e.state AS content_state,
         'EXPLORATION' AS category
     FROM exploration_bookmarks eb
     JOIN explorations e ON eb.exploration_id = e.id
@@ -111,6 +116,7 @@ SELECT * FROM (
         t.member_id AS author_id,
         m.nickname AS nickname,
         NULL AS related_heritage,
+        t.state AS content_state,
         'TALK' AS category
     FROM talk_bookmarks tb
     JOIN talks t ON tb.talk_id = t.id
@@ -132,6 +138,7 @@ SELECT * FROM (
         e.member_id AS author_id,
         m.nickname AS nickname,
         e.related_heritage AS related_heritage,
+        e.state AS content_state,
         'EXPLORATION' AS category
     FROM exploration_bookmarks eb
     JOIN explorations e ON eb.exploration_id = e.id
@@ -148,6 +155,7 @@ SELECT * FROM (
         t.member_id AS author_id,
         m.nickname AS nickname,
         NULL AS related_heritage,
+        t.state AS content_state,
         'TALK' AS category
     FROM talk_bookmarks tb
     JOIN talks t ON tb.talk_id = t.id
