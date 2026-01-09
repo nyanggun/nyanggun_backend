@@ -191,7 +191,9 @@ public class MyPageService {
                 Long memberId = ((Number) obj[4]).longValue();
                 String nickname = (String) obj[5];
                 String relatedHeritage = (String) obj[6];
-                String category = (String) obj[7];
+                ContentState contentState = ContentState.valueOf((String) obj[7]);
+                String category = (String) obj[8];
+
 
                 if ("TALK".equals(category)) talkIds.add(postId);
                 else if ("EXPLORATION".equals(category)) explorationIds.add(postId);
@@ -204,6 +206,7 @@ public class MyPageService {
                         .memberId(memberId)
                         .nickname(nickname)
                         .relatedHeritage(relatedHeritage)
+                        .contentState(contentState)
                         .category(category)
                         .build();
             }).toList();
@@ -273,6 +276,7 @@ public class MyPageService {
                         .memberId(dto.getMemberId())
                         .nickname(dto.getNickname())
                         .relatedHeritage(dto.getRelatedHeritage())
+                        .contentState(dto.getContentState())
                         .category(dto.getCategory())
                         .talkPictureList(talkPictures)
                         .explorationPictureList(explorationPictures)
@@ -321,7 +325,9 @@ public class MyPageService {
             Long memberId = ((Number) obj[4]).longValue();
             String nickname = (String) obj[5];
             String relatedHeritage = (String) obj[6];
-            String category = (String) obj[7];
+            ContentState contentState = ContentState.valueOf((String) obj[7]);
+            String category = (String) obj[8];
+
 
             if ("TALK".equals(category)) talkIds.add(postId);
             else if ("EXPLORATION".equals(category)) explorationIds.add(postId);
@@ -335,6 +341,7 @@ public class MyPageService {
                     .nickname(nickname)
                     .relatedHeritage(relatedHeritage)
                     .category(category)
+                    .contentState(contentState)
                     .build();
         }).toList();
 
@@ -404,6 +411,7 @@ public class MyPageService {
                     .nickname(dto.getNickname())
                     .relatedHeritage(dto.getRelatedHeritage())
                     .category(dto.getCategory())
+                    .contentState(dto.getContentState())
                     .talkPictureList(talkPictures)
                     .explorationPictureList(explorationPictures)
                     .commentCount(commentCountMap.getOrDefault(postId, 0L))
@@ -440,7 +448,9 @@ public class MyPageService {
             Long memberId = ((Number) obj[3]).longValue();                       // member_id
             String nickname = (String) obj[4];              // nickname (새로 추가됨)
             Long postId = ((Number) obj[5]).longValue();    // post_id
-            String category = (String) obj[6];                                // "EXPLORATION" or "TALK"
+            ContentState contentState = ContentState.valueOf((String) obj[6]);
+            String category = (String) obj[7];                                // "EXPLORATION" or "TALK"
+
 
             return CommentResponseDto.builder()
                     .commentId(commentId)
@@ -450,6 +460,7 @@ public class MyPageService {
                     .nickname(nickname)
                     .postId(postId)
                     .category(category)
+                    .contentState(contentState)
                     .build();
         }).toList();
 
