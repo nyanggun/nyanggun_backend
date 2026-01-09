@@ -15,14 +15,12 @@ public class ExplorationPictureResponseDto {
     private Long explorationId;
     private Long explorationPictureId;
     private String path;
-    private LocalDateTime createdAt;
 
     public static ExplorationPictureResponseDto from(ExplorationPhoto explorationPhoto) {
         return ExplorationPictureResponseDto.builder()
                 .explorationId(explorationPhoto.getExploration().getId())
                 .explorationPictureId(explorationPhoto.getId())
                 .path(explorationPhoto.getPath())
-                .createdAt(explorationPhoto.getCreatedAt())
                 .build();
     }
 

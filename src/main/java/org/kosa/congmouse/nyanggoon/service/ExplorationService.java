@@ -42,10 +42,13 @@ public class ExplorationService {
     @Transactional
     public ExplorationDetailDto createExploration(ExplorationCreateDto explorationCreateDto, List<MultipartFile> imageFileList) throws IOException {
         // Exploration 게시물 저장
+
+        // 사진 저장 관련
         File uploadDir = new File(uploadDirPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
+
         Exploration exploration = Exploration.builder()
                 .title(explorationCreateDto.getTitle())
                 .content(explorationCreateDto.getContent())
@@ -63,16 +66,12 @@ public class ExplorationService {
                 // 문화재 탐방기 이미지 정보 DB 저장
                 ExplorationPhoto explorationPhoto = ExplorationPhoto.builder()
                         .exploration(exploration)
-                        .originalName(imageFile.getOriginalFilename())
-                        .savedName(newFileName)
-                        .fileExtension(imageFile.getOriginalFilename().substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1))
                         .path(uploadDirPath + newFileName)
-                        .size(imageFile.getSize())
                         .build();
                 explorationPhotoRepository.save(explorationPhoto);
             }
         }
-        return ExplorationDetailDto.from(resultExploration, explorationPhotoRepository.findByExplorationId(resultExploration.getId()));
+        return ExplorationDetailDto.from(resultExploration);
     }
 
     private String storeImageFile(MultipartFile imageFile) throws IOException {
@@ -85,7 +84,7 @@ public class ExplorationService {
     public ExplorationDetailDto viewExploration(Long id) {
         Exploration exploration = explorationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(("게시글이 존재하지 않습니다!")));
-        ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.from(exploration, explorationPhotoRepository.findByExplorationId(id));
+        ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.from(exploration);
         explorationDetailDto.setBookmarkCount(explorationBookmarkRepository.countByExplorationId(id));
         explorationDetailDto.setCommentCount(explorationCommentRepository.countByExplorationId(id));
         return explorationDetailDto;
@@ -121,19 +120,19 @@ public class ExplorationService {
         updateExploration.update(explorationUpdateDto);
 
         // 이미지 삭제
-        List<String> pathsToDelete = explorationUpdateDto.getImagesToDelete();
-        if (pathsToDelete != null && !pathsToDelete.isEmpty()) {
-            log.debug("삭제중");
-            log.debug("explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()):{}", explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()));
-            explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()).stream()
-                    .filter(explorationPhoto -> pathsToDelete.contains(explorationPhoto.getSavedName()))
-                    .forEach(explorationPhoto -> {
-                        File file = new File(explorationPhoto.getPath());
-                        if(file.exists())
-                            file.delete();
-                        explorationPhotoRepository.delete(explorationPhoto);
-                    });
-        }
+//        List<String> pathsToDelete = explorationUpdateDto.getImagesToDelete();
+//        if (pathsToDelete != null && !pathsToDelete.isEmpty()) {
+//            log.debug("삭제중");
+//            log.debug("explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()):{}", explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()));
+//            explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()).stream()
+//                    .filter(explorationPhoto -> pathsToDelete.contains(explorationPhoto.getSavedName()))
+//                    .forEach(explorationPhoto -> {
+//                        File file = new File(explorationPhoto.getPath());
+//                        if(file.exists())
+//                            file.delete();
+//                        explorationPhotoRepository.delete(explorationPhoto);
+//                    });
+//        }
 //            explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId())
 //                    .removeIf(photo -> {
 //                boolean shouldDelete = pathsToDelete.contains(photo.getSavedName());
@@ -145,24 +144,24 @@ public class ExplorationService {
 //        }
 
         // 이미지 추가
-        if (imageFileList != null && !imageFileList.isEmpty()) {
-            for (MultipartFile imageFile : imageFileList) {
-                // 문화재 탐방기 이미지 파일 저장
-                String newFileName = storeImageFile(imageFile);
-                // 문화재 탐방기 이미지 정보 DB 저장
-                ExplorationPhoto explorationPhoto = ExplorationPhoto.builder()
-                        .exploration(updateExploration)
-                        .originalName(imageFile.getOriginalFilename())
-                        .savedName(newFileName)
-                        .fileExtension(imageFile.getOriginalFilename().substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1))
-                        .path(uploadDirPath + newFileName)
-                        .size(imageFile.getSize())
-                        .build();
-                explorationPhotoRepository.save(explorationPhoto);
-            }
-        }
+//        if (imageFileList != null && !imageFileList.isEmpty()) {
+//            for (MultipartFile imageFile : imageFileList) {
+//                // 문화재 탐방기 이미지 파일 저장
+//                String newFileName = storeImageFile(imageFile);
+//                // 문화재 탐방기 이미지 정보 DB 저장
+//                ExplorationPhoto explorationPhoto = ExplorationPhoto.builder()
+//                        .exploration(updateExploration)
+//                        .originalName(imageFile.getOriginalFilename())
+//                        .savedName(newFileName)
+//                        .fileExtension(imageFile.getOriginalFilename().substring(imageFile.getOriginalFilename().lastIndexOf(".") + 1))
+//                        .path(uploadDirPath + newFileName)
+//                        .size(imageFile.getSize())
+//                        .build();
+//                explorationPhotoRepository.save(explorationPhoto);
+//            }
+//        }
         log.debug("explorationPhotoRepository.findByExplorationId:{}", explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()));
-        return ExplorationDetailDto.from(updateExploration, explorationPhotoRepository.findByExplorationId(explorationUpdateDto.getId()));
+        return ExplorationDetailDto.from(updateExploration);
     }
 
     @Transactional
@@ -183,7 +182,7 @@ public class ExplorationService {
 
     public List<ExplorationDetailDto> searchExploration(String keyword) {
         List<Exploration> explorationList = explorationRepository.findByKeyword(keyword);
-        List<ExplorationDetailDto> explorationDetailDtoList = explorationList.stream().map(exploration -> ExplorationDetailDto.from(exploration, explorationPhotoRepository.findByExplorationId(exploration.getId()))).toList().reversed();
+        List<ExplorationDetailDto> explorationDetailDtoList = explorationList.stream().map(exploration -> ExplorationDetailDto.from(exploration)).toList().reversed();
         return explorationDetailDtoList;
     }
 
@@ -209,26 +208,26 @@ public class ExplorationService {
         Pageable pageable = PageRequest.of(page.intValue(), count.intValue(), Sort.by("createdAt").descending());
         Page<ExplorationDetailDto> explorationPageDetailDtoPage = explorationRepository.findAllWithBookmarkCountAndCommentCounts(pageable);
 
-        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
-        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
-                .collect(Collectors.toMap(
-                        Exploration::getId, // Key: Exploration ID
-                        e -> explorationPhotoRepository
-                                .findByExplorationId(e.getId())
-                                .stream()
-                                .map(ep->ep.getSavedName())
-                                .toList()
+//        List<Exploration> explorationsWithPhotos = explorationRepository.findAllWithExplorationPhotos();
+//        Map<Long, List<String>> photoMap = explorationsWithPhotos.stream()
+//                .collect(Collectors.toMap(
+//                        Exploration::getId, // Key: Exploration ID
+//                        e -> explorationPhotoRepository
+//                                .findByExplorationId(e.getId())
+//                                .stream()
+//                                .map(ep->ep.getSavedName())
+//                                .toList()
 //                        e -> e.getExplorationPhotos().stream() // Value: 이미지 파일명 리스트
 //                                .map(ExplorationPhoto::getSavedName)
 //                                .toList()
-                ));
+//                ));
 
-        explorationPageDetailDtoPage.getContent().forEach(dto -> {
-            List<String> photoNames = photoMap.get(dto.getId());
-            if (photoNames != null) {
-                dto.setImageNameList(photoNames);
-            }
-        });
+//        explorationPageDetailDtoPage.getContent().forEach(dto -> {
+//            List<String> photoNames = photoMap.get(dto.getId());
+//            if (photoNames != null) {
+//                dto.setImageNameList(photoNames);
+//            }
+//        });
         return explorationPageDetailDtoPage;
     }
 }

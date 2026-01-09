@@ -30,24 +30,8 @@ public class ExplorationPhoto {
     @OnDelete(action= OnDeleteAction.CASCADE) //DB 차원의 ON DELETE CASCADE 와 동일
     private Exploration exploration;
 
-    @Column(name="original_name", nullable = false)
-    private String originalName;
-
-    @Column(name="saved_name", nullable = false)
-    private String savedName;
-
     @Column(name="path", nullable = false, length = 500)
     private String path;
-
-    @Column(name="size", nullable = false)
-    private Long size;
-
-    @Column(name="file_extension", nullable = false, length = 10)
-    private String fileExtension;
-
-    @CreationTimestamp
-    @Column(name="created_at", updatable = false)
-    private LocalDateTime createdAt;
 
     // 다대일관계의 exploration 지정
     protected void setExploration(Exploration exploration){
