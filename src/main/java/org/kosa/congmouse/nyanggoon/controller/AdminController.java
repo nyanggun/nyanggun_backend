@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
-import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationCommentResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.MemberResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.ReportResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.service.AdminService;
 import org.kosa.congmouse.nyanggoon.service.MemberService;
 import org.springframework.http.ResponseEntity;
@@ -86,5 +83,12 @@ public class AdminController {
     public ResponseEntity<?> patchUserState(@Parameter(description="멤버 id", example="1") @PathVariable Long id){
         MemberResponseDto memberResponseDto = memberService.changeUserState(id);
         return ResponseEntity.ok(ApiResponseDto.success(memberResponseDto, "유저 상태 변경 완료"));
+    }
+    //관리자가 부적절한 게시글 및 댓글을 블라인드 처리하는 기능입니다.
+    //해당 컨텐츠가 어떤 컨텐츠인지(게시글인지 댓글인지) 확인해야 합니다.
+    @PatchMapping("reports/{id}/content/state")
+    public ResponseEntity<?> patchUserContent(@Parameter(description = "콘텐츠 id", example = "1") @PathVariable Long id){
+        ReportResponseDto reportResponseDto = adminService.changeContentState(id);
+        return ResponseEntity.ok(ApiResponseDto.success( reportResponseDto,"컨텐츠 상태 변경 완료"));
     }
 }

@@ -59,5 +59,13 @@ public class Talk {
         this.title = title;
         this.content = content;
     }
+
+    public void changeState(ContentState contentState) {
+        if(this.contentState == ContentState.ACTIVE)
+            this.contentState = ContentState.INACTIVE;
+        else{
+            this.contentState = ContentState.ACTIVE;
+        }
+    }
 }
 
