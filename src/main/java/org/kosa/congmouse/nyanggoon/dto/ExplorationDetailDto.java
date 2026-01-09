@@ -46,7 +46,7 @@ public class ExplorationDetailDto {
         this.imageNameList = new java.util.ArrayList<>();
     }
 
-    public static ExplorationDetailDto from(Exploration exploration, List<ExplorationPhoto> explorationPhotoList) {
+    public static ExplorationDetailDto from(Exploration exploration) {
         ExplorationDetailDto explorationDetailDto = ExplorationDetailDto.builder()
                 .id(exploration.getId())
                 .createdAt(exploration.getCreatedAt())
@@ -57,10 +57,6 @@ public class ExplorationDetailDto {
                         .id(exploration.getMember().getId())
                         .nickname(exploration.getMember().getNickname())
                         .build())
-                .imageNameList(explorationPhotoList
-                        .stream()
-                        .map(explorationPhoto -> explorationPhoto.getSavedName())
-                        .toList())
                 .build();
         return explorationDetailDto;
     }

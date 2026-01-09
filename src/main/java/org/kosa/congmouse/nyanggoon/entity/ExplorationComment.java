@@ -32,6 +32,11 @@ public class ExplorationComment {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private ContentState state = ContentState.ACTIVE;
+
     //회원1명은 여러 댓글을 달 수 있음
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_exploration_comments_member_id"))
@@ -56,5 +61,12 @@ public class ExplorationComment {
      */
     public void update(String content) {
         this.content = content;
+    }
+
+    public void changeState(ContentState state){
+        if(this.state == ContentState.ACTIVE)
+            this.state = ContentState.INACTIVE;
+        else
+            this.state = ContentState.ACTIVE;
     }
 }

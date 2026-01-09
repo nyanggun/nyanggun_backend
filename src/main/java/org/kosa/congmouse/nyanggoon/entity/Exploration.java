@@ -40,6 +40,11 @@ public class Exploration {
     @Column(name="content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private ContentState state = ContentState.ACTIVE;
+
     @Column(name="related_heritage", nullable = false, length = 200)
     private String relatedHeritage;
 
@@ -54,5 +59,12 @@ public class Exploration {
         title = explorationUpdateDto.getTitle();
         content = explorationUpdateDto.getContent();
         relatedHeritage = explorationUpdateDto.getRelatedHeritage();
+    }
+
+    public void changeState(ContentState state){
+        if(this.state == ContentState.ACTIVE)
+            this.state = ContentState.INACTIVE;
+        else
+            this.state = ContentState.ACTIVE;
     }
 }

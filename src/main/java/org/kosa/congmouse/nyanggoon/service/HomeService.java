@@ -100,7 +100,7 @@ public class HomeService {
         Pageable pageable = PageRequest.of(0, 4);
         List<Exploration> explorations = explorationRepository.findExplorationTop4ByBookmarkCount(pageable);
         List<ExplorationDetailDto> explorationResult = explorations.stream()
-                .map(e->ExplorationDetailDto.from(e, explorationPhotoRepository.findByExplorationId(e.getId())))
+                .map(ExplorationDetailDto::from)
                 .collect(Collectors.toList());
 
         // 4개 미만일 경우 최신 탐방기로 채우기
@@ -112,7 +112,7 @@ public class HomeService {
             List<Exploration> latestExplorations = explorationRepository.findLatestExplorations(latestPageable);
 
             List<ExplorationDetailDto> latestResults = latestExplorations.stream()
-                    .map(e->ExplorationDetailDto.from(e, explorationPhotoRepository.findByExplorationId(e.getId())))
+                    .map(ExplorationDetailDto::from)
                     .collect(Collectors.toList());
 
             explorationResult.addAll(latestResults);
