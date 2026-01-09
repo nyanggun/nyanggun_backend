@@ -1,9 +1,11 @@
 package org.kosa.congmouse.nyanggoon.dto;
 
+import io.swagger.v3.oas.annotations.media.Content;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.kosa.congmouse.nyanggoon.entity.ContentState;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.Talk;
 
@@ -22,6 +24,7 @@ public class PostListSummaryResponseDto {
     private Long memberId;
     private String nickname;
     private LocalDateTime createdAt;
+    private ContentState contentState;
 
 
     private List<TalkPictureResponseDto> talkPictureList; //게시글 사진들 추가
