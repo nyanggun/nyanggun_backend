@@ -69,5 +69,12 @@ public class PhotoBox {
     @OneToMany(mappedBy = "photoBox", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhotoBoxTag> tags = new ArrayList<>();
 
+    public void changeState(ContentState contentState) {
+        if(this.contentState == ContentState.ACTIVE)
+            this.contentState = ContentState.INACTIVE;
+        else{
+            this.contentState = ContentState.ACTIVE;
+        }
+    }
 
 }
