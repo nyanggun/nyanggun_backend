@@ -95,6 +95,9 @@ public class SecurityConfig {
                 // 서버 배포 확인
                 .requestMatchers("/api/**").permitAll()
 
+                // 성능체크
+                .requestMatchers("/actuator/**").permitAll()
+
                 // 나머지 모든 요청은 인증 필요
                 .anyRequest().authenticated());
 

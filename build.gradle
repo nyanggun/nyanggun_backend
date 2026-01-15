@@ -57,6 +57,11 @@ dependencies {
     // Spring AI
     implementation platform("org.springframework.ai:spring-ai-bom:1.0.0")
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
+    // 성능테스트
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.5.7'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.16.0'
+
 }
 tasks.named('test') {
 	useJUnitPlatform()
