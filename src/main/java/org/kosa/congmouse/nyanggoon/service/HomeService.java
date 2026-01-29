@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
 import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
 import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.TalkDetailResponseDto;
 import org.kosa.congmouse.nyanggoon.entity.Exploration;
 import org.kosa.congmouse.nyanggoon.entity.HeritageEncyclopedia;
 import org.kosa.congmouse.nyanggoon.entity.PhotoBox;
+import org.kosa.congmouse.nyanggoon.entity.Talk;
 import org.kosa.congmouse.nyanggoon.repository.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ public class HomeService {
     private final PhotoBoxBookmarkRepository photoBoxBookmarkRepository;
     private final ExplorationRepository explorationRepository;
     private final ExplorationPhotoRepository explorationPhotoRepository;
+    private final TalkRepository talkRepository;
 
     //문화재 도감 정보를 가져오는 메소드 입니다.
     //총 4개, 전체 북마크 순으로 가져옵니다. (비회원일 시)
@@ -118,6 +121,35 @@ public class HomeService {
             explorationResult.addAll(latestResults);
         }
         return explorationResult;
+    }
+
+    //담소의 내용을 가져오는 메소드 입니다.
+    //총 4개, 전체 북마크 순으로 가져옵니다.
+    //북마크가 없다면 최신 순으로 가져옵니다.
+    public List<TalkDetailResponseDto> getTalkByBookmark() {
+        log.info("담소를 북마크 순으로 가져옵니다. 4개를 가져옵니다.");
+
+        Pageable pageable = PageRequest.of(0, 4);
+        List<Talk> talks = talkRepository.findTalkTop4ByBookmarkCount(pageable);
+        List<TalkDetailResponseDto> talkResult = talks.stream()
+                .map(TalkDetailResponseDto::from)
+                .collect(Collectors.toList());
+
+        // 4개 미만일 경우 최신 탐방기로 채우기
+        if (talkResult.size() < 4) {
+            log.info("담소 북마크 수가 4개 이하 - 최신 담소로 채웁니다.");
+            int remaining = 4 - talkResult.size();
+
+            Pageable latestPageable = PageRequest.of(0, remaining);
+            List<Talk> latestTalks = talkRepository.findLatestTalks(latestPageable);
+
+            List<TalkDetailResponseDto> latestResults = latestTalks.stream()
+                    .map(TalkDetailResponseDto::from)
+                    .collect(Collectors.toList());
+
+            talkResult.addAll(latestResults);
+        }
+        return talkResult;
     }
 
 }

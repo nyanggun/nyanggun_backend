@@ -4,6 +4,7 @@
     import org.kosa.congmouse.nyanggoon.dto.TalkCreateResponseDto;
     import org.kosa.congmouse.nyanggoon.dto.TalkDetailResponseDto;
     import org.kosa.congmouse.nyanggoon.dto.TalkListSummaryResponseDto;
+    import org.kosa.congmouse.nyanggoon.entity.Exploration;
     import org.kosa.congmouse.nyanggoon.entity.Talk;
     import org.kosa.congmouse.nyanggoon.entity.TalkComment;
     import org.springframework.data.domain.Pageable;
@@ -67,4 +68,12 @@
 
         //findById(Long id) : 자동 지원
         // deleteById(Long id) : 자동 지원
+
+        //북마크 순으로 담소를 가져오는 메소드 입니다.
+        @Query("SELECT e FROM Talk e JOIN TalkBookmark eb ON e.id = eb.talk.id GROUP BY e.id ORDER BY COUNT(eb.id) DESC ")
+        List<Talk> findTalkTop4ByBookmarkCount(Pageable pageable);
+
+        @Query("SELECT e FROM Talk e ORDER BY e.createdAt DESC")
+        List<Talk>findLatestTalks(Pageable latestPageable);
+
     }
