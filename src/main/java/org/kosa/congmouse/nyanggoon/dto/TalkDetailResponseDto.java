@@ -54,4 +54,28 @@ public class TalkDetailResponseDto {
                 .isBookmarked(isBookmarked)
                 .build();
     }
+
+    public static TalkDetailResponseDto from(Talk talk) {
+        return TalkDetailResponseDto.builder()
+                .talkId(talk.getId())
+                .title(talk.getTitle())
+                .content(talk.getContent())
+                .memberId(talk.getMember().getId())
+                .nickname(talk.getMember().getNickname())
+                .createdAt(talk.getCreatedAt())
+                .talkPictureList(
+                        talk.getTalkPictures() != null
+                                ? talk.getTalkPictures().stream()
+                                .map(TalkPictureResponseDto::from)
+                                .toList()
+                                : List.of()
+                )
+                .contentState(talk.getContentState())
+                .commentCount(0L)
+                .bookmarkCount(0L)
+                .isBookmarked(false)
+                .comments(List.of())
+                .build();
+    }
+
 }

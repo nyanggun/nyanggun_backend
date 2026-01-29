@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kosa.congmouse.nyanggoon.dto.ApiResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.ExplorationDetailDto;
-import org.kosa.congmouse.nyanggoon.dto.HeritageEncyclopediaResponseDto;
-import org.kosa.congmouse.nyanggoon.dto.PhotoBoxDetailResponseDto;
+import org.kosa.congmouse.nyanggoon.dto.*;
 import org.kosa.congmouse.nyanggoon.service.HomeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -52,10 +49,20 @@ public class HomeController {
     //메인에서 탐방기 게시글을 띄워줍니다.
     //북마크 수가 가장 높은 게시글 4개를 띄워줍니다.
     @GetMapping("/exploration")
-    @Operation(summary = "북마크 수(인기 순)로 탐방기 정보 4개를 가져오는 컨트롤러", description = "메인에서 사진함 이미지를 띄워줍니다. 만약 사진함 사진의 북마크 수가 0이라면 가장 최신의 사진함 사진을 가져옵니다.")
+    @Operation(summary = "북마크 수(인기 순)로 탐방기 정보 4개를 가져오는 컨트롤러", description = "메인에서 탐방기 게시글을 이미지를 띄워줍니다. 만약 탐방기의 북마크 수가 0이라면 가장 최신의 탐방기 게시글을 가져옵니다.")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 메인에 탐방기를 가져왔습니다."))
     public ResponseEntity<?> getExplorationByBookmark(){
         List<ExplorationDetailDto> explorationDetailDtoList = homeService.getExplorationByBookmark();
         return ResponseEntity.ok(ApiResponseDto.success(explorationDetailDtoList, "메인 탐방기 정보 조회 성공"));
+    }
+
+    //메인에서 담소 게시글을 띄워줍니다.
+    //북마크 수가 가장 높은 게시글 4개를 띄워줍니다.
+    @GetMapping("/talk")
+    @Operation(summary = "북마크 수(인기 순)로 담소 정보 4개를 가져오는 컨트롤러", description = "메인에서 담소 게시글을 띄워줍니다. 만약 담소의 북마크 수가 0이라면 가장 최신의 담소 게시글을 가져옵니다.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "정상적으로 메인에 탐방기를 가져왔습니다."))
+    public ResponseEntity<?> getTalkByBookmark(){
+        List<TalkDetailResponseDto> talkDetailDtoList = homeService.getTalkByBookmark();
+        return ResponseEntity.ok(ApiResponseDto.success(talkDetailDtoList, "메인 담소 정보 조회 성공"));
     }
 }
