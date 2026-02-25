@@ -134,7 +134,7 @@ public class SecurityConfig {
 
         // Amplify 도메인 허용, AWS Amplify 는 AWS CloudFront에 의해 https가 적용됨
         config.addAllowedOriginPattern("https://*.amplifyapp.com");
-        config.addAllowedOriginPattern("https://*.nyanggoon.store");
+        config.addAllowedOriginPattern("https://*.khgeung.store");
         // 로컬 개발 환경
         config.addAllowedOriginPattern("http://localhost:*");
 

@@ -31,7 +31,7 @@ import java.util.List;
 public class TalkController {
     private final TalkService talkService;
 
-    
+
     /**
      * 게시글들을 가져오는 컨트롤러 입니다.
      * @return
