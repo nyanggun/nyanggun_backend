@@ -18,8 +18,7 @@ public class NyanggoonApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(NyanggoonApplication.class, args);
-
-
+        
 
 	}
 
