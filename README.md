@@ -2,15 +2,15 @@
 
 > **문화재 기반 실감형 즐길거리 & 정보 공유 플랫폼**
 <div align="center">
-<img width="200" height="1285" alt="한국문화사냥꾼 로고" src="https://github.com/user-attachments/assets/e27714a9-9c61-410d-9698-faa7c3c8bfc9" />
+<img width="200" height="250" alt="한국문화사냥꾼 로고" src="https://github.com/user-attachments/assets/e27714a9-9c61-410d-9698-faa7c3c8bfc9" />
 </div>
     
 ## 🗺 스크린샷
 <div align="center">
-    <img width="200" height="700" alt="image 9" src="https://github.com/user-attachments/assets/6e57d9db-1682-4ec1-b486-2e69ff96b5f5" />
-    <img width="200" height="700" alt="image 10" src="https://github.com/user-attachments/assets/08b46e9f-971d-4554-aa36-d9895404f9aa" />
-    <img width="200" height="700" alt="image 12" src="https://github.com/user-attachments/assets/9d62a4c1-f0d7-426f-9248-2bf7326db8a7" />
-    <img width="200" height="700" alt="image 13" src="https://github.com/user-attachments/assets/1eab4802-2a7b-4646-a1b4-5cf1949052eb" />
+    <img width="200"  alt="image 9" src="https://github.com/user-attachments/assets/6e57d9db-1682-4ec1-b486-2e69ff96b5f5" />
+    <img width="200"  alt="image 10" src="https://github.com/user-attachments/assets/08b46e9f-971d-4554-aa36-d9895404f9aa" />
+    <img width="200"  alt="image 12" src="https://github.com/user-attachments/assets/9d62a4c1-f0d7-426f-9248-2bf7326db8a7" />
+    <img width="200"  alt="image 13" src="https://github.com/user-attachments/assets/1eab4802-2a7b-4646-a1b4-5cf1949052eb" />
 </div>
 
 ## 시연 영상
@@ -69,16 +69,16 @@ K‑Culture 유행으로 한국 방문 외국인이 증가하고 있습니다. �
 
 ## 👣 개발 프로세스
 ### Agile 개발 로드맵
-<img width="700" height="807" alt="개발로드맵 스크린샷" src="https://github.com/user-attachments/assets/c280e76a-5cd3-47a8-bfe1-9a7f23086534" />
+<img width="700" alt="개발로드맵 스크린샷" src="https://github.com/user-attachments/assets/c280e76a-5cd3-47a8-bfe1-9a7f23086534" />
 
 * **Scrum**으로 5회 스프린트 운영: 계획 → 개발/리뷰 → 회고
 
 ### 서비스 기획
 * **린캔버스 → 아이템 기획서 → IA → 아이디어 스케치 → 요구사항 정의서 → Use Case**
-<img width="700" height="807" alt="기획 스크린샷" src="https://github.com/user-attachments/assets/a7fb2ee0-235d-49c4-acd3-29b3a1e0b606" />
+<img width="700" alt="기획 스크린샷" src="https://github.com/user-attachments/assets/a7fb2ee0-235d-49c4-acd3-29b3a1e0b606" />
 
 ### 분석/설계
-<img width="700" height="807" alt="분석설계 스크린샷" src="https://github.com/user-attachments/assets/3336bd74-65d7-4648-85a4-d72a334952fc" />
+<img width="700" alt="분석설계 스크린샷" src="https://github.com/user-attachments/assets/3336bd74-65d7-4648-85a4-d72a334952fc" />
 
 * Frontend : User Story →  Wireframe → Prototype
 * Backend : ERD → Class Diagram → Architecture Diagram
